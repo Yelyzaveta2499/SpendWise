@@ -16,10 +16,16 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
+        stage('Build') {
             steps {
-                bat 'mvn -B clean test'
+                bat 'mvn -B -DskipTests=true clean install'
             }
+        }
+
+        stage('Unit Test') {
+             steps {
+                bat 'mvn -B clean test'
+             }
         }
 
         stage('Package') {
