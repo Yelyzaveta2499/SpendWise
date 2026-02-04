@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     options {
-        timestamps()
         skipDefaultCheckout(true)
     }
 
@@ -19,7 +18,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                sh 'mvn -B -DskipTests=false clean test'
+                sh 'mvn -B clean test'
             }
         }
 
