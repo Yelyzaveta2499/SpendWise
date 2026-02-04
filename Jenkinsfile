@@ -18,13 +18,13 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                sh 'mvn -B clean test'
+                bat 'mvn -B clean test'
             }
         }
 
         stage('Package') {
             steps {
-                sh 'mvn -B -DskipTests=true package'
+                bat 'mvn -B -DskipTests=true package'
             }
         }
     }
