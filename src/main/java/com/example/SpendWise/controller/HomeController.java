@@ -7,13 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
     @GetMapping("/")
     public String index() {
+        // Forward to static index.html under src/main/resources
         return "index";
     }
 
-    @GetMapping("/welcome")
-    public String welcome() {
-        return "welcome";
-    }
-
 }
-

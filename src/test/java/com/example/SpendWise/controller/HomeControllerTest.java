@@ -12,11 +12,6 @@ class HomeControllerTest {
         assertEquals("index", view);
     }
 
-    @Test
-    void welcome_returnsWelcomeView() {
-        HomeController controller = new HomeController();
-        String view = controller.welcome();
-        assertEquals("welcome", view);
-    }
+
 }
 

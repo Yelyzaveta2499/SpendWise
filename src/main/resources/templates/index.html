@@ -1,13 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>SpendWise</title>
+    <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
-    <h1>SpendWise ... coming soon</h1>
+
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <span>FinanceAI</span>
+            <small>Smart Tracking</small>
+        </div>
+
+        <nav class="nav">
+            <a href="#" data-page="dashboard" class="active">Dashboard</a>
+            <a href="#" data-page="expenses">Expenses</a>
+            <a href="#" data-page="budgets">Budgets</a>
+            <a href="#" data-page="goals">Goals</a>
+            <a href="#" data-page="reports">Reports</a>
+            <a href="#" data-page="settings">Settings</a>
+        </nav>
+
+        <div class="profile">
+            <div class="avatar">JD</div>
+            <div>
+                <strong>John Doe</strong>
+                <small>Personal Account</small>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+
+        <!-- Header -->
+        <header class="page-header">
+            <h1 id="page-title">Dashboard</h1>
+            <p id="page-subtitle">Welcome back! Here's your financial overview.</p>
+        </header>
+
+        <!-- Dynamic Content -->
+        <section id="page-content">
+            <!-- Loaded via JS -->
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../static/css/js/app.js"></script>
 </body>
 </html>
-
