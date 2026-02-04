@@ -1,6 +1,15 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        MAVEN_OPTS = "-Dmaven.repo.local=.m2/repository"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -8,33 +17,23 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build & Test') {
             steps {
-                echo 'Building the project...'
-                bat 'mvn clean package'
+                sh 'mvn -B -DskipTests=false clean test'
             }
         }
 
-        stage('Test') {
+        stage('Package') {
             steps {
-                echo 'Running tests...'
-                bat 'mvn test'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application...'
+                sh 'mvn -B -DskipTests=true package'
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
+        always {
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+            archiveArtifacts artifacts: '**/target/*.jar, **/target/*.war', allowEmptyArchive: true
         }
     }
 }
