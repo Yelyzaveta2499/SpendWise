@@ -9,5 +9,11 @@ public class HomeController {
     public String index() {
         return "index";
     }
+
+    @GetMapping("/welcome")
+    public String welcome() {
+        return "welcome";
+    }
+
 }
 
