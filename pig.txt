@@ -1,0 +1,11 @@
+GuideCharacter.moveTo("topLeft");
+GuideCharacter.moveTo("bottomRight");
+
+GuideCharacter.jump();
+GuideCharacter.jumpTo("topRight");
+
+GuideCharacter.shake();
+GuideCharacter.celebrate();
+
+GuideCharacter.speak("Let's add your first expense!");
+GuideCharacter.randomMove();

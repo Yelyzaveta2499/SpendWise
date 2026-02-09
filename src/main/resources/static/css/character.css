@@ -1,0 +1,65 @@
+/* Floating character container */
+#guide-character {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 120px;
+    height: 160px;
+    z-index: 9999;
+    pointer-events: auto;
+}
+
+/* Placeholder sprite (will become sprite sheet later) */
+.character-sprite {
+    width: 120px;
+    height: 120px;
+    background-image: url("/images/piggie.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: idle-bounce 2s ease-in-out infinite;
+}
+
+
+/* Idle animation */
+@keyframes idle-bounce {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
+}
+
+/* Speech bubble */
+.speech-bubble {
+    position: absolute;
+    bottom: 170px;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-width: 200px;
+}
+
+.speech-bubble.hidden {
+    display: none;
+}
+@keyframes jump {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-40px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes celebrate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1) rotate(5deg); }
+    100% { transform: scale(1); }
+}

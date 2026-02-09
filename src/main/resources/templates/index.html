@@ -3,55 +3,94 @@
 <head>
     <meta charset="UTF-8" />
     <title>SpendWise</title>
-    <link rel="stylesheet" href="css/main.css" />
+    <!-- <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/character.css" /> -->
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/guide-character.css">
+
+
 </head>
 <body>
-
-<div class="app">
+<div class="app-layout">
 
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="logo">
-            <span>FinanceAI</span>
-            <small>Smart Tracking</small>
+        <div class="sidebar-top">
+            <div class="logo">FinanceAI</div>
+
+            <!-- Green circle widget -->
+            <div class="circle-widget">
+                <span class="circle-value">287K</span>
+                <span class="circle-label">USD</span>
+            </div>
         </div>
 
-        <nav class="nav">
-            <a href="#" data-page="dashboard" class="active">Dashboard</a>
-            <a href="#" data-page="expenses">Expenses</a>
-            <a href="#" data-page="budgets">Budgets</a>
-            <a href="#" data-page="goals">Goals</a>
-            <a href="#" data-page="reports">Reports</a>
-            <a href="#" data-page="settings">Settings</a>
+        <nav class="sidebar-nav">
+            <a class="active">Dashboard</a>
+            <a>Expenses</a>
+            <a>Budgets</a>
+            <a>Goals</a>
+            <a>Reports</a>
+            <a>Settings</a>
         </nav>
 
-        <div class="profile">
-            <div class="avatar">JD</div>
-            <div>
-                <strong>John Doe</strong>
-                <small>Personal Account</small>
+        <div class="sidebar-footer">
+            <div class="user-badge">
+                <div class="avatar">JD</div>
+                <div>
+                    <div class="user-name">John Doe</div>
+                    <div class="user-type">Personal Account</div>
+                </div>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="content">
+    <!-- Main area -->
+    <div class="main-area">
 
         <!-- Header -->
-        <header class="page-header">
-            <h1 id="page-title">Dashboard</h1>
-            <p id="page-subtitle">Welcome back! Here's your financial overview.</p>
+        <header class="header">
+            <div class="header-left">
+                <h2>Dashboard</h2>
+                <p>Welcome back! Here's your financial overview.</p>
+            </div>
+
+            <div class="header-right">
+                <!--<div class="profile">
+                    <span th:text="${#authentication.name}"></span>
+                    <div class="profile-avatar" th:text="${#authentication.name.substring(0,1).toUpperCase()}"></div>
+                </div>-->
+                <form th:action="@{/logout}" method="post" style="margin-left: 15px;">
+                    <button type="submit" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Logout</button>
+                </form>
+            </div>
         </header>
 
-        <!-- Dynamic Content -->
-        <section id="page-content">
-            <!-- Loaded via JS -->
-        </section>
+        <!-- Empty content placeholder -->
+        <main class="page-content"></main>
 
-    </main>
+    </div>
+
+    <!-- Floating Guide Character -->
+    <div id="guide-character" aria-hidden="true">
+        <div class="character-sprite"></div>
+        <div class="speech-bubble hidden">
+            <span id="speech-text"></span>
+        </div>
+    </div>
 
 </div>
 
-<script src="../static/css/js/app.js"></script>
+
+
+
+
+<!-- <script src="js/character.js"></script> -->
+
+<script src="/js/app.js" defer></script>
+<script src="/js/guide-character.js" defer></script>
+
+
 </body>
 </html>
