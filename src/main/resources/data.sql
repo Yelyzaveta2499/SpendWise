@@ -1,0 +1,4 @@
+INSERT INTO roles (name) VALUES ('INDIVIDUAL');
+INSERT INTO roles (name) VALUES ('BUSINESS');
+INSERT INTO roles (name) VALUES ('KIDS');
+
