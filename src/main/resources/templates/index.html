@@ -58,9 +58,12 @@
 
             <div class="header-right">
                 <div class="profile">
-                    <span>John Doe</span>
-                    <div class="profile-avatar">JD</div>
+                    <span th:text="${#authentication.name}"></span>
+                    <div class="profile-avatar" th:text="${#authentication.name.substring(0,1).toUpperCase()}"></div>
                 </div>
+                <form th:action="@{/logout}" method="post" style="margin-left: 15px;">
+                    <button type="submit" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Logout</button>
+                </form>
             </div>
         </header>
 
