@@ -9,6 +9,9 @@
     });
 
 const navLinks = document.querySelectorAll(".nav a");
+const pageTitle = document.querySelector('.header-left h2');
+const pageSubtitle = document.querySelector('.header-left p');
+const pageContent = document.querySelector('.page-content');
 
 navLinks.forEach(link => {
     link.addEventListener("click", e => {
@@ -43,7 +46,7 @@ function loadPage(page) {
             renderDashboard();
             break;
         case "expenses":
-            renderPlaceholder("Expenses", "Track and manage your transactions.");
+            renderExpenses();
             break;
         case "budgets":
             renderPlaceholder("Budgets", "Manage your monthly spending limits.");
