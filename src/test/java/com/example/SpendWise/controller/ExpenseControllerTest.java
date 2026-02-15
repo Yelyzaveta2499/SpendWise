@@ -12,9 +12,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -42,9 +39,9 @@ class ExpenseControllerTest {
 
     @Test
     @WithMockUser(username = "indiv")
-    void listExpenses_authenticatedUser_returnsClientErrorUntilUserEntityExists() throws Exception {
+    void listExpenses_authenticatedUser_returnsOk() throws Exception {
         mockMvc.perform(get("/api/expenses"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -55,7 +52,7 @@ class ExpenseControllerTest {
 
     @Test
     @WithMockUser(username = "indiv")
-    void createExpense_authenticatedUser_currentlyReturnsClientErrorBecauseNoUserEntity() throws Exception {
+    void createExpense_authenticatedUser_returnsCreated() throws Exception {
         String json = "{" +
                 "\"name\":\"Groceries\"," +
                 "\"category\":\"Food & Dining\"," +
@@ -67,6 +64,6 @@ class ExpenseControllerTest {
                         .with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isCreated());
     }
 }
