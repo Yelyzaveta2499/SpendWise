@@ -43,8 +43,30 @@ function renderExpenses() {
           <button class="modal-close" id="modal-close">&times;</button>
         </div>
         <form id="add-expense-form" class="expense-form">
-          <input id="exp-name" type="text" placeholder="Name (e.g., Grocery Store)" required />
-          <input id="exp-category" type="text" placeholder="Category (e.g., Food & Dining)" required />
+          <!-- Name dropdown limited to known merchants/sources -->
+          <select id="exp-name" required>
+            <option value="" disabled selected>Select name</option>
+            <option value="Grocery Store">Grocery Store</option>
+            <option value="Monthly Salary">Monthly Salary</option>
+            <option value="Coffee Shop">Coffee Shop</option>
+            <option value="Rent Payment">Rent Payment</option>
+            <option value="Gas Station">Gas Station</option>
+            <option value="Phone Bill">Phone Bill</option>
+            <option value="Amazon Purchase">Amazon Purchase</option>
+          </select>
+
+          <!-- Category dropdown limited to existing categories -->
+          <select id="exp-category" required>
+            <option value="" disabled selected>Select category</option>
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Income">Income</option>
+            <option value="Coffee">Coffee</option>
+            <option value="Housing">Housing</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Shopping">Shopping</option>
+          </select>
+
           <input id="exp-amount" type="number" step="0.01" placeholder="Amount" required />
           <input id="exp-date" type="date" required />
           <button type="submit" class="btn-submit">Add Expense</button>
@@ -191,12 +213,12 @@ function renderExpenses() {
   // Form submit handler - add new expense via API
   formEl.addEventListener('submit', function (e) {
     e.preventDefault();
-    const name = document.getElementById('exp-name').value.trim();
-    const category = document.getElementById('exp-category').value.trim();
+    const name = document.getElementById('exp-name').value;
+    const category = document.getElementById('exp-category').value;
     const amount = Number.parseFloat(document.getElementById('exp-amount').value);
     const date = document.getElementById('exp-date').value || new Date().toISOString().slice(0, 10);
 
-    if (!name || Number.isNaN(amount)) return;
+    if (!name || !category || Number.isNaN(amount)) return;
 
     const payload = {
       name: name,
@@ -239,4 +261,3 @@ function renderExpenses() {
   searchEl.addEventListener('input', renderList);
   categoryEl.addEventListener('change', renderList);
 }
-
