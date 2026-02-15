@@ -1,4 +1,4 @@
-// Simple Expenses tab renderer
+// expenses tab renderer
 
 function renderExpenses() {
   const pageTitle = document.querySelector('.header-left h2');
@@ -53,20 +53,10 @@ function renderExpenses() {
     </div>
   `;
 
-  // Hardcoded expense categories
-  const state = window.ExpensesState || { items: [
-    { name: 'Grocery Store', category: 'Food & Dining', amount: 0, date: '2026-02-15', icon: '🍴' },
-    { name: 'Monthly Salary', category: 'Income', amount: 0, date: '2026-02-15', icon: '💼' },
-    { name: 'Coffee Shop', category: 'Coffee', amount: 0, date: '2026-02-15', icon: '☕' },
-    { name: 'Rent Payment', category: 'Housing', amount: 0, date: '2026-02-15', icon: '🏠' },
-    { name: 'Gas Station', category: 'Transportation', amount: 0, date: '2026-02-15', icon: '🚗' },
-    { name: 'Phone Bill', category: 'Utilities', amount: 0, date: '2026-02-15', icon: '📱' },
-    { name: 'Amazon Purchase', category: 'Shopping', amount: 0, date: '2026-02-15', icon: '🛍️' },
-    { name: 'Restaurant', category: 'Food & Dining', amount: 0, date: '2026-02-15', icon: '🍴' },
-    { name: 'Uber Ride', category: 'Transportation', amount: 0, date: '2026-02-15', icon: '🚗' },
-    { name: 'Freelance Payment', category: 'Income', amount: 0, date: '2026-02-15', icon: '💼' },
-  ] };
-  window.ExpensesState = state;
+  // state object backed by API -> changed from hardcoded expense categories
+  const state = {
+    items: []
+  };
 
   const listEl = document.getElementById('expense-list');
   const formEl = document.getElementById('add-expense-form');
@@ -108,7 +98,9 @@ function renderExpenses() {
 
   // Format date as "Feb 15"
   function formatDate(dateStr) {
+    if (!dateStr) return '';
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
     const month = date.toLocaleDateString('en-US', { month: 'short' });
     const day = date.getDate();
     return month + ' ' + day;
@@ -116,9 +108,9 @@ function renderExpenses() {
 
   // Format a single transaction item
   function formatItem(item) {
-    // Income categories show in green with +, others show in red
     const isIncome = item.category === 'Income';
-    const amountStr = (isIncome ? '+' : '') + '$' + Math.abs(item.amount).toFixed(2);
+    const amountValue = Number(item.amount) || 0;
+    const amountStr = (isIncome ? '+' : '') + '$' + Math.abs(amountValue).toFixed(2);
     const amountClass = isIncome ? 'amount-income' : 'amount-expense';
     const icon = item.icon || getCategoryIcon(item.category);
     const iconBg = getIconBg(item.category);
@@ -136,7 +128,7 @@ function renderExpenses() {
         </div>
         <div class="transaction-right">
           <div class="${amountClass}">${amountStr}</div>
-          <div class="transaction-date">${formatDate(item.date)}</div>
+          <div class="transaction-date">${formatDate(item.expenseDate || item.date)}</div>
         </div>
       </div>
     `;
@@ -146,31 +138,57 @@ function renderExpenses() {
   function renderList() {
     const q = (searchEl.value || '').toLowerCase();
     const cat = categoryEl.value || '';
-    const items = state.items.filter(i =>
-      (!q || i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q)) &&
-      (!cat || i.category === cat)
-    );
+
+    const items = state.items.filter(function (i) {
+      const nameMatch = !q || (i.name && i.name.toLowerCase().includes(q));
+      const categoryText = i.category ? i.category.toLowerCase() : '';
+      const categoryMatchSearch = !q || categoryText.includes(q);
+      const categoryMatchFilter = !cat || i.category === cat;
+      return (nameMatch || categoryMatchSearch) && categoryMatchFilter;
+    });
+
     listEl.innerHTML = items.map(formatItem).join('');
   }
 
-  renderList();
+  // Load expenses from backend
+  function loadExpensesFromApi() {
+    listEl.innerHTML = '<div style="padding: 16px;">Loading expenses...</div>';
+
+    fetch('/api/expenses')
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to load expenses');
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        // data is an array of ExpenseEntity objects
+        state.items = Array.isArray(data) ? data : [];
+        renderList();
+      })
+      .catch(function () {
+        listEl.innerHTML = '<div style="padding: 16px; color: #dc3545;">Could not load expenses. Please try again later.</div>';
+      });
+  }
+
+  loadExpensesFromApi();
 
   // Modal handlers
-  addBtn.addEventListener('click', function() {
+  addBtn.addEventListener('click', function () {
     modal.style.display = 'flex';
   });
 
-  modalClose.addEventListener('click', function() {
+  modalClose.addEventListener('click', function () {
     modal.style.display = 'none';
   });
 
-  window.addEventListener('click', function(e) {
+  window.addEventListener('click', function (e) {
     if (e.target === modal) {
       modal.style.display = 'none';
     }
   });
 
-  // Form submit handler - add new expense
+  // Form submit handler - add new expense via API
   formEl.addEventListener('submit', function (e) {
     e.preventDefault();
     const name = document.getElementById('exp-name').value.trim();
@@ -180,18 +198,37 @@ function renderExpenses() {
 
     if (!name || Number.isNaN(amount)) return;
 
-    const newItem = {
-      name,
+    const payload = {
+      name: name,
       category: category || 'General',
-      amount: Math.abs(amount), // Store as positive
-      date,
-      icon: getCategoryIcon(category)
+      amount: Math.abs(amount),
+      date: date
     };
 
-    state.items.unshift(newItem);
-    renderList();
-    e.target.reset();
-    modal.style.display = 'none';
+    fetch('/api/expenses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error('Failed to create expense');
+        }
+        return response.json();
+      })
+      .then(function (created) {
+        // Prepend new item and re-render
+        state.items.unshift(created);
+        renderList();
+        e.target.reset();
+        modal.style.display = 'none';
+      })
+      .catch(function () {
+        // basic error handling
+        alert('Could not save expense. Please try again.');
+      });
   });
 
   searchEl.addEventListener('input', renderList);
