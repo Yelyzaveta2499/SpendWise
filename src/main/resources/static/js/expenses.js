@@ -200,7 +200,7 @@ function renderExpenses() {
 
     const payload = {
       name: name,
-      category: category || 'General',
+      category: category,
       amount: Math.abs(amount),
       date: date
     };
@@ -214,7 +214,13 @@ function renderExpenses() {
     })
       .then(function (response) {
         if (!response.ok) {
-          throw new Error('Failed to create expense');
+          // Try to read backend error message
+          return response.json().then(function (err) {
+            var msg = err && err.error ? err.error : 'Failed to create expense';
+            throw new Error(msg);
+          }).catch(function () {
+            throw new Error('Failed to create expense');
+          });
         }
         return response.json();
       })
@@ -225,9 +231,8 @@ function renderExpenses() {
         e.target.reset();
         modal.style.display = 'none';
       })
-      .catch(function () {
-        // basic error handling
-        alert('Could not save expense. Please try again.');
+      .catch(function (err) {
+        alert(err.message || 'Could not save expense. Please try again.');
       });
   });
 

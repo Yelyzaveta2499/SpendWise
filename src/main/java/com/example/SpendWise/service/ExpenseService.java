@@ -13,6 +13,8 @@ import java.util.List;
 @Service
 public class ExpenseService {
 
+    private static final String USER_NOT_FOUND_PREFIX = "User not found: ";
+
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
 
@@ -26,7 +28,7 @@ public class ExpenseService {
      */
     public List<ExpenseEntity> getExpensesForUser(String username) {
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
         return expenseRepository.findTop20ByUserOrderByExpenseDateDesc(user);
     }
 
@@ -43,13 +45,18 @@ public class ExpenseService {
         java.util.Map<String, Object> map = (java.util.Map<String, Object>) rawMap;
 
         String name = (String) map.getOrDefault("name", "");
-        String category = (String) map.getOrDefault("category", "Other");
+        String category = (String) map.getOrDefault("category", "");
         Object amountRaw = map.get("amount");
         Object dateRaw = map.get("date");
 
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Expense name is required");
         }
+
+        if (category == null || category.isBlank()) {
+            throw new IllegalArgumentException("Expense category is required");
+        }
+        category = category.trim();
 
         BigDecimal amount;
         if (amountRaw instanceof BigDecimal bd) {
@@ -59,20 +66,32 @@ public class ExpenseService {
         } else if (amountRaw instanceof String s && !s.isBlank()) {
             amount = new BigDecimal(s);
         } else {
-            throw new IllegalArgumentException("Expense amount is required");
+            throw new IllegalArgumentException("Expense amount is required and must be a number");
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Expense amount must be greater than zero");
         }
 
         LocalDate expenseDate;
         if (dateRaw instanceof LocalDate d) {
             expenseDate = d;
         } else if (dateRaw instanceof String s && !s.isBlank()) {
-            expenseDate = LocalDate.parse(s);
+            try {
+                expenseDate = LocalDate.parse(s);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Expense date must be in format YYYY-MM-DD");
+            }
         } else {
-            expenseDate = LocalDate.now();
+            throw new IllegalArgumentException("Expense date is required");
+        }
+
+        if (expenseDate.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Expense date cannot be in the future");
         }
 
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
 
         ExpenseEntity entity = new ExpenseEntity();
         entity.setUser(user);
@@ -93,7 +112,7 @@ public class ExpenseService {
         }
 
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
 
         ExpenseEntity expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new IllegalArgumentException("Expense not found: " + expenseId));
