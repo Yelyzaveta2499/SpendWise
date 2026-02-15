@@ -1,5 +1,4 @@
-// Simple Expenses tab renderer (junior-friendly)
-// This keeps everything on one HTML page and swaps content using JS.
+// Simple Expenses tab renderer
 
 function renderExpenses() {
   const pageTitle = document.querySelector('.header-left h2');
@@ -54,7 +53,7 @@ function renderExpenses() {
     </div>
   `;
 
-  // Hardcoded expense categories from screenshots - All amounts $0.00 (no database yet)
+  // Hardcoded expense categories
   const state = window.ExpensesState || { items: [
     { name: 'Grocery Store', category: 'Food & Dining', amount: 0, date: '2026-02-15', icon: '🍴' },
     { name: 'Monthly Salary', category: 'Income', amount: 0, date: '2026-02-15', icon: '💼' },
@@ -184,7 +183,7 @@ function renderExpenses() {
     const newItem = {
       name,
       category: category || 'General',
-      amount: Math.abs(amount), // Store as positive, we'll handle display in formatItem
+      amount: Math.abs(amount), // Store as positive
       date,
       icon: getCategoryIcon(category)
     };

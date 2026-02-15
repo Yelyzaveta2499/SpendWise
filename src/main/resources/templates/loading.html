@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>SpendWise - Loading</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        /* Fullscreen loading GIFs */
+        html, body {
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            background: #0f172a;
+            color: #f9fafb;
+        }
+        .loading-wrapper {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 9999;
+        }
+        .loading-gif {
+            min-width: 100%;
+            min-height: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* fill the entire screen, */
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="loading-wrapper" id="loading-wrapper">
+    <!-- Business GIF full-screen -->
+    <img class="loading-gif"
+         th:if="${accountType} == 'BUSINESS'"
+         th:src="@{/images/main.gif}"
+         alt="Loading your business dashboard" />
+
+    <!-- Individual / Kids GIF full-screen -->
+    <img class="loading-gif"
+         th:if="${accountType} == 'INDIVIDUAL' or ${accountType} == 'KIDS'"
+         th:src="@{/images/main_2.gif}"
+         alt="Loading your personal dashboard" />
+</div>
+
+<script>
+    var redirected = false;
+    function goToApp() {
+        if (redirected) return;
+        redirected = true;
+        window.location.href = '/';
+    }
+
+    // Auto-redirect after e.g. 4.5 seconds
+    setTimeout(goToApp, 3500);
+
+    // redirect if user taps/clicks anywhere on the GIF
+    document.getElementById('loading-wrapper').addEventListener('click', goToApp);
+</script>
+</body>
+</html>
+
