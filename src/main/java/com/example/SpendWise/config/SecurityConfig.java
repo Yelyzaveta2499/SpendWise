@@ -24,7 +24,7 @@ public class SecurityConfig {
 				.anyRequest().authenticated()
 			)
 			.formLogin(formLogin -> formLogin
-				.defaultSuccessUrl("/", true)
+				.defaultSuccessUrl("/post-login", true)
 				.permitAll()
 			)
 			.logout(logout -> logout
