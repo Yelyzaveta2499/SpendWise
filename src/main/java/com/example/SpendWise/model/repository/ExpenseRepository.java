@@ -18,4 +18,7 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     );
 
     List<ExpenseEntity> findTop20ByUserOrderByExpenseDateDesc(UserEntity user);
+
+    // Count expenses for a given user, used to decide whether to seed placeholders
+    long countByUser(UserEntity user);
 }
