@@ -1,3 +1,51 @@
+/* ==================== ANIMATIONS ==================== */
+
+/* Keyframes for slide-in from left with fade */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Keyframes for fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Keyframes for slide-up with fade */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Keyframes for scale-in */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 /* RESET */
 * {
     box-sizing: border-box;
@@ -708,7 +756,7 @@
 }
 
 .budget-remaining.over {
-  color: #dc2626;
+  color: #f87171;
 }
 
 .budget-card.over-budget {
@@ -1010,4 +1058,131 @@ body.dark-mode .btn-add-expense:hover,
 body.dark-mode .btn-add-budget:hover,
 body.dark-mode .btn-submit:hover {
   background: #1d4ed8;
+}
+
+/* ==================== ELEMENT ANIMATIONS ==================== */
+
+/* Apply animations to cards */
+.card,
+.budget-summary-card,
+.budget-card,
+.expense-list-card {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+/* Staggered animation for grid items */
+.budget-summary-card:nth-child(1) {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+.budget-summary-card:nth-child(2) {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.budget-summary-card:nth-child(3) {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+/* Budget cards staggered entrance */
+.budget-card:nth-child(1) { animation: slideUp 0.4s ease-out; }
+.budget-card:nth-child(2) { animation: slideUp 0.5s ease-out; }
+.budget-card:nth-child(3) { animation: slideUp 0.6s ease-out; }
+.budget-card:nth-child(4) { animation: slideUp 0.7s ease-out; }
+.budget-card:nth-child(5) { animation: slideUp 0.8s ease-out; }
+.budget-card:nth-child(6) { animation: slideUp 0.9s ease-out; }
+.budget-card:nth-child(7) { animation: slideUp 1.0s ease-out; }
+.budget-card:nth-child(8) { animation: slideUp 1.1s ease-out; }
+
+/* Transaction items animation */
+.transaction-item {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.transaction-item:nth-child(1) { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(2) { animation-delay: 0.15s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(3) { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(4) { animation-delay: 0.25s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(5) { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(6) { animation-delay: 0.35s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(7) { animation-delay: 0.4s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(8) { animation-delay: 0.45s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(9) { animation-delay: 0.5s; opacity: 0; animation-fill-mode: forwards; }
+.transaction-item:nth-child(10) { animation-delay: 0.55s; opacity: 0; animation-fill-mode: forwards; }
+
+/* Toolbar/actions animation */
+.expenses-toolbar,
+.budget-actions {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Modal animations */
+.expense-modal[style*="display: flex"],
+.budget-modal[style*="display: flex"] {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Header animation */
+.header {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+/* Dashboard cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.cards .card:nth-child(1) {
+  animation: slideUp 0.4s ease-out;
+}
+
+.cards .card:nth-child(2) {
+  animation: slideUp 0.5s ease-out;
+}
+
+.cards .card:nth-child(3) {
+  animation: slideUp 0.6s ease-out;
+}
+
+.cards .card:nth-child(4) {
+  animation: slideUp 0.7s ease-out;
+}
+
+/* Containers animation */
+.budgets-container,
+.expenses-container {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Button animations on hover */
+.btn-add-expense,
+.btn-add-budget,
+.btn-submit {
+  transition: all 0.3s ease;
+}
+
+.btn-add-expense:hover,
+.btn-add-budget:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-submit:hover {
+  transform: scale(1.02);
+}
+
+/* Input focus animations */
+.search-input:focus,
+.category-select:focus,
+.expense-form input:focus,
+.expense-form select:focus,
+.budget-form input:focus,
+.budget-form select:focus {
+  transform: scale(1.01);
+  transition: all 0.2s ease;
 }
