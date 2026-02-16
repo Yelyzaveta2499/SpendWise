@@ -1,48 +1,83 @@
-# SpendWise - User Guide
+# SpendWise
 
-This short guide explains how to start and use the SpendWise app. It will be updated with screenshots later.
+Simple Spring Boot web app for tracking personal and business expenses.
 
-## 1. Prerequisites
+## Tech stack
+- Java 21
+- Spring Boot (web, security, data JPA)
+- Thymeleaf + vanilla JS frontend
+- MySQL database
+
+## Prerequisites
 - Java 21 or newer installed
-- Maven installed
-- MySQL running locally
+- Maven installed and on PATH
+- Local MySQL instance running
+  - Default config (can be changed in `src/main/resources/application.properties`):
+    - URL: `jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true`
+    - Username: `root`
+    - Password: `root`
 
-## 2. Setup
-- Open `application.properties` and check the database settings:
-  - URL: `jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true`
-  - Username/Password: `root` / `root`
-- Roles are preloaded (INDIVIDUAL, BUSINESS, KIDS) using `data.sql`.
+## How to run
+From the project root:
 
-## 3. Run the App
 ```powershell
 mvn spring-boot:run
 ```
-- App starts on `http://localhost:1111`
 
-## 4. Login
-- You’ll see Spring Security’s default login page.
-- Use one of the in-memory users defined in `SecurityConfig`.
-  - Examples:
-    - Username: `user`, Password: `password`
-    - Username: `admin`, Password: `admin123`
-    - Or any test user configured in tests
+The app will start on:
 
-## 5. Navigation
-- After login, you’ll land on the main dashboard (`index.html`).
-- Sidebar links switch sections while keeping the main layout.
+- http://localhost:1111
 
-## 6. Troubleshooting
-- If the login page doesn’t show, ensure Spring Security is enabled and that `/login` isn’t overridden.
-- If the DB won’t connect, verify MySQL is running and credentials match `application.properties`.
-- If roles are missing, make sure `data.sql` executed or set:
-```ini
-spring.sql.init.mode=always
+If the port is busy, stop the other process or change `server.port` in `application.properties`.
+
+## Login
+Users are currently in-memory (configured in `SecurityConfig`) and mirrored in the database for ownership checks.
+
+Example accounts:
+- `indiv` / `password`  (individual user)
+- `business` / `password`  (business user)
+- `kid` / `password`  (kids account)
+
+After successful login you are redirected to the main dashboard.
+
+## Database seeding
+On startup:
+- `data.sql` ensures roles (`INDIVIDUAL`, `BUSINESS`, `KIDS`) and users (`indiv`, `business`, `kid`) exist.
+- `ExpenseDataInitializer` seeds a small set of **zero-amount** placeholder expenses for `indiv` *only if* that user has no expenses yet.
+
+This means:
+- First run: you see one clean list of example expenses for `indiv`.
+- Later runs: real and placeholder expenses are preserved and not duplicated.
+
+## Expenses screen
+- Open **Expenses** from the sidebar after login.
+- The table is loaded from the REST API: `GET /api/expenses` for the logged-in user.
+- You can:
+  - Search by text
+  - Filter by category
+  - Add a new expense using the **Add Expense** button
+
+Add Expense dialog:
+- **Name** – dropdown with predefined options (e.g. *Grocery Store*, *Monthly Salary*).
+- **Category** – dropdown with existing categories (e.g. *Food & Dining*, *Income*).
+- **Amount** – numeric input; backend validates for positive values.
+- **Date** – required; defaults to today if not provided.
+
+Submitted expenses are stored in the `expenses` table and immediately shown in the list.
+
+## Tests
+To run the unit and controller tests:
+
+```powershell
+mvn test
 ```
 
-## 7. Next Features (Future)
-- Manage users and account types in the UI.
-- Database-backed authentication.
-- Role-based access control.
+This runs Spring Boot tests for:
+- Basic application context loading
+- Login and home controllers
+- Expense service and expense REST API behaviour.
 
-This guide will include screenshots in future updates.
-
+## Known limitations
+- Authentication still uses in-memory users; there is no registration UI.
+- Validation is basic (simple checks on amount, name, category, and date).
+- UI is desktop-focused and has not been optimized for mobile.
