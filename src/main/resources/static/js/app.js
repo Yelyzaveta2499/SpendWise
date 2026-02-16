@@ -1,6 +1,6 @@
     const registerBtn = document.getElementById('register-btn');
     if (registerBtn) registerBtn.addEventListener('click', () => {
-        // simple mock register - replace with real registration later
+        // mock register
         const name = document.getElementById('reg-name').value || 'NewUser';
         const email = document.getElementById('reg-email').value || 'new@example.com';
         const accountType = document.getElementById('account-type').value || 'individual';
@@ -22,12 +22,12 @@ navLinks.forEach(link => {
     });
 });
 
-// App state (simple, easy to explain)
+// App state
 const AppState = {
     currentUser: null
 };
 
-// Simple navigation helper used by SPA links/buttons
+// navigation helper used by SPA links/buttons
 function navigate(page) {
     // try to update nav active link if present
     navLinks.forEach(l => {
@@ -49,7 +49,7 @@ function loadPage(page) {
             renderExpenses();
             break;
         case "budgets":
-            renderPlaceholder("Budgets", "Manage your monthly spending limits.");
+            renderBudgets();
             break;
         case "goals":
             renderPlaceholder("Goals", "Track your savings and milestones.");
