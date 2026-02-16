@@ -21,16 +21,67 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: width 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar.collapsed {
+    width: 80px;
 }
 
 .sidebar-top {
     padding: 20px;
 }
 
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
 .logo {
     font-size: 20px;
     font-weight: 700;
-    margin-bottom: 24px;
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .logo {
+    opacity: 0;
+    width: 0;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-toggle span {
+    width: 20px;
+    height: 2px;
+    background: #22c55e;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.sidebar.collapsed .sidebar-toggle span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.sidebar.collapsed .sidebar-toggle span:nth-child(2) {
+    opacity: 0;
+}
+
+.sidebar.collapsed .sidebar-toggle span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
 }
 
 /* Green circle widget */
@@ -44,16 +95,33 @@
     justify-content: center;
     align-items: center;
     margin: auto;
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed .circle-widget {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
 }
 
 .circle-value {
     font-size: 28px;
     font-weight: 700;
+    transition: font-size 0.3s ease;
+}
+
+.sidebar.collapsed .circle-value {
+    font-size: 12px;
 }
 
 .circle-label {
     font-size: 14px;
     opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed .circle-label {
+    font-size: 8px;
 }
 
 /* Navigation */
@@ -68,6 +136,29 @@
     color: #d1fae5;
     text-decoration: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.nav-icon {
+    font-size: 20px;
+    min-width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-text {
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .nav-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
 }
 
 .sidebar-nav a:hover,
@@ -87,11 +178,35 @@
     align-items: center;
 }
 
+.user-info {
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .user-info {
+    opacity: 0;
+    width: 0;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #f1f5f9;
+}
+
+.user-type {
+    font-size: 12px;
+    color: #94a3b8;
+    opacity: 0.8;
+}
+
 .avatar {
     background: #22c55e;
     color: #022c22;
     width: 40px;
     height: 40px;
+    min-width: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;

@@ -18,9 +18,16 @@
 <div class="app-layout">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-top">
-            <div class="logo">SpendWise</div>
+            <div class="sidebar-header">
+                <div class="logo">SpendWise</div>
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
 
             <!-- Green circle widget -->
             <div class="circle-widget">
@@ -30,18 +37,36 @@
         </div>
 
         <nav class="sidebar-nav nav">
-            <a class="active" data-page="dashboard">Dashboard</a>
-            <a data-page="expenses">Expenses</a>
-            <a data-page="budgets">Budgets</a>
-            <a data-page="goals">Goals</a>
-            <a data-page="reports">Reports</a>
-            <a data-page="settings">Settings</a>
+            <a class="active" data-page="dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a data-page="expenses">
+                <span class="nav-icon">💳</span>
+                <span class="nav-text">Expenses</span>
+            </a>
+            <a data-page="budgets">
+                <span class="nav-icon">🎯</span>
+                <span class="nav-text">Budgets</span>
+            </a>
+            <a data-page="goals">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-text">Goals</span>
+            </a>
+            <a data-page="reports">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Reports</span>
+            </a>
+            <a data-page="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
         </nav>
 
         <div class="sidebar-footer">
             <div class="user-badge">
                 <div class="avatar">JD</div>
-                <div>
+                <div class="user-info">
                     <div class="user-name">John Doe</div>
                     <div class="user-type">Personal Account</div>
                 </div>
@@ -100,6 +125,7 @@
 
 <!-- <script src="js/character.js"></script> -->
 
+<script src="/js/sidebar.js" defer></script>
 <script src="/js/theme.js" defer></script>
 <script src="/js/app.js" defer></script>
 <script src="/js/guide-character.js" defer></script>
