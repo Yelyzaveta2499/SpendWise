@@ -125,6 +125,12 @@
     font-size: 14px;
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 /* Profile */
 .profile {
     display: flex;
@@ -461,7 +467,7 @@
   color: #9ca3af;
 }
 
-/* Budget Button */
+/* Add Budget Button */
 .budget-actions {
   margin-bottom: 30px;
   display: flex;
@@ -628,4 +634,265 @@
 .budget-form select:focus {
   outline: none;
   border-color: #1e3a8a;
+}
+
+/* ==================== DARK MODE TOGGLE ==================== */
+
+.theme-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle-checkbox {
+  display: none;
+}
+
+.theme-toggle-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 60px;
+  height: 30px;
+  background: #e5e7eb;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  padding: 3px;
+}
+
+.theme-toggle-icon {
+  position: absolute;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle-icon:first-child {
+  left: 6px;
+  opacity: 0;
+}
+
+.theme-toggle-icon:last-child {
+  right: 6px;
+  opacity: 1;
+}
+
+.theme-toggle-checkbox:checked + .theme-toggle-label {
+  background: #334155;
+}
+
+.theme-toggle-checkbox:checked + .theme-toggle-label .theme-toggle-icon:first-child {
+  opacity: 1;
+}
+
+.theme-toggle-checkbox:checked + .theme-toggle-label .theme-toggle-icon:last-child {
+  opacity: 0;
+}
+
+.theme-toggle-label::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  left: 3px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-checkbox:checked + .theme-toggle-label::after {
+  transform: translateX(30px);
+}
+
+/* ==================== DARK MODE STYLES ==================== */
+
+body.dark-mode {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .app-layout {
+  background: #0f172a;
+}
+
+body.dark-mode .main-area {
+  background: #0f172a;
+}
+
+body.dark-mode .header {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .header h2 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .header p {
+  color: #94a3b8;
+}
+
+body.dark-mode .page-content {
+  background: #0f172a;
+}
+
+/* Dark mode cards and content */
+body.dark-mode .card,
+body.dark-mode .budget-summary-card,
+body.dark-mode .budget-card,
+body.dark-mode .expense-list-card {
+  background: #1e293b;
+  color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .transaction-item {
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .transaction-name {
+  color: #f1f5f9;
+}
+
+body.dark-mode .transaction-category {
+  color: #94a3b8;
+}
+
+body.dark-mode .transaction-date {
+  color: #64748b;
+}
+
+/* Dark mode budget cards */
+body.dark-mode .budget-name {
+  color: #f1f5f9;
+}
+
+body.dark-mode .budget-limit-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .budget-total {
+  color: #94a3b8;
+}
+
+body.dark-mode .budget-status {
+  color: #94a3b8;
+}
+
+body.dark-mode .budget-icon {
+  background: #334155;
+}
+
+body.dark-mode .budget-progress-bar {
+  background: #334155;
+}
+
+body.dark-mode .summary-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .summary-amount {
+  color: #f1f5f9;
+}
+
+body.dark-mode .summary-sublabel {
+  color: #64748b;
+}
+
+/* Dark mode forms and inputs */
+body.dark-mode .search-input,
+body.dark-mode .category-select,
+body.dark-mode .expense-form input,
+body.dark-mode .expense-form select,
+body.dark-mode .budget-form input,
+body.dark-mode .budget-form select {
+  background: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+body.dark-mode .search-input::placeholder,
+body.dark-mode .expense-form input::placeholder,
+body.dark-mode .budget-form input::placeholder {
+  color: #64748b;
+}
+
+body.dark-mode .search-input:focus,
+body.dark-mode .category-select:focus,
+body.dark-mode .expense-form input:focus,
+body.dark-mode .expense-form select:focus,
+body.dark-mode .budget-form input:focus,
+body.dark-mode .budget-form select:focus {
+  border-color: #3b82f6;
+}
+
+/* Dark mode modals */
+body.dark-mode .modal-content {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+body.dark-mode .modal-header {
+  border-bottom-color: #334155;
+}
+
+body.dark-mode .modal-header h3 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .modal-close {
+  color: #94a3b8;
+}
+
+body.dark-mode .modal-close:hover {
+  color: #f1f5f9;
+}
+
+/* Dark mode category icons */
+body.dark-mode .category-icon {
+  background-color: #334155;
+}
+
+/* Keep accent colors vibrant in dark mode */
+body.dark-mode .amount-income {
+  color: #34d399;
+}
+
+body.dark-mode .amount-expense {
+  color: #f87171;
+}
+
+body.dark-mode .budget-summary-card.spent .summary-amount {
+  color: #f87171;
+}
+
+body.dark-mode .budget-summary-card.remaining .summary-amount {
+  color: #34d399;
+}
+
+body.dark-mode .budget-remaining {
+  color: #34d399;
+}
+
+body.dark-mode .budget-remaining.over {
+  color: #f87171;
+}
+
+body.dark-mode .budget-card.over-budget {
+  border-color: #991b1b;
+  background: #7f1d1d;
+}
+
+/* Dark mode buttons remain vibrant */
+body.dark-mode .btn-add-expense,
+body.dark-mode .btn-add-budget,
+body.dark-mode .btn-submit {
+  background: #2563eb;
+}
+
+body.dark-mode .btn-add-expense:hover,
+body.dark-mode .btn-add-budget:hover,
+body.dark-mode .btn-submit:hover {
+  background: #1d4ed8;
 }

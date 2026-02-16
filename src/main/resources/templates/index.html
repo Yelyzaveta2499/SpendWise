@@ -60,6 +60,15 @@
             </div>
 
             <div class="header-right">
+                <!-- Dark Mode Toggle -->
+                <div class="theme-toggle">
+                    <input type="checkbox" id="dark-mode-toggle" class="theme-toggle-checkbox">
+                    <label for="dark-mode-toggle" class="theme-toggle-label">
+                        <span class="theme-toggle-icon">🌙</span>
+                        <span class="theme-toggle-icon">☀️</span>
+                    </label>
+                </div>
+
                 <!--<div class="profile">
                     <span th:text="${#authentication.name}"></span>
                     <div class="profile-avatar" th:text="${#authentication.name.substring(0,1).toUpperCase()}"></div>
@@ -91,6 +100,7 @@
 
 <!-- <script src="js/character.js"></script> -->
 
+<script src="/js/theme.js" defer></script>
 <script src="/js/app.js" defer></script>
 <script src="/js/guide-character.js" defer></script>
 <script src="/js/expenses.js" defer></script>
