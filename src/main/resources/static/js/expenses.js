@@ -1,14 +1,11 @@
-// expenses tab renderer
-
 function renderExpenses() {
-  const pageTitle = document.querySelector('.header-left h2');
-  const pageSubtitle = document.querySelector('.header-left p');
-  const pageContent = document.querySelector('.page-content');
 
-  if (!pageTitle || !pageSubtitle || !pageContent) return;
+  const expensesSection = document.getElementById('section-expenses');
+  if (!expensesSection) return;
 
-  pageTitle.textContent = 'Expenses';
-  pageSubtitle.textContent = 'Track and manage your transactions';
+  const pageContent = expensesSection.querySelector('.section-content');
+  if (!pageContent) return;
+
 
   pageContent.innerHTML = `
     <div class="expenses-container">
@@ -88,7 +85,7 @@ function renderExpenses() {
   const modal = document.getElementById('expense-modal');
   const modalClose = document.getElementById('modal-close');
 
-  // Get icon based on category
+
   function getCategoryIcon(category) {
     const icons = {
       'Food & Dining': '🍴',
@@ -103,7 +100,7 @@ function renderExpenses() {
     return icons[category] || '💰';
   }
 
-  // Get icon background color based on category
+
   function getIconBg(category) {
     const colors = {
       'Food & Dining': '#e0f2e9',
@@ -172,7 +169,7 @@ function renderExpenses() {
     listEl.innerHTML = items.map(formatItem).join('');
   }
 
-  // Load expenses from backend
+  // Load expenses from BE
   function loadExpensesFromApi() {
     listEl.innerHTML = '<div style="padding: 16px;">Loading expenses...</div>';
 

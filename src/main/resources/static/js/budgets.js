@@ -1,14 +1,11 @@
-// Budgets tab renderer
-
 function renderBudgets() {
-  const pageTitle = document.querySelector('.header-left h2');
-  const pageSubtitle = document.querySelector('.header-left p');
-  const pageContent = document.querySelector('.page-content');
+  // Find the budgets section content
+  const budgetsSection = document.getElementById('section-budgets');
+  if (!budgetsSection) return;
 
-  if (!pageTitle || !pageSubtitle || !pageContent) return;
+  const pageContent = budgetsSection.querySelector('.section-content');
+  if (!pageContent) return;
 
-  pageTitle.textContent = 'Budgets';
-  pageSubtitle.textContent = 'Manage your monthly spending limits';
 
   // Sample budget data
   const budgetData = {

@@ -38,27 +38,27 @@
 
         <nav class="sidebar-nav nav">
             <a class="active" data-page="dashboard">
-                <span class="nav-icon">📊</span>
+                <!--<span class="nav-icon">📊</span>-->
                 <span class="nav-text">Dashboard</span>
             </a>
             <a data-page="expenses">
-                <span class="nav-icon">💳</span>
+                <!--<span class="nav-icon">💳</span>-->
                 <span class="nav-text">Expenses</span>
             </a>
             <a data-page="budgets">
-                <span class="nav-icon">🎯</span>
+                <!--<span class="nav-icon">🎯</span>-->
                 <span class="nav-text">Budgets</span>
             </a>
             <a data-page="goals">
-                <span class="nav-icon">🏆</span>
+                <!--<span class="nav-icon">🏆</span>-->
                 <span class="nav-text">Goals</span>
             </a>
             <a data-page="reports">
-                <span class="nav-icon">📈</span>
+                <!--<span class="nav-icon">📈</span>-->
                 <span class="nav-text">Reports</span>
             </a>
             <a data-page="settings">
-                <span class="nav-icon">⚙️</span>
+                <!--<span class="nav-icon">⚙️</span>-->
                 <span class="nav-text">Settings</span>
             </a>
         </nav>
@@ -104,8 +104,38 @@
             </div>
         </header>
 
-        <!-- Empty content placeholder -->
-        <main class="page-content"></main>
+        <!-- Scrollable Sections Container -->
+        <div class="sections-container" id="sections-container">
+            <!-- Dashboard Section -->
+            <section id="section-dashboard" class="page-section active" data-page="dashboard">
+                <div class="section-content"></div>
+            </section>
+
+            <!-- Expenses Section -->
+            <section id="section-expenses" class="page-section" data-page="expenses">
+                <div class="section-content"></div>
+            </section>
+
+            <!-- Budgets Section -->
+            <section id="section-budgets" class="page-section" data-page="budgets">
+                <div class="section-content"></div>
+            </section>
+
+            <!-- Goals Section -->
+            <section id="section-goals" class="page-section" data-page="goals">
+                <div class="section-content"></div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="section-reports" class="page-section" data-page="reports">
+                <div class="section-content"></div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="section-settings" class="page-section" data-page="settings">
+                <div class="section-content"></div>
+            </section>
+        </div>
 
     </div>
 
@@ -124,9 +154,10 @@
 
 
 <!-- <script src="js/character.js"></script> -->
-
 <script src="/js/sidebar.js" defer></script>
 <script src="/js/theme.js" defer></script>
+<script src="/js/app-scroll.js" defer></script>
+<script src="/js/scroll-nav.js" defer></script>
 <script src="/js/app.js" defer></script>
 <script src="/js/guide-character.js" defer></script>
 <script src="/js/expenses.js" defer></script>
