@@ -6,7 +6,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <style>
-        /* Fullscreen loading GIFs */
         html, body {
             height: 100%;
         }
@@ -23,30 +22,31 @@
             justify-content: center;
             overflow: hidden;
             z-index: 9999;
+            flex-direction: column;
+            gap: 12px;
         }
-        .loading-gif {
-            min-width: 100%;
-            min-height: 100%;
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* fill the entire screen, */
-            display: block;
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 4px solid rgba(249, 250, 251, 0.2);
+            border-top-color: #22c55e;
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-text {
+            font-size: 16px;
+            color: #e5e7eb;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 <div class="loading-wrapper" id="loading-wrapper">
-    <!-- Business GIF full-screen -->
-    <img class="loading-gif"
-         th:if="${accountType} == 'BUSINESS'"
-         th:src="@{/images/main.gif}"
-         alt="Loading your business dashboard" />
-
-    <!-- Individual / Kids GIF full-screen -->
-    <img class="loading-gif"
-         th:if="${accountType} == 'INDIVIDUAL' or ${accountType} == 'KIDS'"
-         th:src="@{/images/main_2.gif}"
-         alt="Loading your personal dashboard" />
+    <!-- Simple spinner instead of GIFs -->
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading your SpendWise dashboard...</div>
 </div>
 
 <script>
@@ -57,12 +57,11 @@
         window.location.href = '/';
     }
 
-    // Auto-redirect after e.g. 4.5 seconds
+    // Auto-redirect after a short delay
     setTimeout(goToApp, 3500);
 
-    // redirect if user taps/clicks anywhere on the GIF
+    // redirect if user taps/clicks anywhere on the loading screen
     document.getElementById('loading-wrapper').addEventListener('click', goToApp);
 </script>
 </body>
 </html>
-
