@@ -6,47 +6,136 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <style>
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
         body {
             margin: 0;
-            background: #0f172a;
-            color: #f9fafb;
+            background: #0f172a; /* slate-900 */
+            color: #f9fafb;      /* gray-50 */
         }
+        /* Fullscreen container */
         .loading-wrapper {
             position: fixed;
             inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            place-items: center;
             overflow: hidden;
             z-index: 9999;
-            flex-direction: column;
-            gap: 12px;
+            background: radial-gradient(1200px 800px at 50% 40%, rgba(56,189,248,0.10), transparent 60%),
+                        radial-gradient(800px 600px at 20% 80%, rgba(34,197,94,0.10), transparent 60%),
+                        #0f172a;
         }
-        .loading-spinner {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 4px solid rgba(249, 250, 251, 0.2);
-            border-top-color: #22c55e;
-            animation: spin 0.8s linear infinite;
+        /* SVG logo container */
+        .logo-stage {
+            position: relative;
+            width: clamp(200px, 22vw, 320px);
+            height: clamp(200px, 22vw, 320px);
+            display: grid;
+            place-items: center;
+            transform: scale(1.35);
+            opacity: 0;
+            animation: splashZoomOut 2100ms cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
+            will-change: transform, opacity;
         }
-        .loading-text {
-            font-size: 16px;
-            color: #e5e7eb;
+        /* subtle glow */
+        .logo-stage::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            filter: blur(36px);
+            background: radial-gradient(closest-side, rgba(59,130,246,0.25), transparent 70%);
+            pointer-events: none;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* Brand text under logo */
+        .brand-text {
+            position: absolute;
+            bottom: 8vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(16px, 2.2vw, 22px);
+            color: #cbd5e1;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            animation: fadeIn 1200ms ease-out 600ms forwards;
+        }
+        /* Keyframes for  zoom */
+        @keyframes splashZoomOut {
+            0%   { opacity: 0; transform: scale(1.35); }
+            10%  { opacity: 1; transform: scale(1.45); }
+            55%  { transform: scale(1.55); }
+            100% { opacity: 1; transform: scale(0.85); }
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        /* SVG styling: card with shine and chip */
+        .card {
+            filter: drop-shadow(0 12px 22px rgba(0,0,0,0.35));
+        }
+        .card-body {
+            fill: url(#cardGradient);
+            stroke: rgba(255,255,255,0.15);
+            stroke-width: 1.2;
+        }
+        .card-shine {
+            fill: url(#shineGradient);
+            opacity: 0.35;
+        }
+        .chip { fill: #e5e7eb; opacity: 0.85; }
+        .chip-line { stroke: #64748b; stroke-width: 1.4; stroke-linecap: round; }
+        .brand { fill: #e2e8f0; font-weight: 700; letter-spacing: 1.2px; }
+        /* Subtle floating shimmer */
+        .shine-anim {
+            animation: shineMove 2200ms ease-in-out infinite alternate;
+        }
+        @keyframes shineMove {
+            from { transform: translateY(-2px); opacity: 0.28; }
+            to   { transform: translateY(3px);  opacity: 0.42; }
         }
     </style>
 </head>
 <body>
-<div class="loading-wrapper" id="loading-wrapper">
-    <!-- Simple spinner instead of GIFs -->
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Loading your SpendWise dashboard...</div>
+<div class="loading-wrapper" id="loading-wrapper" role="status" aria-label="Loading SpendWise">
+    <div class="logo-stage" aria-hidden="false">
+        <!-- Inline SVG credit card logo -->
+        <svg width="100%" height="100%" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SpendWise card logo">
+            <defs>
+                <linearGradient id="cardGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#1e40af"/>
+                    <stop offset="50%" stop-color="#2563eb"/>
+                    <stop offset="100%" stop-color="#22c55e"/>
+                </linearGradient>
+                <linearGradient id="shineGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+                <clipPath id="cardClip">
+                    <rect x="60" y="80" rx="24" ry="24" width="200" height="140" />
+                </clipPath>
+            </defs>
+
+            <!-- Card base -->
+            <g class="card">
+                <rect class="card-body" x="60" y="80" rx="24" ry="24" width="200" height="140" />
+
+                <!-- Top shine overlay -->
+                <g clip-path="url(#cardClip)">
+                    <ellipse class="card-shine shine-anim" cx="160" cy="90" rx="140" ry="28" />
+                </g>
+
+                <!-- Chip -->
+                <rect class="chip" x="88" y="122" rx="6" width="34" height="26" />
+                <path class="chip-line" d="M92 128 h26 M92 134 h26 M92 140 h26" />
+
+                <!-- Masked number and brand text -->
+                <rect x="128" y="126" width="80" height="10" fill="#0f172a" opacity="0.28" rx="4" />
+                <rect x="128" y="142" width="64" height="10" fill="#0f172a" opacity="0.22" rx="4" />
+
+                <!-- Brand -->
+                <text class="brand" x="92" y="190" font-size="18">SPENDWISE</text>
+            </g>
+        </svg>
+    </div>
+
+    <div class="brand-text">Loading your SpendWise experience…</div>
 </div>
 
 <script>
@@ -56,11 +145,9 @@
         redirected = true;
         window.location.href = '/';
     }
-
-    // Auto-redirect after a short delay
-    setTimeout(goToApp, 3500);
-
-    // redirect if user taps/clicks anywhere on the loading screen
+    // Auto-redirect shortly after the splash finishes
+    setTimeout(goToApp, 2500);
+    // Allow user to skip with click/tap
     document.getElementById('loading-wrapper').addEventListener('click', goToApp);
 </script>
 </body>
