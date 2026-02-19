@@ -16,7 +16,11 @@ function renderBudgets() {
 
     const budgetsThisMonth = (Array.isArray(budgets) ? budgets : []).filter(b => b.month === currentMonth && b.year === currentYear);
 
-    const totalBudget = budgetsThisMonth.reduce((sum, b) => sum + Number(b.amount || 0), 0);
+    // Use a single persisted monthly allocation row so Total Budget doesn't change on every app start.
+    // store it in budgets table with a special category key
+    const TOTAL_BUDGET_KEY = '__TOTAL_MONTHLY_BUDGET__';
+    const monthlyAllocationRow = budgetsThisMonth.find(b => b.category === TOTAL_BUDGET_KEY);
+    const totalBudget = monthlyAllocationRow ? Number(monthlyAllocationRow.amount || 0) : 0;
 
     const spentByCategory = {};
     (Array.isArray(expenses) ? expenses : []).forEach(e => {
@@ -74,7 +78,8 @@ function renderBudgets() {
       totalBudget,
       totalSpent,
       remaining,
-      categories
+      categories,
+      totalBudgetId: monthlyAllocationRow ? monthlyAllocationRow.id : null
     };
   }
 
@@ -90,7 +95,8 @@ function renderBudgets() {
         totalBudget: data.totalBudget,
         totalSpent: data.totalSpent,
         remaining: data.remaining,
-        categories: data.categories
+        categories: data.categories,
+        totalBudgetId: data.totalBudgetId
       };
 
       const percentSpent = (budgetData.totalBudget > 0)
@@ -104,7 +110,10 @@ function renderBudgets() {
       <!-- Top Summary Cards -->
       <div class="budget-summary-cards">
         <div class="budget-summary-card">
-          <div class="summary-label">Total Budget</div>
+          <div class="summary-label" style="display:flex; align-items:center; justify-content: space-between; gap: 10px;">
+            <span>Total Budget</span>
+            <button type="button" id="edit-total-budget-btn" class="budget-action-btn" style="width:30px;height:30px;border-radius:10px;">✎</button>
+          </div>
           <div class="summary-amount">$${budgetData.totalBudget.toLocaleString()}</div>
           <div class="summary-sublabel">Monthly allocation</div>
         </div>
@@ -135,7 +144,7 @@ function renderBudgets() {
       </div>
     </div>
 
-    <!-- Add Budget Modal -->
+    <!-- Add/Edit Budget Modal -->
     <div id="budget-modal" class="budget-modal" style="display: none;">
       <div class="modal-content">
         <div class="modal-header">
@@ -157,11 +166,95 @@ function renderBudgets() {
 
           <input id="budget-limit" type="number" step="1" placeholder="Monthly limit (e.g., 500)" required />
 
-          <button type="submit" class="btn-submit">Add Budget</button>
+          <button type="submit" class="btn-submit">Save</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Total Budget Modal -->
+    <div id="total-budget-modal" class="budget-modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Total Budget</h3>
+          <button class="modal-close" id="total-budget-modal-close">&times;</button>
+        </div>
+        <form id="total-budget-form" class="budget-form">
+          <input id="total-budget-amount" type="number" step="1" placeholder="Monthly total (e.g., 3200)" required />
+          <button type="submit" class="btn-submit">Save</button>
         </form>
       </div>
     </div>
   `;
+
+      // --- Total budget edit ---
+      const TOTAL_BUDGET_KEY = '__TOTAL_MONTHLY_BUDGET__';
+      const totalBudgetModal = document.getElementById('total-budget-modal');
+      const totalBudgetClose = document.getElementById('total-budget-modal-close');
+      const totalBudgetForm = document.getElementById('total-budget-form');
+      const totalBudgetInput = document.getElementById('total-budget-amount');
+      const editTotalBudgetBtn = document.getElementById('edit-total-budget-btn');
+
+      if (editTotalBudgetBtn) {
+        editTotalBudgetBtn.addEventListener('click', function() {
+          if (totalBudgetInput) totalBudgetInput.value = Number(budgetData.totalBudget || 0);
+          if (totalBudgetModal) totalBudgetModal.style.display = 'flex';
+        });
+      }
+
+      if (totalBudgetClose) {
+        totalBudgetClose.addEventListener('click', function() {
+          if (totalBudgetModal) totalBudgetModal.style.display = 'none';
+        });
+      }
+
+      globalThis.addEventListener('click', function(e) {
+        if (e.target === totalBudgetModal) {
+          totalBudgetModal.style.display = 'none';
+        }
+      });
+
+      if (totalBudgetForm) {
+        totalBudgetForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const amount = Number(totalBudgetInput ? totalBudgetInput.value : 0);
+          if (!amount || amount <= 0) {
+            alert('Total budget must be greater than 0');
+            return;
+          }
+
+          const payload = {
+            category: TOTAL_BUDGET_KEY,
+            amount: amount,
+            month: currentMonth,
+            year: currentYear
+          };
+
+          const hasId = !!budgetData.totalBudgetId;
+          const url = hasId ? ('/api/budgets/' + budgetData.totalBudgetId) : '/api/budgets';
+          const method = hasId ? 'PUT' : 'POST';
+
+          fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          })
+            .then(function(resp) {
+              if (!resp.ok) {
+                return resp.json().then(function(err) {
+                  throw new Error(err.error || 'Failed to save total budget');
+                });
+              }
+              return resp.json();
+            })
+            .then(function() {
+              if (totalBudgetModal) totalBudgetModal.style.display = 'none';
+              fetchDataAndRender();
+            })
+            .catch(function(err) {
+              alert(err.message || 'Could not save total budget');
+            });
+        });
+      }
 
       // Modal handlers ( POST to API)
       const addBudgetBtn = document.getElementById('add-budget-btn');
