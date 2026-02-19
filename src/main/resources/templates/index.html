@@ -568,6 +568,63 @@
                 radial-gradient(circle at 80% 20%, rgba(56,189,248,0.3) 0%, transparent 50%),
                 linear-gradient(135deg, rgba(15,23,42,0.8) 0%, transparent 80%);
         }
+
+        /* Toggle button under cards */
+        .cards-toggle-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: -4px;
+            margin-bottom: 8px;
+        }
+        .cards-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 999px;
+            border: 1px solid rgba(15,23,42,0.18);
+            background: rgba(248,250,252,0.8);
+            color: #0f172a;
+            cursor: pointer;
+            transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            box-shadow: 0 1px 3px rgba(15,23,42,0.12);
+        }
+        .cards-toggle-btn-icon {
+            font-size: 12px;
+            transition: transform 0.18s ease;
+        }
+        .cards-toggle-btn:hover {
+            background: #e5f3f5;
+            border-color: rgba(15,23,42,0.28);
+            box-shadow: 0 3px 6px rgba(15,23,42,0.18);
+            transform: translateY(-1px);
+        }
+        .cards-collapsed .cards-toggle-btn-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Collapse animation: cards slide upward */
+        .cards-collapsed .cards-carousel {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+            overflow: hidden;
+            transform: translateY(-8px);
+        }
+        .cards-carousel {
+            transition: max-height 0.22s ease, opacity 0.18s ease, transform 0.22s ease, margin-bottom 0.22s ease;
+        }
+        .cards-expanded .cards-carousel {
+            max-height: 260px; /* enough to show cards across breakpoints */
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Ensure default state is expanded */
+        .cards-region:not(.cards-collapsed) .cards-carousel {
+            max-height: 260px;
+        }
+
     </style>
 </head>
 <body>
@@ -662,13 +719,21 @@
         </header>
 
         <!-- Compact horizontal cards carousel (4 cards, arrow-controlled, looped) -->
-        <section class="cards-carousel cards-edges" aria-label="Cards">
-            <div class="cards-controls">
-                <button class="cards-btn cards-prev" id="cardsPrev" aria-label="Previous"><span class="cards-icon">◄</span></button>
-                <button class="cards-btn cards-next" id="cardsNext" aria-label="Next"><span class="cards-icon">►</span></button>
-            </div>
-            <div class="cards-track" id="cardsTrack">
-                <!-- Cards will be rendered by JS from a 4-card dataset -->
+        <section class="cards-region cards-expanded">
+            <section class="cards-carousel cards-edges" aria-label="Cards">
+                <div class="cards-controls">
+                    <button class="cards-btn cards-prev" id="cardsPrev" aria-label="Previous"><span class="cards-icon">◄</span></button>
+                    <button class="cards-btn cards-next" id="cardsNext" aria-label="Next"><span class="cards-icon">►</span></button>
+                </div>
+                <div class="cards-track" id="cardsTrack">
+                    <!-- Cards will be rendered by JS from a 4-card dataset -->
+                </div>
+            </section>
+            <div class="cards-toggle-wrapper">
+                <button id="cardsToggleBtn" class="cards-toggle-btn" type="button">
+                    <span class="cards-toggle-btn-icon">▲</span>
+                    <span class="cards-toggle-label">Hide cards</span>
+                </button>
             </div>
         </section>
 
@@ -779,13 +844,15 @@
   const track = document.getElementById('cardsTrack');
   const prevBtn = document.getElementById('cardsPrev');
   const nextBtn = document.getElementById('cardsNext');
-  if (!track || !prevBtn || !nextBtn) return;
+  const toggleBtn = document.getElementById('cardsToggleBtn');
+  const cardsRegion = document.querySelector('.cards-region');
+  if (!track || !prevBtn || !nextBtn || !toggleBtn || !cardsRegion) return;
 
   const data = [
     { cls: 'bg-savings', brand: 'SpendWise Debit', scheme: 'VISA', num: '3453 4626 7310 3728', name: 'Francis Crawford', exp: '03/29' },
-    { cls: 'bg-dark', brand: 'SpendWise Black', scheme: 'VISA', num: '5243 9834 2201 4458', name: 'Gail Bell', exp: '02/30' },
-    { cls: 'bg-ptsb', brand: 'SpendWise Gold', scheme: 'VISA', num: '4012 8888 8888 1881', name: 'Shirley Swanson', exp: '08/29' },
-    { cls: 'bg-revolut', brand: 'SpendWise Premium', scheme: 'VISA', num: '4532 2214 7777 0042', name: 'Dianne Palmer', exp: '07/29' },
+    { cls: 'bg-dark',    brand: 'SpendWise Black',  scheme: 'VISA', num: '5243 9834 2201 4458', name: 'Gail Bell',        exp: '02/30' },
+    { cls: 'bg-ptsb',    brand: 'SpendWise Gold',   scheme: 'VISA', num: '4012 8888 8888 1881', name: 'Shirley Swanson', exp: '08/29' },
+    { cls: 'bg-revolut', brand: 'SpendWise Premium',scheme: 'VISA', num: '4532 2214 7777 0042', name: 'Dianne Palmer',  exp: '07/29' },
   ];
 
   let items = data.slice();
@@ -833,6 +900,16 @@
 
   nextBtn.addEventListener('click', rotateLeft);
   prevBtn.addEventListener('click', rotateRight);
+
+  // Toggle collapse/expand of cards
+  toggleBtn.addEventListener('click', () => {
+    const collapsed = cardsRegion.classList.toggle('cards-collapsed');
+    cardsRegion.classList.toggle('cards-expanded', !collapsed);
+    const label = toggleBtn.querySelector('.cards-toggle-label');
+    const icon = toggleBtn.querySelector('.cards-toggle-btn-icon');
+    label.textContent = collapsed ? 'Show cards' : 'Hide cards';
+    icon.textContent = collapsed ? '▼' : '▲';
+  });
 
   render();
 })();
