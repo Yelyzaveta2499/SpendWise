@@ -1,6 +1,5 @@
 package com.example.SpendWise.controller;
 
-import com.example.SpendWise.service.BudgetService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -22,9 +22,6 @@ class BudgetControllerTest {
 
     @Autowired
     private WebApplicationContext context;
-
-    @Autowired
-    private BudgetService budgetService;
 
     private MockMvc mockMvc;
 
@@ -51,8 +48,10 @@ class BudgetControllerTest {
     @Test
     @WithMockUser(username = "indiv")
     void createBudget_authenticatedUser_returnsCreated() throws Exception {
+        String uniqueCategory = "Housing_" + System.currentTimeMillis();
+
         String json = "{" +
-                "\"category\":\"Housing\"," +
+                "\"category\":\"" + uniqueCategory + "\"," +
                 "\"amount\":1200," +
                 "\"month\":2," +
                 "\"year\":2026" +
@@ -64,5 +63,57 @@ class BudgetControllerTest {
                         .content(json))
                 .andExpect(status().isCreated());
     }
-}
 
+    @Test
+    @WithMockUser(username = "indiv")
+    void updateBudget_authenticatedUser_returnsOk() throws Exception {
+        String uniqueCategory = "Utilities_" + System.currentTimeMillis();
+
+        // Create first
+        String createJson = "{" +
+                "\"category\":\"" + uniqueCategory + "\"," +
+                "\"amount\":250," +
+                "\"month\":2," +
+                "\"year\":2026" +
+                "}";
+
+        mockMvc.perform(post("/api/budgets")
+                        .with(csrf())
+                        .contentType(APPLICATION_JSON)
+                        .content(createJson))
+                .andExpect(status().isCreated());
+
+        // Find created id by listing and searching for the uniqueCategory
+        String list = mockMvc.perform(get("/api/budgets").with(csrf()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        int catIdx = list.indexOf("\"category\":\"" + uniqueCategory + "\"");
+        if (catIdx < 0) {
+            throw new IllegalStateException("Could not find created budget in response: " + list);
+        }
+
+        int idIdx = list.lastIndexOf("\"id\":", catIdx);
+        if (idIdx < 0) {
+            throw new IllegalStateException("Could not find id near created budget in response: " + list);
+        }
+
+        int start = idIdx + 5;
+        int end = start;
+        while (end < list.length() && Character.isDigit(list.charAt(end))) {
+            end++;
+        }
+        String idStr = list.substring(start, end);
+
+        String updateJson = "{" +
+                "\"amount\":300" +
+                "}";
+
+        mockMvc.perform(put("/api/budgets/" + idStr)
+                        .with(csrf())
+                        .contentType(APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isOk());
+    }
+}

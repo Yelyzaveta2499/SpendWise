@@ -107,6 +107,81 @@ public class BudgetService {
         budgetRepository.delete(budget);
     }
 
+    @SuppressWarnings("unchecked")
+    public BudgetEntity updateBudgetForUser(String username, Long budgetId, Object updateRequest) {
+        if (budgetId == null) {
+            throw new IllegalArgumentException("budgetId is required");
+        }
+
+        if (!(updateRequest instanceof java.util.Map<?, ?> rawMap)) {
+            throw new IllegalArgumentException("Unsupported request type for budget");
+        }
+        java.util.Map<String, Object> map = (java.util.Map<String, Object>) rawMap;
+
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
+
+        BudgetEntity budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new IllegalArgumentException("Budget not found: " + budgetId));
+
+        if (!budget.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("Cannot update budget that does not belong to user: " + username);
+        }
+
+        // allow updating category, amount, month, year (simple)
+        Object categoryRaw = map.get("category");
+        if (categoryRaw instanceof String s && !s.isBlank()) {
+            budget.setCategory(s.trim());
+        }
+
+        Object amountRaw = map.get("amount");
+        if (amountRaw != null) {
+            BigDecimal amount;
+            if (amountRaw instanceof BigDecimal bd) {
+                amount = bd;
+            } else if (amountRaw instanceof Number num) {
+                amount = BigDecimal.valueOf(num.doubleValue());
+            } else if (amountRaw instanceof String s && !s.isBlank()) {
+                amount = new BigDecimal(s);
+            } else {
+                throw new IllegalArgumentException("Budget amount must be a number");
+            }
+
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Budget amount must be greater than zero");
+            }
+
+            budget.setAmount(amount);
+        }
+
+        Object monthRaw = map.get("month");
+        if (monthRaw != null) {
+            int month = parseIntOrDefault(monthRaw, budget.getMonth());
+            if (month < 1 || month > 12) {
+                throw new IllegalArgumentException("Month must be between 1 and 12");
+            }
+            budget.setMonth(month);
+        }
+
+        Object yearRaw = map.get("year");
+        if (yearRaw != null) {
+            int year = parseIntOrDefault(yearRaw, budget.getYear());
+            if (year < 2000 || year > 2100) {
+                throw new IllegalArgumentException("Year must be between 2000 and 2100");
+            }
+            budget.setYear(year);
+        }
+
+        // prevent duplicates after update
+        if (budgetRepository.findByUserAndCategoryAndYearAndMonth(user, budget.getCategory(), budget.getYear(), budget.getMonth())
+                .filter(b -> !b.getId().equals(budget.getId()))
+                .isPresent()) {
+            throw new IllegalArgumentException("Budget already exists for this category and month");
+        }
+
+        return budgetRepository.save(budget);
+    }
+
     private int parseIntOrDefault(Object raw, int def) {
         if (raw == null) return def;
         if (raw instanceof Number n) return n.intValue();
@@ -120,4 +195,3 @@ public class BudgetService {
         return def;
     }
 }
-

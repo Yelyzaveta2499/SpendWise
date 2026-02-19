@@ -43,6 +43,15 @@ public class BudgetController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<BudgetEntity> updateBudget(@PathVariable("id") Long id,
+                                                     @RequestBody Map<String, Object> body,
+                                                     Authentication authentication) {
+        String username = authentication.getName();
+        BudgetEntity updated = budgetService.updateBudgetForUser(username, id, body);
+        return ResponseEntity.ok(updated);
+    }
+
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<Map<String, String>> handleBadRequest(IllegalArgumentException ex) {
         Map<String, String> error = new HashMap<>();
@@ -57,4 +66,3 @@ public class BudgetController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 }
-
