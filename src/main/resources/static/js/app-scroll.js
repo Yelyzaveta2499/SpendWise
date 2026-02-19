@@ -27,8 +27,6 @@ function renderDashboard() {
 
     pageContent.innerHTML = `
     <div style="padding: 20px;">
-      <h2 style="font-size: 32px; margin-bottom: 8px; color: #064e3b;">Dashboard</h2>
-      <p style="color: #6b7280; margin-bottom: 30px;">Welcome back! Here's your financial overview.</p>
       
       <div class="cards">
         <div class="card" style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
