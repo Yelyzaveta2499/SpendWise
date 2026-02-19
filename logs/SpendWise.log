@@ -1,0 +1,301 @@
+2026-02-19T00:05:56.192Z  INFO 31984 --- [SpendWise] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-19T00:05:56.222Z  INFO 31984 --- [SpendWise] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-02-19T00:05:56.231Z  INFO 31984 --- [SpendWise] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:05:56.239Z  INFO 31984 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T00:05:56.251Z  INFO 31984 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-19T00:07:17.676Z  INFO 36612 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Starting SpendWiseApplication using Java 23.0.2 with PID 36612 (C:\Users\35385\Desktop\Msc_TUS\SpendWise\target\classes started by 35385 in C:\Users\35385\Desktop\Msc_TUS\SpendWise)
+2026-02-19T00:07:17.680Z  INFO 36612 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T00:07:18.371Z  INFO 36612 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T00:07:18.430Z  INFO 36612 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 3 JPA repository interfaces.
+2026-02-19T00:07:18.887Z  INFO 36612 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 1111 (http)
+2026-02-19T00:07:18.900Z  INFO 36612 --- [SpendWise] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T00:07:18.900Z  INFO 36612 --- [SpendWise] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-02-19T00:07:18.948Z  INFO 36612 --- [SpendWise] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1207 ms
+2026-02-19T00:07:19.094Z  INFO 36612 --- [SpendWise] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-19T00:07:19.162Z  INFO 36612 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-02-19T00:07:19.652Z  INFO 36612 --- [SpendWise] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T00:07:19.685Z  INFO 36612 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T00:07:20.146Z  INFO 36612 --- [SpendWise] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@563c3aca
+2026-02-19T00:07:20.147Z  INFO 36612 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T00:07:20.224Z  WARN 36612 --- [SpendWise] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T00:07:20.242Z  INFO 36612 --- [SpendWise] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: spendwisedb/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-19T00:07:21.120Z  INFO 36612 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-19T00:07:21.241Z  INFO 36612 --- [SpendWise] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:07:21.329Z  INFO 36612 --- [SpendWise] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-19T00:07:22.048Z  WARN 36612 --- [SpendWise] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T00:07:22.329Z  INFO 36612 --- [SpendWise] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-02-19T00:07:22.493Z  INFO 36612 --- [SpendWise] [main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-02-19T00:07:22.809Z  INFO 36612 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 1111 (http) with context path '/'
+2026-02-19T00:07:22.813Z  INFO 36612 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Started SpendWiseApplication in 5.648 seconds (process running for 7.087)
+2026-02-19T00:07:39.383Z  INFO 36612 --- [SpendWise] [http-nio-1111-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T00:07:39.384Z  INFO 36612 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T00:07:39.387Z  INFO 36612 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-02-19T00:11:03.326Z  INFO 36612 --- [SpendWise] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-19T00:11:03.332Z  INFO 36612 --- [SpendWise] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-02-19T00:11:03.337Z  INFO 36612 --- [SpendWise] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:11:03.340Z  INFO 36612 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T00:11:03.349Z  INFO 36612 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-19T00:11:07.899Z  INFO 45988 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Starting SpendWiseApplication using Java 23.0.2 with PID 45988 (C:\Users\35385\Desktop\Msc_TUS\SpendWise\target\classes started by 35385 in C:\Users\35385\Desktop\Msc_TUS\SpendWise)
+2026-02-19T00:11:07.903Z  INFO 45988 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T00:11:08.494Z  INFO 45988 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T00:11:08.542Z  INFO 45988 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 41 ms. Found 3 JPA repository interfaces.
+2026-02-19T00:11:09.004Z  INFO 45988 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 1111 (http)
+2026-02-19T00:11:09.017Z  INFO 45988 --- [SpendWise] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T00:11:09.017Z  INFO 45988 --- [SpendWise] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-02-19T00:11:09.065Z  INFO 45988 --- [SpendWise] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1104 ms
+2026-02-19T00:11:09.206Z  INFO 45988 --- [SpendWise] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-19T00:11:09.283Z  INFO 45988 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-02-19T00:11:09.754Z  INFO 45988 --- [SpendWise] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T00:11:09.793Z  INFO 45988 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T00:11:10.214Z  INFO 45988 --- [SpendWise] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3d7314b3
+2026-02-19T00:11:10.216Z  INFO 45988 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T00:11:10.268Z  WARN 45988 --- [SpendWise] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T00:11:10.290Z  INFO 45988 --- [SpendWise] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: spendwisedb/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-19T00:11:11.451Z  INFO 45988 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-19T00:11:11.535Z  INFO 45988 --- [SpendWise] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:11:11.619Z  INFO 45988 --- [SpendWise] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-19T00:11:12.509Z  WARN 45988 --- [SpendWise] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T00:11:12.854Z  INFO 45988 --- [SpendWise] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-02-19T00:11:13.007Z  INFO 45988 --- [SpendWise] [main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-02-19T00:11:13.291Z  INFO 45988 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 1111 (http) with context path '/'
+2026-02-19T00:11:13.298Z  INFO 45988 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Started SpendWiseApplication in 5.847 seconds (process running for 6.704)
+2026-02-19T00:11:13.437Z  INFO 45988 --- [SpendWise] [http-nio-1111-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T00:11:13.437Z  INFO 45988 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T00:11:13.437Z  INFO 45988 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-02-19T00:17:44.211Z  INFO 45988 --- [SpendWise] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-19T00:17:44.225Z  INFO 45988 --- [SpendWise] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-02-19T00:17:44.238Z  INFO 45988 --- [SpendWise] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:17:44.249Z  INFO 45988 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T00:17:44.269Z  INFO 45988 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-19T00:17:50.276Z  INFO 29732 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Starting SpendWiseApplication using Java 23.0.2 with PID 29732 (C:\Users\35385\Desktop\Msc_TUS\SpendWise\target\classes started by 35385 in C:\Users\35385\Desktop\Msc_TUS\SpendWise)
+2026-02-19T00:17:50.279Z  INFO 29732 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T00:17:50.972Z  INFO 29732 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T00:17:51.018Z  INFO 29732 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 39 ms. Found 3 JPA repository interfaces.
+2026-02-19T00:17:51.483Z  INFO 29732 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 1111 (http)
+2026-02-19T00:17:51.497Z  INFO 29732 --- [SpendWise] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T00:17:51.497Z  INFO 29732 --- [SpendWise] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-02-19T00:17:51.544Z  INFO 29732 --- [SpendWise] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1205 ms
+2026-02-19T00:17:51.677Z  INFO 29732 --- [SpendWise] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-19T00:17:51.744Z  INFO 29732 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-02-19T00:17:52.190Z  INFO 29732 --- [SpendWise] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T00:17:52.223Z  INFO 29732 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T00:17:52.651Z  INFO 29732 --- [SpendWise] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6ffdbeef
+2026-02-19T00:17:52.653Z  INFO 29732 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T00:17:52.721Z  WARN 29732 --- [SpendWise] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T00:17:52.744Z  INFO 29732 --- [SpendWise] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: spendwisedb/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-19T00:17:53.579Z  INFO 29732 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-19T00:17:53.685Z  INFO 29732 --- [SpendWise] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:17:53.766Z  INFO 29732 --- [SpendWise] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-19T00:17:54.481Z  WARN 29732 --- [SpendWise] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T00:17:54.766Z  INFO 29732 --- [SpendWise] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-02-19T00:17:54.922Z  INFO 29732 --- [SpendWise] [main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-02-19T00:17:55.220Z  INFO 29732 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 1111 (http) with context path '/'
+2026-02-19T00:17:55.224Z  INFO 29732 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Started SpendWiseApplication in 5.5 seconds (process running for 7.626)
+2026-02-19T00:18:26.583Z  INFO 29732 --- [SpendWise] [http-nio-1111-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T00:18:26.583Z  INFO 29732 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T00:18:26.589Z  INFO 29732 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 5 ms
+2026-02-19T00:25:45.165Z  INFO 29732 --- [SpendWise] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-19T00:25:45.175Z  INFO 29732 --- [SpendWise] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-02-19T00:25:45.185Z  INFO 29732 --- [SpendWise] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:25:45.192Z  INFO 29732 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T00:25:45.206Z  INFO 29732 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-19T00:26:54.989Z  INFO 45116 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Starting SpendWiseApplication using Java 23.0.2 with PID 45116 (C:\Users\35385\Desktop\Msc_TUS\SpendWise\target\classes started by 35385 in C:\Users\35385\Desktop\Msc_TUS\SpendWise)
+2026-02-19T00:26:54.993Z  INFO 45116 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T00:26:55.588Z  INFO 45116 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T00:26:55.635Z  INFO 45116 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 40 ms. Found 3 JPA repository interfaces.
+2026-02-19T00:26:56.056Z  INFO 45116 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 1111 (http)
+2026-02-19T00:26:56.068Z  INFO 45116 --- [SpendWise] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T00:26:56.068Z  INFO 45116 --- [SpendWise] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-02-19T00:26:56.116Z  INFO 45116 --- [SpendWise] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1065 ms
+2026-02-19T00:26:56.239Z  INFO 45116 --- [SpendWise] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-19T00:26:56.313Z  INFO 45116 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-02-19T00:26:56.795Z  INFO 45116 --- [SpendWise] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T00:26:56.830Z  INFO 45116 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T00:26:57.240Z  INFO 45116 --- [SpendWise] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7ef9c8a5
+2026-02-19T00:26:57.242Z  INFO 45116 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T00:26:57.298Z  WARN 45116 --- [SpendWise] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T00:26:57.317Z  INFO 45116 --- [SpendWise] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: spendwisedb/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-19T00:26:58.198Z  INFO 45116 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-19T00:26:58.288Z  INFO 45116 --- [SpendWise] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:26:58.369Z  INFO 45116 --- [SpendWise] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-19T00:26:59.082Z  WARN 45116 --- [SpendWise] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T00:26:59.365Z  INFO 45116 --- [SpendWise] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-02-19T00:26:59.511Z  INFO 45116 --- [SpendWise] [main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-02-19T00:26:59.860Z  INFO 45116 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 1111 (http) with context path '/'
+2026-02-19T00:26:59.861Z  INFO 45116 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Started SpendWiseApplication in 5.311 seconds (process running for 6.372)
+2026-02-19T00:27:01.566Z  INFO 45116 --- [SpendWise] [http-nio-1111-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T00:27:01.568Z  INFO 45116 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T00:27:01.571Z  INFO 45116 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-02-19T00:30:08.194Z  INFO 45116 --- [SpendWise] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-19T00:30:08.200Z  INFO 45116 --- [SpendWise] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-02-19T00:30:08.204Z  INFO 45116 --- [SpendWise] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:30:08.205Z  INFO 45116 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T00:30:08.211Z  INFO 45116 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-19T00:30:12.675Z  INFO 11916 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Starting SpendWiseApplication using Java 23.0.2 with PID 11916 (C:\Users\35385\Desktop\Msc_TUS\SpendWise\target\classes started by 35385 in C:\Users\35385\Desktop\Msc_TUS\SpendWise)
+2026-02-19T00:30:12.679Z  INFO 11916 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T00:30:13.311Z  INFO 11916 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T00:30:13.357Z  INFO 11916 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 39 ms. Found 3 JPA repository interfaces.
+2026-02-19T00:30:14.295Z  INFO 11916 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 1111 (http)
+2026-02-19T00:30:14.309Z  INFO 11916 --- [SpendWise] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T00:30:14.309Z  INFO 11916 --- [SpendWise] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-02-19T00:30:14.371Z  INFO 11916 --- [SpendWise] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1618 ms
+2026-02-19T00:30:14.600Z  INFO 11916 --- [SpendWise] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-19T00:30:14.686Z  INFO 11916 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-02-19T00:30:15.340Z  INFO 11916 --- [SpendWise] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T00:30:15.384Z  INFO 11916 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T00:30:15.942Z  INFO 11916 --- [SpendWise] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4a3509b0
+2026-02-19T00:30:15.944Z  INFO 11916 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T00:30:16.003Z  WARN 11916 --- [SpendWise] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T00:30:16.021Z  INFO 11916 --- [SpendWise] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: spendwisedb/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-19T00:30:17.091Z  INFO 11916 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-19T00:30:17.176Z  INFO 11916 --- [SpendWise] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:30:17.259Z  INFO 11916 --- [SpendWise] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-19T00:30:18.041Z  WARN 11916 --- [SpendWise] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T00:30:18.334Z  INFO 11916 --- [SpendWise] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-02-19T00:30:18.516Z  INFO 11916 --- [SpendWise] [main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-02-19T00:30:18.822Z  INFO 11916 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 1111 (http) with context path '/'
+2026-02-19T00:30:18.829Z  INFO 11916 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Started SpendWiseApplication in 6.579 seconds (process running for 7.26)
+2026-02-19T00:30:21.844Z  INFO 11916 --- [SpendWise] [http-nio-1111-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T00:30:21.844Z  INFO 11916 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T00:30:21.852Z  INFO 11916 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 8 ms
+2026-02-19T00:34:59.146Z  INFO 11916 --- [SpendWise] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-19T00:34:59.153Z  INFO 11916 --- [SpendWise] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-02-19T00:34:59.157Z  INFO 11916 --- [SpendWise] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:34:59.159Z  INFO 11916 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T00:34:59.169Z  INFO 11916 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-19T00:35:30.186Z  INFO 24868 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Starting SpendWiseApplication using Java 23.0.2 with PID 24868 (C:\Users\35385\Desktop\Msc_TUS\SpendWise\target\classes started by 35385 in C:\Users\35385\Desktop\Msc_TUS\SpendWise)
+2026-02-19T00:35:30.189Z  INFO 24868 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T00:35:30.799Z  INFO 24868 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T00:35:30.845Z  INFO 24868 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 38 ms. Found 3 JPA repository interfaces.
+2026-02-19T00:35:31.340Z  INFO 24868 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 1111 (http)
+2026-02-19T00:35:31.354Z  INFO 24868 --- [SpendWise] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T00:35:31.354Z  INFO 24868 --- [SpendWise] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-02-19T00:35:31.417Z  INFO 24868 --- [SpendWise] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1173 ms
+2026-02-19T00:35:31.624Z  INFO 24868 --- [SpendWise] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-19T00:35:31.694Z  INFO 24868 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-02-19T00:35:32.424Z  INFO 24868 --- [SpendWise] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T00:35:32.465Z  INFO 24868 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T00:35:32.910Z  INFO 24868 --- [SpendWise] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6ffdbeef
+2026-02-19T00:35:32.912Z  INFO 24868 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T00:35:32.965Z  WARN 24868 --- [SpendWise] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T00:35:32.995Z  INFO 24868 --- [SpendWise] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: spendwisedb/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-19T00:35:34.236Z  INFO 24868 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-19T00:35:34.318Z  INFO 24868 --- [SpendWise] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:35:34.395Z  INFO 24868 --- [SpendWise] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-19T00:35:35.097Z  WARN 24868 --- [SpendWise] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T00:35:35.375Z  INFO 24868 --- [SpendWise] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-02-19T00:35:35.617Z  INFO 24868 --- [SpendWise] [main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-02-19T00:35:35.944Z  INFO 24868 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 1111 (http) with context path '/'
+2026-02-19T00:35:35.950Z  INFO 24868 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Started SpendWiseApplication in 6.243 seconds (process running for 6.985)
+2026-02-19T00:35:36.631Z  INFO 24868 --- [SpendWise] [http-nio-1111-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T00:35:36.631Z  INFO 24868 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T00:35:36.631Z  INFO 24868 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-02-19T00:40:37.988Z  INFO 24868 --- [SpendWise] [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-19T00:40:37.993Z  INFO 24868 --- [SpendWise] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-02-19T00:40:37.997Z  INFO 24868 --- [SpendWise] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:40:37.999Z  INFO 24868 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-02-19T00:40:38.005Z  INFO 24868 --- [SpendWise] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-02-19T00:40:42.404Z  INFO 47472 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Starting SpendWiseApplication using Java 23.0.2 with PID 47472 (C:\Users\35385\Desktop\Msc_TUS\SpendWise\target\classes started by 35385 in C:\Users\35385\Desktop\Msc_TUS\SpendWise)
+2026-02-19T00:40:42.407Z  INFO 47472 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-02-19T00:40:43.008Z  INFO 47472 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-19T00:40:43.060Z  INFO 47472 --- [SpendWise] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 44 ms. Found 3 JPA repository interfaces.
+2026-02-19T00:40:43.565Z  INFO 47472 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 1111 (http)
+2026-02-19T00:40:43.581Z  INFO 47472 --- [SpendWise] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-02-19T00:40:43.581Z  INFO 47472 --- [SpendWise] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.15]
+2026-02-19T00:40:43.636Z  INFO 47472 --- [SpendWise] [main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1179 ms
+2026-02-19T00:40:43.840Z  INFO 47472 --- [SpendWise] [main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-02-19T00:40:43.932Z  INFO 47472 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.1.Final
+2026-02-19T00:40:44.584Z  INFO 47472 --- [SpendWise] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-19T00:40:44.653Z  INFO 47472 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-02-19T00:40:45.333Z  INFO 47472 --- [SpendWise] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@79135a38
+2026-02-19T00:40:45.335Z  INFO 47472 --- [SpendWise] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-02-19T00:40:45.411Z  WARN 47472 --- [SpendWise] [main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-19T00:40:45.442Z  INFO 47472 --- [SpendWise] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/spendwisedb?createDatabaseIfNotExist=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.44
+	Default catalog/schema: spendwisedb/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-19T00:40:46.431Z  INFO 47472 --- [SpendWise] [main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-02-19T00:40:46.506Z  INFO 47472 --- [SpendWise] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-19T00:40:46.585Z  INFO 47472 --- [SpendWise] [main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-19T00:40:47.302Z  WARN 47472 --- [SpendWise] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-19T00:40:47.587Z  INFO 47472 --- [SpendWise] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-02-19T00:40:47.721Z  INFO 47472 --- [SpendWise] [main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-02-19T00:40:47.990Z  INFO 47472 --- [SpendWise] [main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 1111 (http) with context path '/'
+2026-02-19T00:40:47.995Z  INFO 47472 --- [SpendWise] [main] c.e.SpendWise.SpendWiseApplication       : Started SpendWiseApplication in 6.021 seconds (process running for 6.752)
+2026-02-19T00:41:23.067Z  INFO 47472 --- [SpendWise] [http-nio-1111-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-02-19T00:41:23.073Z  INFO 47472 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-02-19T00:41:23.075Z  INFO 47472 --- [SpendWise] [http-nio-1111-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms

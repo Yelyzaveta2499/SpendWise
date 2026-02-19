@@ -6,63 +6,173 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <style>
-        /* Fullscreen loading GIFs */
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
         body {
             margin: 0;
-            background: #0f172a;
-            color: #f9fafb;
+            background: #0f172a; /* slate-900 */
+            color: #f9fafb;      /* gray-50 */
         }
+        /* Fullscreen container */
         .loading-wrapper {
             position: fixed;
             inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            place-items: center;
             overflow: hidden;
             z-index: 9999;
+            background: radial-gradient(1200px 800px at 50% 40%, rgba(56,189,248,0.10), transparent 60%),
+                        radial-gradient(800px 600px at 20% 80%, rgba(34,197,94,0.10), transparent 60%),
+                        #0f172a;
+            /* Establish global perspective for 3D effect */
+            perspective: 1400px;
+            perspective-origin: 50% 45%;
         }
-        .loading-gif {
-            min-width: 100%;
-            min-height: 100%;
+        /* 3D stage for the logo (expandable to full-screen) */
+        .logo-stage {
+            position: relative;
+            width: 100vw; /* span viewport width to allow full-screen coverage */
+            height: 100vh; /* span viewport height */
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            transform-origin: 50% 50%; /* smoother scaling around center */
+            /* Replace previous animation chain with smoother curves */
+            animation: none;
+            will-change: transform, opacity;
+            transform-style: preserve-3d;
+            overflow: hidden;
+            backface-visibility: hidden;
+        }
+        /* Apply blur to the moving logo directly for consistent smoothing */
+        .logo-stage svg {
+            width: 32vmin;
+            height: 32vmin;
+            will-change: filter, transform;
+            animation: none;
+        }
+        /* Masked live app view inside card shape */
+        .app-live-mask {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            opacity: 0;
+            animation: none; /* controlled via WAAPI */
+            -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect x="60" y="80" rx="24" ry="24" width="200" height="140"/></svg>');
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            -webkit-mask-size: contain;
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect x="60" y="80" rx="24" ry="24" width="200" height="140"/></svg>');
+            mask-repeat: no-repeat;
+            mask-position: center;
+            mask-size: contain;
+            overflow: hidden;
+        }
+        .app-live-mask iframe {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* fill the entire screen, */
-            display: block;
+            border: none;
+            background: transparent;
         }
+        /* Outline only: no fill */
+        .card-outline {
+            stroke: rgba(255,255,255,0.8);
+            stroke-width: 2.2;
+            fill: none;
+            position: relative;
+            z-index: 3;
+        }
+        /* Keep fade-in for text */
+        @keyframes fadeIn { to { opacity: 1; } }
     </style>
 </head>
 <body>
-<div class="loading-wrapper" id="loading-wrapper">
-    <!-- Business GIF full-screen -->
-    <img class="loading-gif"
-         th:if="${accountType} == 'BUSINESS'"
-         th:src="@{/images/main.gif}"
-         alt="Loading your business dashboard" />
+<div class="loading-wrapper" id="loading-wrapper" role="status" aria-label="Loading SpendWise">
+    <div class="logo-stage" id="logoStage" aria-hidden="false">
+        <!-- Inline SVG credit card outline only -->
+        <svg width="100%" height="100%" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SpendWise card logo">
+            <defs>
+                <clipPath id="cardClip">
+                    <rect x="60" y="80" rx="24" ry="24" width="200" height="140" />
+                </clipPath>
+            </defs>
 
-    <!-- Individual / Kids GIF full-screen -->
-    <img class="loading-gif"
-         th:if="${accountType} == 'INDIVIDUAL' or ${accountType} == 'KIDS'"
-         th:src="@{/images/main_2.gif}"
-         alt="Loading your personal dashboard" />
+            <!-- Outline only -->
+            <rect class="card-outline" x="60" y="80" rx="24" ry="24" width="200" height="140" />
+        </svg>
+    </div>
+
+    <!-- Masked live landing view inside card -->
+    <div class="app-live-mask" id="appLiveMask" aria-hidden="true">
+        <iframe src="/" title="SpendWise app preview"></iframe>
+    </div>
+
+    <div class="brand-text">Loading your SpendWise experience…</div>
 </div>
 
 <script>
-    var redirected = false;
-    function goToApp() {
-        if (redirected) return;
-        redirected = true;
-        window.location.href = '/';
-    }
+    (function() {
+        var redirected = false;
+        function goToApp() {
+            if (redirected) return;
+            redirected = true;
+            window.location.href = '/';
+        }
 
-    // Auto-redirect after e.g. 4.5 seconds
-    setTimeout(goToApp, 3500);
+        var stage = document.getElementById('logoStage');
+        var svg = stage.querySelector('svg');
+        var cardOutline = svg.querySelector('.card-outline');
+        var liveMask = document.getElementById('appLiveMask');
 
-    // redirect if user taps/clicks anywhere on the GIF
-    document.getElementById('loading-wrapper').addEventListener('click', goToApp);
+        var easePrimary = 'cubic-bezier(0.33, 1, 0.68, 1)';
+        var easeSettle = 'cubic-bezier(0.22, 0.7, 0.22, 1)';
+
+        // Primary toward-camera zoom
+        stage.animate([
+            { opacity: 0, transform: 'translateZ(-780px) scale(0.48) rotateX(1.2deg) rotateY(-0.8deg)' },
+            { opacity: 1, transform: 'translateZ(-640px) scale(0.64) rotateX(1.0deg) rotateY(-0.6deg)' },
+            { transform: 'translateZ(-420px) scale(0.78) rotateX(0.8deg) rotateY(-0.5deg)' },
+            { transform: 'translateZ(-200px) scale(0.96) rotateX(0.6deg) rotateY(-0.35deg)' },
+            { transform: 'translateZ(160px)  scale(1.58) rotateX(0.3deg) rotateY(-0.2deg)' },
+            { transform: 'translateZ(380px)  scale(3.1)  rotateX(0.15deg) rotateY(-0.1deg)' },
+            { transform: 'translateZ(540px)  scale(6.3)  rotateX(0.05deg) rotateY(-0.05deg)' },
+            { transform: 'translateZ(620px)  scale(7.8)' },
+            { opacity: 1, transform: 'translateZ(650px)  scale(8.5)' }
+        ], { duration: 1700, easing: easePrimary, fill: 'forwards' });
+
+        // Subtle settle after primary
+        stage.animate([
+            { transform: 'translateZ(650px) scale(8.5)' },
+            { transform: 'translateZ(615px) scale(8.3)' },
+            { transform: 'translateZ(630px) scale(8.4)' }
+        ], { duration: 420, easing: easeSettle, fill: 'forwards', delay: 1700 });
+
+        // Transient blur on the SVG
+        svg.animate([
+            { filter: 'blur(6px)' },
+            { filter: 'blur(3px)' },
+            { filter: 'blur(0px)' }
+        ], { duration: 700, easing: 'ease-out', fill: 'forwards', delay: 600 });
+
+        // Outline subtle glow
+        cardOutline.animate([
+            { stroke: 'rgba(255,255,255,0.18)' },
+            { stroke: 'rgba(255,255,255,0.32)' },
+            { stroke: 'rgba(255,255,255,0.8)' }
+        ], { duration: 800, easing: 'ease-out', fill: 'forwards', delay: 900 });
+
+        // Reveal actual landing view inside mask briefly
+        liveMask.animate([
+            { opacity: 0 },
+            { opacity: 0.6 },
+            { opacity: 0 }
+        ], { duration: 900, easing: easePrimary, fill: 'forwards', delay: 900 });
+
+        // Redirect after animations complete
+        setTimeout(goToApp, 1700 + 420 + 200);
+
+        // Skip on click
+        document.getElementById('loading-wrapper').addEventListener('click', goToApp);
+    })();
 </script>
 </body>
 </html>
-

@@ -1,5 +1,13 @@
 package com.example.SpendWise.controller;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
 public class LoginController {
-	// empty for now so the default Spring Security login page is used.
+
+	@GetMapping("/login")
+	public String login() {
+		return "login";
+	}
 }

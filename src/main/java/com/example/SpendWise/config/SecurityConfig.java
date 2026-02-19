@@ -25,6 +25,7 @@ public class SecurityConfig {
 				.anyRequest().authenticated()
 			)
 			.formLogin(formLogin -> formLogin
+				.loginPage("/login")
 				.defaultSuccessUrl("/post-login", true)
 				.permitAll()
 			)

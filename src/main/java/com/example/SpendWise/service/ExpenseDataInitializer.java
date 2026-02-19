@@ -5,6 +5,8 @@ import com.example.SpendWise.model.entity.UserEntity;
 import com.example.SpendWise.model.repository.ExpenseRepository;
 import com.example.SpendWise.model.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -17,6 +19,8 @@ import java.time.LocalDate;
  */
 @Component
 public class ExpenseDataInitializer {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExpenseDataInitializer.class);
 
     private final UserRepository userRepository;
     private final ExpenseRepository expenseRepository;
@@ -31,15 +35,18 @@ public class ExpenseDataInitializer {
         // Only seed for the indiv user for now
         UserEntity indivUser = userRepository.findByUsername("indiv").orElse(null);
         if (indivUser == null) {
+            logger.info("User 'indiv' not found - skipping expense seeding");
             return; // no user -> nothing to seed
         }
 
         long existingCount = expenseRepository.countByUser(indivUser);
         if (existingCount > 0) {
             // User already has expenses (placeholders or real ones), don't add again
+            logger.info("User 'indiv' already has {} expenses - skipping seeding to prevent duplicates", existingCount);
             return;
         }
 
+        logger.info("Seeding initial placeholder expenses for user 'indiv'...");
         LocalDate today = LocalDate.now();
 
         savePlaceholder(indivUser, "Grocery Store", "Food & Dining", today);
@@ -49,6 +56,7 @@ public class ExpenseDataInitializer {
         savePlaceholder(indivUser, "Gas Station", "Transportation", today);
         savePlaceholder(indivUser, "Phone Bill", "Utilities", today);
         savePlaceholder(indivUser, "Amazon Purchase", "Shopping", today);
+        logger.info("Successfully seeded 7 placeholder expenses for user 'indiv'");
     }
 
     private void savePlaceholder(UserEntity user, String name, String category, LocalDate date) {
