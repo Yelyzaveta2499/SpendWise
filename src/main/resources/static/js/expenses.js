@@ -74,7 +74,8 @@ function renderExpenses() {
 
   // state object backed by API -> changed from hardcoded expense categories
   const state = {
-    items: []
+    items: [],
+    editingId: null
   };
 
   const listEl = document.getElementById('expense-list');
@@ -135,7 +136,7 @@ function renderExpenses() {
     const iconBg = getIconBg(item.category);
 
     return `
-      <div class="transaction-item">
+      <div class="transaction-item" data-id="${item.id || ''}">
         <div class="transaction-left">
           <div class="category-icon" style="background-color: ${iconBg};">
             ${icon}
@@ -148,6 +149,14 @@ function renderExpenses() {
         <div class="transaction-right">
           <div class="${amountClass}">${amountStr}</div>
           <div class="transaction-date">${formatDate(item.expenseDate || item.date)}</div>
+          <div class="expense-row-actions">
+            <button type="button" class="expense-action-btn expense-edit-btn" data-id="${item.id || ''}">
+              ✎
+            </button>
+            <button type="button" class="expense-action-btn expense-delete-btn" data-id="${item.id || ''}">
+              🗑
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -167,6 +176,57 @@ function renderExpenses() {
     });
 
     listEl.innerHTML = items.map(formatItem).join('');
+
+    // After rendering, wire edit/delete buttons
+    const editButtons = listEl.querySelectorAll('.expense-edit-btn');
+    editButtons.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+        const expense = state.items.find(function(it) { return String(it.id) === String(id); });
+        if (!expense) return;
+        state.editingId = id;
+
+        const titleEl = document.querySelector('#expense-modal .modal-header h3');
+        if (titleEl) titleEl.textContent = 'Edit Expense';
+
+        document.getElementById('exp-name').value = expense.name || '';
+        document.getElementById('exp-category').value = expense.category || '';
+        document.getElementById('exp-amount').value = Number(expense.amount || 0);
+        document.getElementById('exp-date').value = (expense.expenseDate || expense.date || '').slice(0, 10);
+
+        modal.style.display = 'flex';
+      });
+    });
+
+    const deleteButtons = listEl.querySelectorAll('.expense-delete-btn');
+    deleteButtons.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+        if (!confirm('Delete this expense?')) return;
+
+        fetch('/api/expenses/' + id, { method: 'DELETE' })
+          .then(function(resp) {
+            if (!resp.ok) {
+              return resp.json().then(function(err) {
+                throw new Error(err.error || 'Failed to delete expense');
+              }).catch(function() {
+                throw new Error('Failed to delete expense');
+              });
+            }
+          })
+          .then(function() {
+            state.items = state.items.filter(function(it) { return String(it.id) !== String(id); });
+            renderList();
+          })
+          .catch(function(err) {
+            alert(err.message || 'Could not delete expense');
+          });
+      });
+    });
   }
 
   // Load expenses from BE
@@ -194,6 +254,10 @@ function renderExpenses() {
 
   // Modal handlers
   addBtn.addEventListener('click', function () {
+    state.editingId = null;
+    const titleEl = document.querySelector('#expense-modal .modal-header h3');
+    if (titleEl) titleEl.textContent = 'Add New Expense';
+    formEl.reset();
     modal.style.display = 'flex';
   });
 
@@ -207,7 +271,7 @@ function renderExpenses() {
     }
   });
 
-  // Form submit handler - add new expense via API
+  // Form submit handler - add new expense via API OR update existing
   formEl.addEventListener('submit', function (e) {
     e.preventDefault();
     const name = document.getElementById('exp-name').value;
@@ -224,8 +288,12 @@ function renderExpenses() {
       date: date
     };
 
-    fetch('/api/expenses', {
-      method: 'POST',
+    const isEdit = !!state.editingId;
+    const url = isEdit ? ('/api/expenses/' + state.editingId) : '/api/expenses';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    fetch(url, {
+      method: method,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -233,22 +301,27 @@ function renderExpenses() {
     })
       .then(function (response) {
         if (!response.ok) {
-          // Try to read backend error message
           return response.json().then(function (err) {
-            var msg = err && err.error ? err.error : 'Failed to create expense';
+            var msg = err && err.error ? err.error : (isEdit ? 'Failed to update expense' : 'Failed to create expense');
             throw new Error(msg);
           }).catch(function () {
-            throw new Error('Failed to create expense');
+            throw new Error(isEdit ? 'Failed to update expense' : 'Failed to create expense');
           });
         }
         return response.json();
       })
-      .then(function (created) {
-        // Prepend new item and re-render
-        state.items.unshift(created);
+      .then(function (saved) {
+        if (isEdit) {
+          state.items = state.items.map(function(it) {
+            return String(it.id) === String(state.editingId) ? saved : it;
+          });
+        } else {
+          state.items.unshift(saved);
+        }
         renderList();
         e.target.reset();
         modal.style.display = 'none';
+        state.editingId = null;
       })
       .catch(function (err) {
         alert(err.message || 'Could not save expense. Please try again.');

@@ -1320,3 +1320,57 @@ body.dark-mode .btn-submit:hover {
   border-color: rgba(239, 68, 68, 0.55);
 }
 
+/* Expense row actions (edit/delete) */
+.expense-row-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-2px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+}
+
+.transaction-item:hover .expense-row-actions {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.expense-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.35);
+  background: rgba(2, 6, 23, 0.55);
+  color: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 13px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.expense-action-btn:hover {
+  background: rgba(2, 6, 23, 0.72);
+  border-color: rgba(15, 23, 42, 0.55);
+  transform: translateY(-1px);
+}
+
+.expense-action-btn:active {
+  transform: translateY(0);
+}
+
+.expense-delete-btn {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(127, 29, 29, 0.4);
+  color: rgba(248, 113, 113, 0.95);
+}
+
+.expense-delete-btn:hover {
+  background: rgba(127, 29, 29, 0.55);
+  border-color: rgba(239, 68, 68, 0.55);
+}
+
