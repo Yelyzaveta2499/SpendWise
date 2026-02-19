@@ -3,78 +3,103 @@ function renderBudgets() {
   const budgetsSection = document.getElementById('section-budgets');
   if (!budgetsSection) return;
 
-  const pageContent = budgetsSection.querySelector('.section-content');
-  if (!pageContent) return;
+  // Replacing static sample budgetData with dynamic data from backend.
 
 
-  // Sample budget data
-  const budgetData = {
-    totalBudget: 3200,
-    totalSpent: 2700,
-    remaining: 500,
-    categories: [
-      {
-        name: 'Housing',
-        icon: '🏠',
-        monthlyLimit: 1200,
-        spent: 1200,
-        color: '#f59e0b'
-      },
-      {
-        name: 'Food & Dining',
-        icon: '🍽️',
-        monthlyLimit: 600,
-        spent: 450,
-        color: '#1e3a8a'
-      },
-      {
-        name: 'Transportation',
-        icon: '🚗',
-        monthlyLimit: 400,
-        spent: 280,
-        color: '#1e3a8a'
-      },
-      {
-        name: 'Entertainment',
-        icon: '🎬',
-        monthlyLimit: 200,
-        spent: 180,
-        color: '#f59e0b'
-      },
-      {
-        name: 'Shopping',
-        icon: '🛍️',
-        monthlyLimit: 300,
-        spent: 320,
-        color: '#dc2626'
-      },
-      {
-        name: 'Utilities',
-        icon: '💡',
-        monthlyLimit: 250,
-        spent: 145,
-        color: '#1e3a8a'
-      },
-      {
-        name: 'Healthcare',
-        icon: '🏥',
-        monthlyLimit: 150,
-        spent: 50,
-        color: '#1e3a8a'
-      },
-      {
-        name: 'Personal Care',
-        icon: '✨',
-        monthlyLimit: 100,
-        spent: 75,
-        color: '#f59e0b'
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  function calculateFromApi(budgets, expenses) {
+    // budgets: [{id, category, amount, month, year, ...}]
+    // expenses: [{category, amount, expenseDate, ...}]
+
+    const budgetsThisMonth = (Array.isArray(budgets) ? budgets : []).filter(b => b.month === currentMonth && b.year === currentYear);
+
+    const totalBudget = budgetsThisMonth.reduce((sum, b) => sum + Number(b.amount || 0), 0);
+
+    const spentByCategory = {};
+    (Array.isArray(expenses) ? expenses : []).forEach(e => {
+      if (!e || !e.expenseDate) return;
+      const d = new Date(e.expenseDate);
+      if ((d.getMonth() + 1) !== currentMonth || d.getFullYear() !== currentYear) return;
+      const cat = e.category || 'Other';
+      spentByCategory[cat] = (spentByCategory[cat] || 0) + Number(e.amount || 0);
+    });
+
+    const totalSpent = Object.values(spentByCategory).reduce((sum, v) => sum + v, 0);
+    const remaining = totalBudget - totalSpent;
+
+    //categories
+    const uiCategories = [
+      { name: 'Housing', icon: '🏠' },
+      { name: 'Food & Dining', icon: '🍽️' },
+      { name: 'Transportation', icon: '🚗' },
+      { name: 'Entertainment', icon: '🎬' },
+      { name: 'Shopping', icon: '🛍️' },
+      { name: 'Utilities', icon: '💡' },
+      { name: 'Healthcare', icon: '🏥' },
+      { name: 'Personal Care', icon: '✨' }
+    ];
+
+    const budgetsByCategory = {};
+    budgetsThisMonth.forEach(b => {
+      budgetsByCategory[b.category] = b;
+    });
+
+    const categories = uiCategories.map(c => {
+      const b = budgetsByCategory[c.name];
+      const monthlyLimit = b ? Number(b.amount || 0) : 0;
+      const spent = spentByCategory[c.name] || 0;
+
+
+      let color = '#1e3a8a';
+      if (monthlyLimit > 0 && spent > monthlyLimit) {
+        color = '#dc2626';
+      } else if (monthlyLimit > 0 && (spent / monthlyLimit) >= 0.85) {
+        color = '#f59e0b';
       }
-    ]
-  };
 
-  const percentSpent = ((budgetData.totalSpent / budgetData.totalBudget) * 100).toFixed(1);
+      return {
+        name: c.name,
+        icon: c.icon,
+        monthlyLimit: monthlyLimit,
+        spent: spent,
+        color: color,
+        budgetId: b ? b.id : null
+      };
+    });
 
-  pageContent.innerHTML = `
+    return {
+      totalBudget,
+      totalSpent,
+      remaining,
+      categories
+    };
+  }
+
+  function fetchDataAndRender() {
+    Promise.all([
+      fetch('/api/budgets').then(res => res.ok ? res.json() : []).catch(() => []),
+      fetch('/api/expenses').then(res => res.ok ? res.json() : []).catch(() => [])
+    ]).then(function(values) {
+      const data = calculateFromApi(values[0], values[1]);
+
+
+      const budgetData = {
+        totalBudget: data.totalBudget,
+        totalSpent: data.totalSpent,
+        remaining: data.remaining,
+        categories: data.categories
+      };
+
+      const percentSpent = (budgetData.totalBudget > 0)
+        ? ((budgetData.totalSpent / budgetData.totalBudget) * 100).toFixed(1)
+        : '0.0';
+
+      //innerHTML HTML markup.
+      const pageContent = budgetsSection.querySelector('.section-content');
+      pageContent.innerHTML = `
     <div class="budgets-container">
       <!-- Top Summary Cards -->
       <div class="budget-summary-cards">
@@ -138,43 +163,71 @@ function renderBudgets() {
     </div>
   `;
 
-  // Modal handlers
-  const addBudgetBtn = document.getElementById('add-budget-btn');
-  const modal = document.getElementById('budget-modal');
-  const modalClose = document.getElementById('budget-modal-close');
-  const budgetForm = document.getElementById('add-budget-form');
+      // Modal handlers ( POST to API)
+      const addBudgetBtn = document.getElementById('add-budget-btn');
+      const modal = document.getElementById('budget-modal');
+      const modalClose = document.getElementById('budget-modal-close');
+      const budgetForm = document.getElementById('add-budget-form');
 
-  if (addBudgetBtn) {
-    addBudgetBtn.addEventListener('click', function () {
-      modal.style.display = 'flex';
+      if (addBudgetBtn) {
+        addBudgetBtn.addEventListener('click', function () {
+          modal.style.display = 'flex';
+        });
+      }
+
+      if (modalClose) {
+        modalClose.addEventListener('click', function () {
+          modal.style.display = 'none';
+        });
+      }
+
+      window.addEventListener('click', function (e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+
+      if (budgetForm) {
+        budgetForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const category = document.getElementById('budget-category').value;
+          const limit = document.getElementById('budget-limit').value;
+
+          fetch('/api/budgets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              category: category,
+              amount: Number(limit),
+              month: currentMonth,
+              year: currentYear
+            })
+          })
+            .then(function(resp) {
+              if (!resp.ok) {
+                return resp.json().then(function(err) {
+                  throw new Error(err.error || 'Failed to add budget');
+                });
+              }
+              return resp.json();
+            })
+            .then(function() {
+              budgetForm.reset();
+              modal.style.display = 'none';
+              fetchDataAndRender();
+            })
+            .catch(function(err) {
+              alert(err.message || 'Could not add budget');
+            });
+        });
+      }
+
+
     });
   }
 
-  if (modalClose) {
-    modalClose.addEventListener('click', function () {
-      modal.style.display = 'none';
-    });
-  }
-
-  window.addEventListener('click', function (e) {
-    if (e.target === modal) {
-      modal.style.display = 'none';
-    }
-  });
-
-  if (budgetForm) {
-    budgetForm.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const category = document.getElementById('budget-category').value;
-      const limit = document.getElementById('budget-limit').value;
-
-      // TODO: Send to backend API
-      alert(`Budget added: ${category} - $${limit}`);
-
-      budgetForm.reset();
-      modal.style.display = 'none';
-    });
-  }
+  // data render
+  fetchDataAndRender();
 }
 
 function renderBudgetCard(category) {
@@ -222,4 +275,3 @@ function renderBudgetCard(category) {
     </div>
   `;
 }
-
