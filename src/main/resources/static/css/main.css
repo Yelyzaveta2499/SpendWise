@@ -1374,3 +1374,13 @@ body.dark-mode .btn-submit:hover {
   border-color: rgba(239, 68, 68, 0.55);
 }
 
+/* Expense row top-right layout */
+.expense-right-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.expense-right-top .expense-row-actions {
+  margin-left: 0;
+}

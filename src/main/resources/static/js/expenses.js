@@ -75,7 +75,8 @@ function renderExpenses() {
   // state object backed by API -> changed from hardcoded expense categories
   const state = {
     items: [],
-    editingId: null
+    editingId: null,
+    showAll: false
   };
 
   const listEl = document.getElementById('expense-list');
@@ -147,16 +148,18 @@ function renderExpenses() {
           </div>
         </div>
         <div class="transaction-right">
-          <div class="${amountClass}">${amountStr}</div>
-          <div class="transaction-date">${formatDate(item.expenseDate || item.date)}</div>
-          <div class="expense-row-actions">
-            <button type="button" class="expense-action-btn expense-edit-btn" data-id="${item.id || ''}">
-              ✎
-            </button>
-            <button type="button" class="expense-action-btn expense-delete-btn" data-id="${item.id || ''}">
-              🗑
-            </button>
+          <div class="expense-right-top">
+            <div class="expense-row-actions">
+              <button type="button" class="expense-action-btn expense-edit-btn" data-id="${item.id || ''}">
+                ✎
+              </button>
+              <button type="button" class="expense-action-btn expense-delete-btn" data-id="${item.id || ''}">
+                🗑
+              </button>
+            </div>
+            <div class="${amountClass}">${amountStr}</div>
           </div>
+          <div class="transaction-date">${formatDate(item.expenseDate || item.date)}</div>
         </div>
       </div>
     `;
@@ -167,7 +170,7 @@ function renderExpenses() {
     const q = (searchEl.value || '').toLowerCase();
     const cat = categoryEl.value || '';
 
-    const items = state.items.filter(function (i) {
+    const filtered = state.items.filter(function (i) {
       const nameMatch = !q || (i.name && i.name.toLowerCase().includes(q));
       const categoryText = i.category ? i.category.toLowerCase() : '';
       const categoryMatchSearch = !q || categoryText.includes(q);
@@ -175,9 +178,32 @@ function renderExpenses() {
       return (nameMatch || categoryMatchSearch) && categoryMatchFilter;
     });
 
-    listEl.innerHTML = items.map(formatItem).join('');
+    const visibleItems = state.showAll ? filtered : filtered.slice(0, 10);
 
-    // After rendering, wire edit/delete buttons
+    listEl.innerHTML = visibleItems.map(formatItem).join('');
+
+    if (filtered.length > 10) {
+      const toggleLabel = state.showAll ? 'Hide older' : 'Show older';
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.textContent = toggleLabel;
+      toggle.className = 'btn-show-more-expenses';
+      toggle.style.margin = '8px 16px 16px auto';
+      toggle.style.display = 'block';
+      toggle.style.background = 'transparent';
+      toggle.style.border = 'none';
+      toggle.style.color = '#1e3a8a';
+      toggle.style.cursor = 'pointer';
+      toggle.style.fontWeight = '600';
+      listEl.appendChild(toggle);
+
+      toggle.addEventListener('click', function () {
+        state.showAll = !state.showAll;
+        renderList();
+      });
+    }
+
+    // edit/delete buttons
     const editButtons = listEl.querySelectorAll('.expense-edit-btn');
     editButtons.forEach(function(btn) {
       btn.addEventListener('click', function(e) {
