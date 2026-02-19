@@ -169,22 +169,109 @@ function renderBudgets() {
       const modalClose = document.getElementById('budget-modal-close');
       const budgetForm = document.getElementById('add-budget-form');
 
+      // Track whether we are editing or adding
+      let editingBudgetId = null;
+
+      function openModalForAdd() {
+        editingBudgetId = null;
+        const titleEl = modal ? modal.querySelector('.modal-header h3') : null;
+        if (titleEl) titleEl.textContent = 'Add New Budget';
+
+        // defaults
+        const catEl = document.getElementById('budget-category');
+        const limitEl = document.getElementById('budget-limit');
+        if (catEl) catEl.value = '';
+        if (limitEl) limitEl.value = '';
+
+        if (modal) modal.style.display = 'flex';
+      }
+
+      function openModalForEdit(budgetId, categoryName, amount) {
+        editingBudgetId = budgetId;
+        const titleEl = modal ? modal.querySelector('.modal-header h3') : null;
+        if (titleEl) titleEl.textContent = 'Edit Budget';
+
+        const catEl = document.getElementById('budget-category');
+        const limitEl = document.getElementById('budget-limit');
+
+        if (catEl) catEl.value = categoryName;
+        if (limitEl) limitEl.value = amount;
+
+        if (modal) modal.style.display = 'flex';
+      }
+
       if (addBudgetBtn) {
-        addBudgetBtn.addEventListener('click', function () {
-          modal.style.display = 'flex';
-        });
+        addBudgetBtn.addEventListener('click', openModalForAdd);
       }
 
       if (modalClose) {
         modalClose.addEventListener('click', function () {
-          modal.style.display = 'none';
+          if (modal) modal.style.display = 'none';
         });
       }
 
-      window.addEventListener('click', function (e) {
+      globalThis.addEventListener('click', function (e) {
         if (e.target === modal) {
           modal.style.display = 'none';
         }
+      });
+
+      // Wire edit/delete buttons for each card
+      const editButtons = pageContent.querySelectorAll('.budget-edit-btn');
+      editButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(ev) {
+          ev.preventDefault();
+          const id = btn.getAttribute('data-id');
+          const category = btn.getAttribute('data-category');
+          const amount = btn.getAttribute('data-amount');
+
+          // If id exists -> edit existing budget (PUT).
+          // If no id -> treat as set/new budget for this category (POST).
+          if (id) {
+            openModalForEdit(id, category || '', amount || '');
+          } else {
+            editingBudgetId = null;
+            const titleEl = modal ? modal.querySelector('.modal-header h3') : null;
+            if (titleEl) titleEl.textContent = 'Set Budget';
+
+            const catEl = document.getElementById('budget-category');
+            const limitEl = document.getElementById('budget-limit');
+            if (catEl) catEl.value = category || '';
+            if (limitEl) limitEl.value = amount || '';
+
+            if (modal) modal.style.display = 'flex';
+          }
+        });
+      });
+
+      const deleteButtons = pageContent.querySelectorAll('.budget-delete-btn');
+      deleteButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(ev) {
+          ev.preventDefault();
+          const id = btn.getAttribute('data-id');
+          const category = btn.getAttribute('data-category') || 'this budget';
+          if (!id) return;
+
+          const ok = confirm('Delete ' + category + ' budget?');
+          if (!ok) return;
+
+          fetch('/api/budgets/' + id, {
+            method: 'DELETE'
+          })
+            .then(function(resp) {
+              if (!resp.ok) {
+                return resp.json().then(function(err) {
+                  throw new Error(err.error || 'Failed to delete budget');
+                });
+              }
+            })
+            .then(function() {
+              fetchDataAndRender();
+            })
+            .catch(function(err) {
+              alert(err.message || 'Could not delete budget');
+            });
+        });
       });
 
       if (budgetForm) {
@@ -193,35 +280,41 @@ function renderBudgets() {
           const category = document.getElementById('budget-category').value;
           const limit = document.getElementById('budget-limit').value;
 
-          fetch('/api/budgets', {
-            method: 'POST',
+          // Decide create vs update
+          const method = editingBudgetId ? 'PUT' : 'POST';
+          const url = editingBudgetId ? ('/api/budgets/' + editingBudgetId) : '/api/budgets';
+
+          const payload = {
+            category: category,
+            amount: Number(limit),
+            month: currentMonth,
+            year: currentYear
+          };
+
+          fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              category: category,
-              amount: Number(limit),
-              month: currentMonth,
-              year: currentYear
-            })
+            body: JSON.stringify(payload)
           })
             .then(function(resp) {
               if (!resp.ok) {
                 return resp.json().then(function(err) {
-                  throw new Error(err.error || 'Failed to add budget');
+                  throw new Error(err.error || (editingBudgetId ? 'Failed to update budget' : 'Failed to add budget'));
                 });
               }
               return resp.json();
             })
             .then(function() {
               budgetForm.reset();
-              modal.style.display = 'none';
+              if (modal) modal.style.display = 'none';
+              editingBudgetId = null;
               fetchDataAndRender();
             })
             .catch(function(err) {
-              alert(err.message || 'Could not add budget');
+              alert(err.message || 'Could not save budget');
             });
         });
       }
-
 
     });
   }
@@ -243,14 +336,35 @@ function renderBudgetCard(category) {
     statusText = `${Math.abs(percentUsed - 100)}% used`;
   }
 
+  // Always show Edit (it acts as "Set budget" when budgetId is missing).
+  // Only show Delete when a budget exists.
+  const editAttrs = `data-id="${category.budgetId || ''}" data-category="${category.name}" data-amount="${category.monthlyLimit}"`;
+  const editBtn = `
+          <button type="button" class="budget-action-btn budget-edit-btn" ${editAttrs} aria-label="Edit budget" title="Edit">
+            ✎
+          </button>`;
+
+  const deleteBtn = category.budgetId ? `
+          <button type="button" class="budget-action-btn budget-delete-btn" data-id="${category.budgetId}" data-category="${category.name}" aria-label="Delete budget" title="Delete">
+            🗑
+          </button>` : '';
+
+  const actionsHtml = `
+        <div class="budget-card-actions">
+          ${editBtn}
+          ${deleteBtn}
+        </div>
+  `;
+
   return `
-    <div class="budget-card ${statusClass}">
+    <div class="budget-card ${statusClass}" data-budget-id="${category.budgetId || ''}" data-category="${category.name}">
       <div class="budget-card-header">
         <div class="budget-icon">${category.icon}</div>
         <div class="budget-info">
           <div class="budget-name">${category.name}</div>
           <div class="budget-limit-label">Monthly limit</div>
         </div>
+        ${actionsHtml}
       </div>
 
       <div class="budget-amounts">
