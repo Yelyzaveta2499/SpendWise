@@ -155,4 +155,36 @@ class BudgetServiceTest {
         assertThrows(SecurityException.class,
                 () -> budgetService.deleteBudgetForUser("indiv", 100L));
     }
+
+    @Test
+    void updateBudget_owner_updatesAmountSuccessfully() {
+        // Arrange
+        UserEntity user = new UserEntity();
+        user.setId(1);
+        user.setUsername("indiv");
+
+        BudgetEntity budget = new BudgetEntity();
+        budget.setId(100L);
+        budget.setUser(user);
+        budget.setCategory("Housing");
+        budget.setAmount(new BigDecimal("1000"));
+        budget.setMonth(2);
+        budget.setYear(2026);
+
+        when(userRepository.findByUsername("indiv")).thenReturn(Optional.of(user));
+        when(budgetRepository.findById(100L)).thenReturn(Optional.of(budget));
+        when(budgetRepository.findByUserAndCategoryAndYearAndMonth(user, "Housing", 2026, 2))
+                .thenReturn(Optional.of(budget));
+        when(budgetRepository.save(any(BudgetEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Map<String, Object> update = new HashMap<>();
+        update.put("amount", 1200);
+
+        // Act
+        BudgetEntity updated = budgetService.updateBudgetForUser("indiv", 100L, update);
+
+        // Assert
+        assertEquals(new BigDecimal("1200"), updated.getAmount());
+    }
 }
