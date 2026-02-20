@@ -65,6 +65,25 @@ Add Expense dialog:
 
 Submitted expenses are stored in the `expenses` table and immediately shown in the list.
 
+## US3 – Manage Budgets by Category
+- Open **Budgets** from the sidebar after login.
+- Budgets are stored per **category + month + year** for the logged-in user.
+
+API (REST):
+- `GET /api/budgets` – list budgets for current user
+- `POST /api/budgets` – create budget
+- `PUT /api/budgets/{id}` – update budget
+- `DELETE /api/budgets/{id}` – delete budget
+
+Rules:
+- `amount` must be > 0
+- only one budget per `(category, month, year)` per user
+- users can only update/delete their own budgets
+
+Tests:
+- `BudgetControllerTest`
+- `BudgetServiceTest`
+
 ## Tests
 To run the unit and controller tests:
 
@@ -76,8 +95,3 @@ This runs Spring Boot tests for:
 - Basic application context loading
 - Login and home controllers
 - Expense service and expense REST API behaviour.
-
-## Known limitations
-- Authentication still uses in-memory users; there is no registration UI.
-- Validation is basic (simple checks on amount, name, category, and date).
-- UI is desktop-focused and has not been optimized for mobile.
