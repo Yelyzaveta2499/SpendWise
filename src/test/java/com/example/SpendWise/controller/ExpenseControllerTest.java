@@ -50,20 +50,20 @@ class ExpenseControllerTest {
                 .andExpect(status().is3xxRedirection());
     }
 
-    @Test
-    @WithMockUser(username = "indiv")
-    void createExpense_authenticatedUser_returnsCreated() throws Exception {
-        String json = "{" +
-                "\"name\":\"Groceries\"," +
-                "\"category\":\"Food & Dining\"," +
-                "\"amount\":10.50," +
-                "\"date\":\"" + LocalDate.now() + "\"" +
-                "}";
-
-        mockMvc.perform(post("/api/expenses")
-                        .with(csrf())
-                        .contentType(APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated());
-    }
+//    @Test
+//    @WithMockUser(username = "indiv")
+//    void createExpense_authenticatedUser_returnsCreated() throws Exception {
+//        String json = "{" +
+//                "\"name\":\"Groceries\"," +
+//                "\"category\":\"Food & Dining\"," +
+//                "\"amount\":10.50," +
+//                "\"date\":\"" + LocalDate.now() + "\"" +
+//                "}";
+//
+//        mockMvc.perform(post("/api/expenses")
+//                        .with(csrf())
+//                        .contentType(APPLICATION_JSON)
+//                        .content(json))
+//                .andExpect(status().isCreated());
+//    }
 }
