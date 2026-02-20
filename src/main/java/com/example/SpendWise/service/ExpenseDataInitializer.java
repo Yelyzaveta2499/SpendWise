@@ -39,9 +39,20 @@ public class ExpenseDataInitializer {
             return; // no user -> nothing to seed
         }
 
+        // Seed ONLY when the user has no real expenses (amount > 0)
+        long realCount = expenseRepository.findTop20ByUserOrderByExpenseDateDesc(indivUser)
+                .stream()
+                .filter(e -> e.getAmount() != null && e.getAmount().compareTo(BigDecimal.ZERO) > 0)
+                .count();
+
+        if (realCount > 0) {
+            logger.info("User 'indiv' already has {} real expenses - skipping seeding", realCount);
+            return;
+        }
+
+        // Also avoid adding duplicates if placeholders already exist
         long existingCount = expenseRepository.countByUser(indivUser);
         if (existingCount > 0) {
-            // User already has expenses (placeholders or real ones), don't add again
             logger.info("User 'indiv' already has {} expenses - skipping seeding to prevent duplicates", existingCount);
             return;
         }
@@ -70,4 +81,3 @@ public class ExpenseDataInitializer {
         expenseRepository.save(e);
     }
 }
-

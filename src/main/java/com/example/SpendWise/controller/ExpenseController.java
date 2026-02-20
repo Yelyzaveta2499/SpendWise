@@ -43,6 +43,15 @@ public class ExpenseController {
         expenseService.deleteExpenseForUser(username, id);
         return ResponseEntity.noContent().build();
     }
+    // Updating expense if owned by authenticated user
+    @PutMapping("/{id}")
+    public ResponseEntity<ExpenseEntity> updateExpense(@PathVariable("id") Long id,
+                                                       @RequestBody Map<String, Object> body,
+                                                       Authentication authentication) {
+        String username = authentication.getName();
+        ExpenseEntity updated = expenseService.updateExpenseForUser(username, id, body);
+        return ResponseEntity.ok(updated);
+    }
     // Mapping invalid arguments (e.g., user/expense not found, bad amount) to 400
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<Map<String, String>> handleBadRequest(IllegalArgumentException ex) {
@@ -58,4 +67,3 @@ public class ExpenseController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 }
-

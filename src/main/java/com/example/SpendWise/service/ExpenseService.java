@@ -123,4 +123,83 @@ public class ExpenseService {
 
         expenseRepository.delete(expense);
     }
+
+    /**
+     * Updating an existing expense for the given username.
+     */
+    @SuppressWarnings("unchecked")
+    public ExpenseEntity updateExpenseForUser(String username, Long expenseId, Object updateRequest) {
+        if (expenseId == null) {
+            throw new IllegalArgumentException("expenseId is required");
+        }
+
+        if (!(updateRequest instanceof java.util.Map<?, ?> rawMap)) {
+            throw new IllegalArgumentException("Unsupported request type for expenseCreateRequest");
+        }
+        java.util.Map<String, Object> map = (java.util.Map<String, Object>) rawMap;
+
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
+
+        ExpenseEntity expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new IllegalArgumentException("Expense not found: " + expenseId));
+
+        if (!expense.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("Cannot update expense that does not belong to user: " + username);
+        }
+
+        Object nameRaw = map.get("name");
+        if (nameRaw instanceof String s && !s.isBlank()) {
+            expense.setName(s);
+        }
+
+        Object categoryRaw = map.get("category");
+        if (categoryRaw instanceof String s && !s.isBlank()) {
+            expense.setCategory(s.trim());
+        }
+
+        Object amountRaw = map.get("amount");
+        if (amountRaw != null) {
+            BigDecimal amount;
+            if (amountRaw instanceof BigDecimal bd) {
+                amount = bd;
+            } else if (amountRaw instanceof Number num) {
+                amount = BigDecimal.valueOf(num.doubleValue());
+            } else if (amountRaw instanceof String s && !s.isBlank()) {
+                amount = new BigDecimal(s);
+            } else {
+                throw new IllegalArgumentException("Expense amount must be a number");
+            }
+
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Expense amount must be greater than zero");
+            }
+
+            expense.setAmount(amount);
+        }
+
+        Object dateRaw = map.get("date");
+        if (dateRaw != null) {
+            LocalDate expenseDate;
+            if (dateRaw instanceof LocalDate d) {
+                expenseDate = d;
+            } else if (dateRaw instanceof String s && !s.isBlank()) {
+                try {
+                    expenseDate = LocalDate.parse(s);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Expense date must be in format YYYY-MM-DD");
+                }
+            } else {
+                throw new IllegalArgumentException("Expense date must be in format YYYY-MM-DD");
+            }
+
+            if (expenseDate.isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("Expense date cannot be in the future");
+            }
+
+            expense.setExpenseDate(expenseDate);
+        }
+
+        return expenseRepository.save(expense);
+    }
 }
