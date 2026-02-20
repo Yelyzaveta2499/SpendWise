@@ -179,12 +179,12 @@ class BudgetServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Map<String, Object> update = new HashMap<>();
-        update.put("amount", 1200);
+        update.put("amount", 1200.0);
 
         // Act
         BudgetEntity updated = budgetService.updateBudgetForUser("indiv", 100L, update);
 
         // Assert
-        assertEquals(new BigDecimal("1200"), updated.getAmount());
+        assertEquals(new BigDecimal("1200.0"), updated.getAmount());
     }
 }
