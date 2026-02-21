@@ -27,11 +27,19 @@ function renderBudgets() {
       if (!e || !e.expenseDate) return;
       const d = new Date(e.expenseDate);
       if ((d.getMonth() + 1) !== currentMonth || d.getFullYear() !== currentYear) return;
+
       const cat = e.category || 'Other';
-      spentByCategory[cat] = (spentByCategory[cat] || 0) + Number(e.amount || 0);
+
+      // "Total Spent" on budgets should not include income rows logic
+      if (cat === 'Income') return;
+
+      const amt = Math.abs(Number(e.amount || 0));
+      if (!Number.isFinite(amt) || amt <= 0) return;
+
+      spentByCategory[cat] = (spentByCategory[cat] || 0) + amt;
     });
 
-    const totalSpent = Object.values(spentByCategory).reduce((sum, v) => sum + v, 0);
+    const totalSpent = Object.values(spentByCategory).reduce((sum, v) => sum + (Number(v) || 0), 0);
     const remaining = totalBudget - totalSpent;
 
     //categories
