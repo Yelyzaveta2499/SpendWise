@@ -1534,7 +1534,7 @@ body.dark-mode .btn-submit:hover {
 .dash-chart {
   height: 320px;
   border-radius: 14px;
-  background: #ffffff;
+  background: rgba(145, 144, 144, 0.21);
   border: 1px solid rgba(15, 23, 42, 0.08);
   display: flex;
   align-items: center;
@@ -1710,3 +1710,32 @@ body.dark-mode .dash-period-select {
 
 /* animation re-play nicely on re-render */
 .dash-chart .paint-line { animation-duration: 1000ms; }
+
+/* Paint animation for SVG paths */
+@keyframes dashPaint {
+  from { stroke-dashoffset: var(--dash, 1200); }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes dashFadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dash-chart .paint-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--dash, 1200);
+  stroke-dashoffset: var(--dash, 1200);
+  animation-name: dashPaint;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
+}
+
+.dash-chart .paint-fill {
+  opacity: 0;
+  animation: dashFadeUp 600ms ease forwards;
+  animation-delay: 120ms;
+}
+

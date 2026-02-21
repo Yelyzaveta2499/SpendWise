@@ -11,7 +11,6 @@ function renderDashboardOverview() {
       <div class="dash-top">
 
         <div class="dash-controls">
-          <label class="dash-period-label" for="dashPeriod">Time period</label>
           <select id="dashPeriod" class="dash-period-select">
             <option value="this_month">This month</option>
             <option value="last_month">Last month</option>
@@ -120,8 +119,8 @@ function renderDashboardOverview() {
 
   function iconForCategory(category) {
     const icons = {
-      'Food & Dining': '🛒',
-      'Income': '💰',
+      'Food & Dining': '🍴',
+      'Income': '💼',
       'Coffee': '☕',
       'Housing': '🏠',
       'Transportation': '🚗',

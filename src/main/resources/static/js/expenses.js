@@ -97,7 +97,7 @@ function renderExpenses() {
       'Transportation': '🚗',
       'Utilities': '📱',
       'Shopping': '🛍️',
-      'Grocery': '🍴'
+      'Grocery': '🛒'
     };
     return icons[category] || '💰';
   }
