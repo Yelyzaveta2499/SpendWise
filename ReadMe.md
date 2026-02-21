@@ -40,6 +40,29 @@ Example accounts:
 
 After successful login you are redirected to the main dashboard.
 
+## US4 – Dashboard Financial Overview
+The dashboard provides a quick financial summary without opening other pages.
+
+What you can see:
+- Total Balance (income − expenses)
+- Income total for the selected period
+- Expenses total for the selected period
+- Savings Rate
+- Income vs Expenses chart (last 6 months)
+- Recent transactions
+
+Behaviour:
+- On load: totals + chart + recent list are fetched and displayed.
+- Period selector: changing the time period refreshes the data.
+- Empty state: if no financial data exists for the user/period, an empty state message is shown.
+
+Backend API:
+- `GET /api/dashboard/overview?period=this_month|last_month|last_30|this_year`
+
+Tests:
+- `DashboardServiceTest` (calculation logic)
+- `DashboardControllerTest` (controller wiring + error handling)
+
 ## Database seeding
 On startup:
 - `data.sql` ensures roles (`INDIVIDUAL`, `BUSINESS`, `KIDS`) and users (`indiv`, `business`, `kid`) exist.
