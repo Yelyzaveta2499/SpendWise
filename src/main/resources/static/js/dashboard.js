@@ -185,74 +185,150 @@ function renderDashboardOverview() {
 
     const w = 760;
     const h = 260;
-    const pad = 28;
+    const padT = 28;
+    const padB = 24;
+    const padL = 40;
+    const padR = 20;
+
+    function x(i) {
+      if (data.length === 1) return padL;
+      const innerW = w - padL - padR;
+      return padL + (innerW * (i / (data.length - 1)));
+    }
 
     const incomes = data.map(p => Number(p.income) || 0);
     const expenses = data.map(p => Number(p.expenses) || 0);
 
-    const maxVal = Math.max(1, ...incomes, ...expenses);
+    const rawMax = Math.max(1, ...incomes, ...expenses);
 
-    function x(i) {
-      if (data.length === 1) return pad;
-      const innerW = w - pad * 2;
-      return pad + (innerW * (i / (data.length - 1)));
+    // max with 4 intervals (0, 1.5k, 3k, 4.5k, 6k)
+    let chartMax = rawMax;
+    if (rawMax >= 1000) {
+      const step = 1500;
+      chartMax = Math.ceil(rawMax / step) * step;
+      if (chartMax < step * 4) chartMax = step * 4;
     }
 
     function y(v) {
-      const innerH = h - pad * 2;
-      const t = (Number(v) || 0) / maxVal;
-      return (h - pad) - (innerH * t);
+      const innerH = h - padT - padB;
+      const t = (Number(v) || 0) / chartMax;
+      return (h - padB) - (innerH * t);
     }
 
-    function polyline(values) {
-      return values.map(function (v, i) {
-        return x(i).toFixed(1) + ',' + y(v).toFixed(1);
-      }).join(' ');
+    // Smooth path builder (simple cubic curves between points)
+    function smoothPath(values) {
+      const pts = values.map(function(v, i) {
+        return { x: x(i), y: y(v) };
+      });
+
+      if (pts.length === 1) {
+        return 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+      }
+
+      let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+      for (let i = 1; i < pts.length; i++) {
+        const prev = pts[i - 1];
+        const curr = pts[i];
+        const midX = (prev.x + curr.x) / 2;
+        d += ' C ' + midX.toFixed(1) + ' ' + prev.y.toFixed(1) + ', ' + midX.toFixed(1) + ' ' + curr.y.toFixed(1) + ', ' + curr.x.toFixed(1) + ' ' + curr.y.toFixed(1);
+      }
+      return d;
     }
 
-    const incomeLine = polyline(incomes);
-    const expenseLine = polyline(expenses);
+    function areaPath(values) {
+      const line = smoothPath(values);
+      const baseY = h - padB;
+      const firstX = x(0);
+      const lastX = x(values.length - 1);
+      return line + ' L ' + lastX.toFixed(1) + ' ' + baseY.toFixed(1) + ' L ' + firstX.toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
+    }
+
+    const incomeD = smoothPath(incomes);
+    const expenseD = smoothPath(expenses);
+    const incomeAreaD = areaPath(incomes);
+    const expenseAreaD = areaPath(expenses);
 
     const labels = data.map(function(p, i) {
       const lbl = p.label || (p.month || '').slice(5);
-      return `<text x="${x(i)}" y="${h - 8}" text-anchor="middle" font-size="11" fill="#64748b">${lbl}</text>`;
+      return `<text class="chart-label" x="${x(i).toFixed(1)}" y="${(h - 8)}" text-anchor="middle">${lbl}</text>`;
+    }).join('');
+
+    const ticks = 4;
+    const yLines = [];
+    const yLabels = [];
+    for (let i = 0; i <= ticks; i++) {
+      const t = i / ticks;
+      const value = chartMax * (1 - t);
+      const yy = padT + (h - padT - padB) * t;
+
+      yLines.push(`<line class="chart-grid" x1="${padL}" y1="${yy.toFixed(1)}" x2="${(w - padR)}" y2="${yy.toFixed(1)}" />`);
+
+      const k = value / 1000;
+      const label = '$' + (k === 0 ? '0' : (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1))) + 'k';
+      yLabels.push(`<text class="chart-ylabel" x="${(padL - 14)}" y="${(yy + 4).toFixed(1)}" text-anchor="end">${label}</text>`);
+    }
+
+    // vertical dotted grid for each month
+    const xLines = data.map(function(p, i) {
+      const xx = x(i);
+      return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
     }).join('');
 
     chartHost.innerHTML = `
       <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="Income vs Expenses chart">
         <defs>
           <linearGradient id="incomeFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(25,135,84,0.25)" />
-            <stop offset="100%" stop-color="rgba(25,135,84,0)" />
+            <stop offset="0%" stop-color="rgba(16,185,129,0.22)" />
+            <stop offset="100%" stop-color="rgba(16,185,129,0)" />
+          </linearGradient>
+          <linearGradient id="expensesFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(15,23,42,0.18)" />
+            <stop offset="100%" stop-color="rgba(15,23,42,0)" />
           </linearGradient>
         </defs>
 
-        <!-- grid -->
-        <g stroke="rgba(15,23,42,0.10)" stroke-width="1">
-          <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${h - pad}" />
-          <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" />
-          <line x1="${pad}" y1="${pad}" x2="${w - pad}" y2="${pad}" />
+        <!-- grid: horizontal + vertical (dotted) -->
+        <g>
+          ${yLines.join('')}
+          ${xLines}
         </g>
 
-        <!-- income area fill -->
-        <polygon points="${incomeLine} ${w - pad},${h - pad} ${pad},${h - pad}" fill="url(#incomeFill)" />
+        <!-- area fills -->
+        <path class="chart-fill-income paint-fill" d="${incomeAreaD}" fill="url(#incomeFill)" />
+        <path class="chart-fill-expenses paint-fill" d="${expenseAreaD}" fill="url(#expensesFill)" />
 
-        <!-- lines -->
-        <polyline points="${incomeLine}" fill="none" stroke="#198754" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-        <polyline points="${expenseLine}" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+        <!-- lines (paint animation) -->
+        <path id="incomeLine" class="chart-line-income paint-line" d="${incomeD}" />
+        <path id="expenseLine" class="chart-line-expenses paint-line" d="${expenseD}" />
 
-        <!-- month labels -->
+        <!-- labels -->
         ${labels}
+        ${yLabels.join('')}
 
         <!-- legend -->
         <g font-size="12" fill="#64748b">
-          <circle cx="${pad + 10}" cy="${pad + 12}" r="6" fill="#198754"></circle>
-          <text x="${pad + 22}" y="${pad + 16}">Income</text>
-          <circle cx="${pad + 90}" cy="${pad + 12}" r="6" fill="#0f172a" opacity="0.85"></circle>
-          <text x="${pad + 102}" y="${pad + 16}">Expenses</text>
+          <circle cx="${padL + 120}" cy="${h - 6}" r="6" fill="#10b981"></circle>
+          <text x="${padL + 132}" y="${h - 2}">Income</text>
+          <circle cx="${padL + 210}" cy="${h - 6}" r="6" fill="rgba(15,23,42,0.90)"></circle>
+          <text x="${padL + 222}" y="${h - 2}">Expenses</text>
         </g>
       </svg>
     `;
+
+    // Apply dash lengths so the paint animation draws the full path
+    const incomePathEl = chartHost.querySelector('#incomeLine');
+    const expensePathEl = chartHost.querySelector('#expenseLine');
+
+    if (incomePathEl && incomePathEl.getTotalLength) {
+      const len = Math.ceil(incomePathEl.getTotalLength());
+      incomePathEl.style.setProperty('--dash', String(len));
+    }
+
+    if (expensePathEl && expensePathEl.getTotalLength) {
+      const len = Math.ceil(expensePathEl.getTotalLength());
+      expensePathEl.style.setProperty('--dash', String(len));
+      expensePathEl.style.animationDelay = '80ms';
+    }
   }
 
   function renderTotalsFromOverview(overview) {
