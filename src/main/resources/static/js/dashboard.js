@@ -9,7 +9,6 @@ function renderDashboardOverview() {
   pageContent.innerHTML = `
     <div class="dash-wrap">
       <div class="dash-top">
-        
 
         <div class="dash-controls">
           <label class="dash-period-label" for="dashPeriod">Time period</label>
@@ -34,7 +33,7 @@ function renderDashboardOverview() {
 
         <div class="dash-card">
           <div class="dash-card-top">
-            <div class="dash-card-label">Monthly Income</div>
+            <div class="dash-card-label">Income</div>
             <div class="dash-card-icon" style="background:#e7f7ef;color:#198754;">📈</div>
           </div>
           <div class="dash-card-value" id="dashIncome">—</div>
@@ -43,7 +42,7 @@ function renderDashboardOverview() {
 
         <div class="dash-card">
           <div class="dash-card-top">
-            <div class="dash-card-label">Monthly Expenses</div>
+            <div class="dash-card-label">Expenses</div>
             <div class="dash-card-icon" style="background:#fde8e8;color:#dc3545;">📉</div>
           </div>
           <div class="dash-card-value" id="dashExpenses">—</div>
@@ -68,30 +67,8 @@ function renderDashboardOverview() {
               <div class="dash-panel-sub">Last 6 months overview</div>
             </div>
           </div>
-          <div class="dash-chart" id="dashChart">
-            <div class="dash-chart-empty">Chart coming soon</div>
-          </div>
-        </div>
-        
-        <div class="dash-panel">
-          <div class="dash-panel-head">
-            <div>
-              <div class="dash-panel-title">Spending by Category</div>
-            </div>
-          </div>
-          <div class="dash-chart" id="dashChart">
-            <div class="dash-chart-empty">Chart coming soon</div>
-          </div>
-        </div>
-        
-        <div class="dash-panel">
-          <div class="dash-panel-head">
-            <div>
-              <div class="dash-panel-title">Budget Status</div>
-            </div>
-          </div>
-          <div class="dash-chart" id="dashChart">
-            <div class="dash-chart-empty">Chart coming soon</div>
+          <div class="dash-chart" id="dashIncomeExpenseChart">
+            <div class="dash-chart-empty">Loading chart...</div>
           </div>
         </div>
 
@@ -119,6 +96,7 @@ function renderDashboardOverview() {
   const periodSelect = document.getElementById('dashPeriod');
   const txList = document.getElementById('dashTxList');
   const emptyEl = document.getElementById('dashEmpty');
+  const chartHost = document.getElementById('dashIncomeExpenseChart');
 
   const elBalance = document.getElementById('dashTotalBalance');
   const elIncome = document.getElementById('dashIncome');
@@ -136,45 +114,8 @@ function renderDashboardOverview() {
   function safeDate(d) {
     if (!d) return null;
     const dt = new Date(d);
-    if (isNaN(dt.getTime())) return null;
+    if (Number.isNaN(dt.getTime())) return null;
     return dt;
-  }
-
-  function periodRange(periodValue) {
-    const now = new Date();
-    const start = new Date(now);
-    const end = new Date(now);
-
-    // normalize end to end-of-day
-    end.setHours(23, 59, 59, 999);
-
-    if (periodValue === 'this_month') {
-      start.setDate(1);
-      start.setHours(0, 0, 0, 0);
-      return { start, end };
-    }
-
-    if (periodValue === 'last_month') {
-      const y = now.getFullYear();
-      const m = now.getMonth(); // 0-based current month
-      const lastMonth = new Date(y, m - 1, 1);
-      const lastMonthEnd = new Date(y, m, 0);
-      lastMonth.setHours(0, 0, 0, 0);
-      lastMonthEnd.setHours(23, 59, 59, 999);
-      return { start: lastMonth, end: lastMonthEnd };
-    }
-
-    if (periodValue === 'this_year') {
-      const y = now.getFullYear();
-      const yearStart = new Date(y, 0, 1);
-      yearStart.setHours(0, 0, 0, 0);
-      return { start: yearStart, end };
-    }
-
-    // last_30 default
-    start.setDate(now.getDate() - 30);
-    start.setHours(0, 0, 0, 0);
-    return { start, end };
   }
 
   function iconForCategory(category) {
@@ -232,72 +173,109 @@ function renderDashboardOverview() {
     return formatShortDate(dateStr);
   }
 
-  const state = {
-    all: [],
-    filtered: []
-  };
+  // ---- Chart ( SVG lines) ----
+  function renderIncomeExpenseChart(points) {
+    if (!chartHost) return;
 
-  function filterByPeriod(items, periodValue) {
-    const range = periodRange(periodValue);
-    return (Array.isArray(items) ? items : []).filter(function (e) {
-      const d = safeDate(e.expenseDate || e.date);
-      if (!d) return false;
-      return d.getTime() >= range.start.getTime() && d.getTime() <= range.end.getTime();
-    });
-  }
-
-  function computeTotals(items) {
-    let income = 0;
-    let expenses = 0;
-
-    (Array.isArray(items) ? items : []).forEach(function (e) {
-      const amt = Number(e.amount) || 0;
-      if ((e.category || '') === 'Income') {
-        income += Math.abs(amt);
-      } else {
-        expenses += Math.abs(amt);
-      }
-    });
-
-    const balance = income - expenses;
-    const savingsRate = income > 0 ? ((balance / income) * 100) : 0;
-
-    return {
-      income: income,
-      expenses: expenses,
-      balance: balance,
-      savingsRate: savingsRate
-    };
-  }
-
-  function renderTotals() {
-    const totals = computeTotals(state.filtered);
-
-    elBalance.textContent = money(totals.balance);
-    elIncome.textContent = money(totals.income);
-    elExpenses.textContent = money(totals.expenses);
-    elSavings.textContent = totals.income > 0 ? (totals.savingsRate.toFixed(1) + '%') : '0%';
-  }
-
-  function renderTransactions() {
-    // newest first
-    const sorted = state.filtered.slice().sort(function (a, b) {
-      const da = safeDate(a.expenseDate || a.date);
-      const db = safeDate(b.expenseDate || b.date);
-      return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
-    });
-
-    const top = sorted.slice(0, 7);
-
-    if (top.length === 0) {
-      txList.innerHTML = '';
-      emptyEl.style.display = 'block';
+    const data = Array.isArray(points) ? points : [];
+    if (data.length === 0) {
+      chartHost.innerHTML = '<div class="dash-chart-empty">No chart data</div>';
       return;
     }
 
-    emptyEl.style.display = 'none';
+    const w = 760;
+    const h = 260;
+    const pad = 28;
 
-    txList.innerHTML = top.map(function (t) {
+    const incomes = data.map(p => Number(p.income) || 0);
+    const expenses = data.map(p => Number(p.expenses) || 0);
+
+    const maxVal = Math.max(1, ...incomes, ...expenses);
+
+    function x(i) {
+      if (data.length === 1) return pad;
+      const innerW = w - pad * 2;
+      return pad + (innerW * (i / (data.length - 1)));
+    }
+
+    function y(v) {
+      const innerH = h - pad * 2;
+      const t = (Number(v) || 0) / maxVal;
+      return (h - pad) - (innerH * t);
+    }
+
+    function polyline(values) {
+      return values.map(function (v, i) {
+        return x(i).toFixed(1) + ',' + y(v).toFixed(1);
+      }).join(' ');
+    }
+
+    const incomeLine = polyline(incomes);
+    const expenseLine = polyline(expenses);
+
+    const labels = data.map(function(p, i) {
+      const lbl = p.label || (p.month || '').slice(5);
+      return `<text x="${x(i)}" y="${h - 8}" text-anchor="middle" font-size="11" fill="#64748b">${lbl}</text>`;
+    }).join('');
+
+    chartHost.innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="Income vs Expenses chart">
+        <defs>
+          <linearGradient id="incomeFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(25,135,84,0.25)" />
+            <stop offset="100%" stop-color="rgba(25,135,84,0)" />
+          </linearGradient>
+        </defs>
+
+        <!-- grid -->
+        <g stroke="rgba(15,23,42,0.10)" stroke-width="1">
+          <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${h - pad}" />
+          <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" />
+          <line x1="${pad}" y1="${pad}" x2="${w - pad}" y2="${pad}" />
+        </g>
+
+        <!-- income area fill -->
+        <polygon points="${incomeLine} ${w - pad},${h - pad} ${pad},${h - pad}" fill="url(#incomeFill)" />
+
+        <!-- lines -->
+        <polyline points="${incomeLine}" fill="none" stroke="#198754" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        <polyline points="${expenseLine}" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+
+        <!-- month labels -->
+        ${labels}
+
+        <!-- legend -->
+        <g font-size="12" fill="#64748b">
+          <circle cx="${pad + 10}" cy="${pad + 12}" r="6" fill="#198754"></circle>
+          <text x="${pad + 22}" y="${pad + 16}">Income</text>
+          <circle cx="${pad + 90}" cy="${pad + 12}" r="6" fill="#0f172a" opacity="0.85"></circle>
+          <text x="${pad + 102}" y="${pad + 16}">Expenses</text>
+        </g>
+      </svg>
+    `;
+  }
+
+  function renderTotalsFromOverview(overview) {
+    const income = Number(overview && overview.income) || 0;
+    const expenses = Number(overview && overview.expenses) || 0;
+    const balance = Number(overview && overview.balance) || (income - expenses);
+    const rate = Number(overview && overview.savingsRate) || 0;
+
+    elBalance.textContent = money(balance);
+    elIncome.textContent = money(income);
+    elExpenses.textContent = money(expenses);
+    elSavings.textContent = income > 0 ? (rate.toFixed(1) + '%') : '0%';
+  }
+
+  function renderTransactionsFromOverview(overview) {
+    const items = (overview && Array.isArray(overview.recentTransactions)) ? overview.recentTransactions : [];
+
+    if (!items.length) {
+      txList.innerHTML = '';
+      return;
+    }
+
+    txList.innerHTML = items.slice(0, 7).map(function (t) {
       const isIncome = (t.category || '') === 'Income';
       const v = Number(t.amount) || 0;
       const amountStr = (isIncome ? '+' : '-') + money(Math.abs(v));
@@ -324,66 +302,71 @@ function renderDashboardOverview() {
     }).join('');
   }
 
-  function refresh() {
-    const p = periodSelect.value;
-    state.filtered = filterByPeriod(state.all, p);
-    renderTotals();
-    renderTransactions();
-  }
-
-  function load() {
-    // loading placeholders
+  function setLoading() {
     elBalance.textContent = 'Loading…';
     elIncome.textContent = 'Loading…';
     elExpenses.textContent = 'Loading…';
     elSavings.textContent = 'Loading…';
     txList.innerHTML = '<div class="dash-loading">Loading transactions...</div>';
+    if (chartHost) chartHost.innerHTML = '<div class="dash-chart-empty">Loading chart...</div>';
     emptyEl.style.display = 'none';
+  }
 
-    fetch('/api/expenses')
+  function loadOverview() {
+    setLoading();
+
+    const p = periodSelect.value;
+    fetch('/api/dashboard/overview?period=' + encodeURIComponent(p))
       .then(function (resp) {
-        if (!resp.ok) throw new Error('Failed to load expenses');
+        if (!resp.ok) {
+          return resp.json().then(function (err) {
+            throw new Error((err && err.error) || 'Failed to load dashboard');
+          }).catch(function () {
+            throw new Error('Failed to load dashboard');
+          });
+        }
         return resp.json();
       })
-      .then(function (data) {
-        state.all = Array.isArray(data) ? data : [];
-        refresh();
+      .then(function (overview) {
+        renderTotalsFromOverview(overview);
+        renderIncomeExpenseChart(overview && overview.chart);
+        renderTransactionsFromOverview(overview);
+
+        const hasData = !!(overview && overview.hasData);
+        emptyEl.style.display = hasData ? 'none' : 'block';
       })
       .catch(function () {
-        // treat as empty state
-        state.all = [];
-        refresh();
+        // fallback empty
+        renderTotalsFromOverview({ income: 0, expenses: 0, balance: 0, savingsRate: 0 });
+        renderIncomeExpenseChart([]);
+        txList.innerHTML = '';
+        emptyEl.style.display = 'block';
       });
   }
 
   periodSelect.addEventListener('change', function () {
-    refresh();
+    loadOverview();
   });
 
   if (btnGoExpenses) {
     btnGoExpenses.addEventListener('click', function () {
-      if (window.navigate) window.navigate('expenses');
-      else if (window.loadPage) window.loadPage('expenses');
+      if (globalThis.navigate) globalThis.navigate('expenses');
+      else if (globalThis.loadPage) globalThis.loadPage('expenses');
     });
   }
 
   if (viewAll) {
     viewAll.addEventListener('click', function (e) {
       e.preventDefault();
-      if (window.navigate) window.navigate('expenses');
-      else if (window.loadPage) window.loadPage('expenses');
+      if (globalThis.navigate) globalThis.navigate('expenses');
+      else if (globalThis.loadPage) globalThis.loadPage('expenses');
     });
   }
 
-  load();
+  loadOverview();
 }
 
 // Auto-init on load
 document.addEventListener('DOMContentLoaded', function () {
-  try {
-    renderDashboardOverview();
-  } catch (e) {
-
-  }
+  renderDashboardOverview();
 });
-
