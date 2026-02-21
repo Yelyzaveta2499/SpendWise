@@ -47,6 +47,10 @@
 }
 
 /* RESET */
+:root {
+  --dash: 1200;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -1533,12 +1537,14 @@ body.dark-mode .btn-submit:hover {
 
 .dash-chart {
   height: 320px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(16,185,129,0.12), rgba(15,23,42,0.04));
-  border: 1px dashed rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
+  background: rgba(145, 144, 144, 0.21);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  --dash: 1200;
 }
 
 .dash-chart-empty {
@@ -1681,3 +1687,81 @@ body.dark-mode .dash-period-select {
   color: #e5e7eb;
   border-color: rgba(148, 163, 184, 0.18);
 }
+
+/* --- Dashboard Income vs Expenses chart (ONLY) --- */
+.dash-chart .chart-grid {
+  stroke: rgba(148, 163, 184, 0.55);
+  stroke-dasharray: 3 5;
+}
+
+.dash-chart .chart-line-income {
+  stroke: #10b981;
+  stroke-width: 2.5;
+}
+
+.dash-chart .chart-line-expenses {
+  stroke: rgba(15, 23, 42, 0.90);
+  stroke-width: 2.5;
+}
+
+.dash-chart .chart-label,
+.dash-chart .chart-ylabel {
+  fill: #64748b;
+}
+
+/* fills softer */
+.dash-chart .chart-fill-income { opacity: 0.9; }
+.dash-chart .chart-fill-expenses { opacity: 0.85; }
+
+/* animation re-play nicely on re-render */
+.dash-chart .paint-line { animation-duration: 1000ms; }
+
+/* Paint animation for SVG paths */
+@keyframes dashPaint {
+  from { stroke-dashoffset: var(--dash, 1200); }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes dashFadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dash-chart .paint-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--dash, 1200);
+  stroke-dashoffset: var(--dash, 1200);
+  animation-name: dashPaint;
+  animation-timing-function: ease;
+  animation-fill-mode: forwards;
+}
+
+.dash-chart .paint-fill {
+  opacity: 0;
+  animation: dashFadeUp 600ms ease forwards;
+  animation-delay: 120ms;
+}
+
+/* --- Dashboard enter animations --- */
+.dash-wrap.dash-animate .dash-card,
+.dash-wrap.dash-animate .dash-panel {
+  opacity: 0;
+}
+
+.dash-wrap.dash-animate .dash-card {
+  animation: slideUp 0.45s ease-out forwards;
+}
+
+.dash-wrap.dash-animate .dash-card:nth-child(1) { animation-delay: 0.05s; }
+.dash-wrap.dash-animate .dash-card:nth-child(2) { animation-delay: 0.10s; }
+.dash-wrap.dash-animate .dash-card:nth-child(3) { animation-delay: 0.15s; }
+.dash-wrap.dash-animate .dash-card:nth-child(4) { animation-delay: 0.20s; }
+
+.dash-wrap.dash-animate .dash-panel {
+  animation: slideInLeft 0.50s ease-out forwards;
+}
+
+.dash-wrap.dash-animate .dash-grid .dash-panel:nth-child(1) { animation-delay: 0.18s; }
+.dash-wrap.dash-animate .dash-grid .dash-panel:nth-child(2) { animation-delay: 0.26s; }

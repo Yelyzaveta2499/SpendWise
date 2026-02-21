@@ -9,10 +9,8 @@ function renderDashboardOverview() {
   pageContent.innerHTML = `
     <div class="dash-wrap">
       <div class="dash-top">
-        
 
         <div class="dash-controls">
-          <label class="dash-period-label" for="dashPeriod">Time period</label>
           <select id="dashPeriod" class="dash-period-select">
             <option value="this_month">This month</option>
             <option value="last_month">Last month</option>
@@ -34,7 +32,7 @@ function renderDashboardOverview() {
 
         <div class="dash-card">
           <div class="dash-card-top">
-            <div class="dash-card-label">Monthly Income</div>
+            <div class="dash-card-label">Income</div>
             <div class="dash-card-icon" style="background:#e7f7ef;color:#198754;">📈</div>
           </div>
           <div class="dash-card-value" id="dashIncome">—</div>
@@ -43,7 +41,7 @@ function renderDashboardOverview() {
 
         <div class="dash-card">
           <div class="dash-card-top">
-            <div class="dash-card-label">Monthly Expenses</div>
+            <div class="dash-card-label">Expenses</div>
             <div class="dash-card-icon" style="background:#fde8e8;color:#dc3545;">📉</div>
           </div>
           <div class="dash-card-value" id="dashExpenses">—</div>
@@ -68,30 +66,8 @@ function renderDashboardOverview() {
               <div class="dash-panel-sub">Last 6 months overview</div>
             </div>
           </div>
-          <div class="dash-chart" id="dashChart">
-            <div class="dash-chart-empty">Chart coming soon</div>
-          </div>
-        </div>
-        
-        <div class="dash-panel">
-          <div class="dash-panel-head">
-            <div>
-              <div class="dash-panel-title">Spending by Category</div>
-            </div>
-          </div>
-          <div class="dash-chart" id="dashChart">
-            <div class="dash-chart-empty">Chart coming soon</div>
-          </div>
-        </div>
-        
-        <div class="dash-panel">
-          <div class="dash-panel-head">
-            <div>
-              <div class="dash-panel-title">Budget Status</div>
-            </div>
-          </div>
-          <div class="dash-chart" id="dashChart">
-            <div class="dash-chart-empty">Chart coming soon</div>
+          <div class="dash-chart" id="dashIncomeExpenseChart">
+            <div class="dash-chart-empty">Loading chart...</div>
           </div>
         </div>
 
@@ -116,9 +92,27 @@ function renderDashboardOverview() {
     </div>
   `;
 
+  // Trigger dashboard box animations on load/render
+  const dashWrap = pageContent.querySelector('.dash-wrap');
+  if (dashWrap) {
+    dashWrap.classList.remove('dash-animate');
+    // Wait a frame so the browser paints the initial state, then add the class to start animations
+    requestAnimationFrame(function () {
+      dashWrap.classList.add('dash-animate');
+    });
+  }
+
   const periodSelect = document.getElementById('dashPeriod');
   const txList = document.getElementById('dashTxList');
   const emptyEl = document.getElementById('dashEmpty');
+  const chartHost = document.getElementById('dashIncomeExpenseChart');
+
+  // inline status area for network/errors
+  const dashTop = pageContent.querySelector('.dash-top');
+  if (dashTop) {
+    dashTop.insertAdjacentHTML('beforeend', '<div id="dashStatus" class="dash-status" style="display:none;"></div>');
+  }
+  const statusEl = document.getElementById('dashStatus');
 
   const elBalance = document.getElementById('dashTotalBalance');
   const elIncome = document.getElementById('dashIncome');
@@ -136,51 +130,14 @@ function renderDashboardOverview() {
   function safeDate(d) {
     if (!d) return null;
     const dt = new Date(d);
-    if (isNaN(dt.getTime())) return null;
+    if (Number.isNaN(dt.getTime())) return null;
     return dt;
-  }
-
-  function periodRange(periodValue) {
-    const now = new Date();
-    const start = new Date(now);
-    const end = new Date(now);
-
-    // normalize end to end-of-day
-    end.setHours(23, 59, 59, 999);
-
-    if (periodValue === 'this_month') {
-      start.setDate(1);
-      start.setHours(0, 0, 0, 0);
-      return { start, end };
-    }
-
-    if (periodValue === 'last_month') {
-      const y = now.getFullYear();
-      const m = now.getMonth(); // 0-based current month
-      const lastMonth = new Date(y, m - 1, 1);
-      const lastMonthEnd = new Date(y, m, 0);
-      lastMonth.setHours(0, 0, 0, 0);
-      lastMonthEnd.setHours(23, 59, 59, 999);
-      return { start: lastMonth, end: lastMonthEnd };
-    }
-
-    if (periodValue === 'this_year') {
-      const y = now.getFullYear();
-      const yearStart = new Date(y, 0, 1);
-      yearStart.setHours(0, 0, 0, 0);
-      return { start: yearStart, end };
-    }
-
-    // last_30 default
-    start.setDate(now.getDate() - 30);
-    start.setHours(0, 0, 0, 0);
-    return { start, end };
   }
 
   function iconForCategory(category) {
     const icons = {
-      'Food & Dining': '🛒',
-      'Income': '💰',
+      'Food & Dining': '🍴',
+      'Income': '💼',
       'Coffee': '☕',
       'Housing': '🏠',
       'Transportation': '🚗',
@@ -232,72 +189,185 @@ function renderDashboardOverview() {
     return formatShortDate(dateStr);
   }
 
-  const state = {
-    all: [],
-    filtered: []
-  };
+  // ---- Chart ( SVG lines) ----
+  function renderIncomeExpenseChart(points) {
+    if (!chartHost) return;
 
-  function filterByPeriod(items, periodValue) {
-    const range = periodRange(periodValue);
-    return (Array.isArray(items) ? items : []).filter(function (e) {
-      const d = safeDate(e.expenseDate || e.date);
-      if (!d) return false;
-      return d.getTime() >= range.start.getTime() && d.getTime() <= range.end.getTime();
-    });
-  }
-
-  function computeTotals(items) {
-    let income = 0;
-    let expenses = 0;
-
-    (Array.isArray(items) ? items : []).forEach(function (e) {
-      const amt = Number(e.amount) || 0;
-      if ((e.category || '') === 'Income') {
-        income += Math.abs(amt);
-      } else {
-        expenses += Math.abs(amt);
-      }
-    });
-
-    const balance = income - expenses;
-    const savingsRate = income > 0 ? ((balance / income) * 100) : 0;
-
-    return {
-      income: income,
-      expenses: expenses,
-      balance: balance,
-      savingsRate: savingsRate
-    };
-  }
-
-  function renderTotals() {
-    const totals = computeTotals(state.filtered);
-
-    elBalance.textContent = money(totals.balance);
-    elIncome.textContent = money(totals.income);
-    elExpenses.textContent = money(totals.expenses);
-    elSavings.textContent = totals.income > 0 ? (totals.savingsRate.toFixed(1) + '%') : '0%';
-  }
-
-  function renderTransactions() {
-    // newest first
-    const sorted = state.filtered.slice().sort(function (a, b) {
-      const da = safeDate(a.expenseDate || a.date);
-      const db = safeDate(b.expenseDate || b.date);
-      return (db ? db.getTime() : 0) - (da ? da.getTime() : 0);
-    });
-
-    const top = sorted.slice(0, 7);
-
-    if (top.length === 0) {
-      txList.innerHTML = '';
-      emptyEl.style.display = 'block';
+    const data = Array.isArray(points) ? points : [];
+    if (data.length === 0) {
+      chartHost.innerHTML = '<div class="dash-chart-empty">No chart data</div>';
       return;
     }
 
-    emptyEl.style.display = 'none';
+    const w = 760;
+    const h = 260;
+    const padT = 28;
+    const padB = 24;
+    const padL = 40;
+    const padR = 20;
 
-    txList.innerHTML = top.map(function (t) {
+    function x(i) {
+      if (data.length === 1) return padL;
+      const innerW = w - padL - padR;
+      return padL + (innerW * (i / (data.length - 1)));
+    }
+
+    const incomes = data.map(p => Number(p.income) || 0);
+    const expenses = data.map(p => Number(p.expenses) || 0);
+
+    const rawMax = Math.max(1, ...incomes, ...expenses);
+
+    // max with 4 intervals (0, 1.5k, 3k, 4.5k, 6k)
+    let chartMax = rawMax;
+    if (rawMax >= 1000) {
+      const step = 1500;
+      chartMax = Math.ceil(rawMax / step) * step;
+      if (chartMax < step * 4) chartMax = step * 4;
+    }
+
+    function y(v) {
+      const innerH = h - padT - padB;
+      const t = (Number(v) || 0) / chartMax;
+      return (h - padB) - (innerH * t);
+    }
+
+    // Smooth path builder (simple cubic curves between points)
+    function smoothPath(values) {
+      const pts = values.map(function(v, i) {
+        return { x: x(i), y: y(v) };
+      });
+
+      if (pts.length === 1) {
+        return 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+      }
+
+      let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+      for (let i = 1; i < pts.length; i++) {
+        const prev = pts[i - 1];
+        const curr = pts[i];
+        const midX = (prev.x + curr.x) / 2;
+        d += ' C ' + midX.toFixed(1) + ' ' + prev.y.toFixed(1) + ', ' + midX.toFixed(1) + ' ' + curr.y.toFixed(1) + ', ' + curr.x.toFixed(1) + ' ' + curr.y.toFixed(1);
+      }
+      return d;
+    }
+
+    function areaPath(values) {
+      const line = smoothPath(values);
+      const baseY = h - padB;
+      const firstX = x(0);
+      const lastX = x(values.length - 1);
+      return line + ' L ' + lastX.toFixed(1) + ' ' + baseY.toFixed(1) + ' L ' + firstX.toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
+    }
+
+    const incomeD = smoothPath(incomes);
+    const expenseD = smoothPath(expenses);
+    const incomeAreaD = areaPath(incomes);
+    const expenseAreaD = areaPath(expenses);
+
+    const labels = data.map(function(p, i) {
+      const lbl = p.label || (p.month || '').slice(5);
+      return `<text class="chart-label" x="${x(i).toFixed(1)}" y="${(h - 8)}" text-anchor="middle">${lbl}</text>`;
+    }).join('');
+
+    const ticks = 4;
+    const yLines = [];
+    const yLabels = [];
+    for (let i = 0; i <= ticks; i++) {
+      const t = i / ticks;
+      const value = chartMax * (1 - t);
+      const yy = padT + (h - padT - padB) * t;
+
+      yLines.push(`<line class="chart-grid" x1="${padL}" y1="${yy.toFixed(1)}" x2="${(w - padR)}" y2="${yy.toFixed(1)}" />`);
+
+      const k = value / 1000;
+      const label = '$' + (k === 0 ? '0' : (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1))) + 'k';
+      yLabels.push(`<text class="chart-ylabel" x="${(padL - 14)}" y="${(yy + 4).toFixed(1)}" text-anchor="end">${label}</text>`);
+    }
+
+    // vertical dotted grid for each month
+    const xLines = data.map(function(p, i) {
+      const xx = x(i);
+      return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
+    }).join('');
+
+    chartHost.innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="Income vs Expenses chart">
+        <defs>
+          <linearGradient id="incomeFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(16,185,129,0.22)" />
+            <stop offset="100%" stop-color="rgba(16,185,129,0)" />
+          </linearGradient>
+          <linearGradient id="expensesFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(15,23,42,0.18)" />
+            <stop offset="100%" stop-color="rgba(15,23,42,0)" />
+          </linearGradient>
+        </defs>
+
+        <!-- grid: horizontal + vertical (dotted) -->
+        <g>
+          ${yLines.join('')}
+          ${xLines}
+        </g>
+
+        <!-- area fills -->
+        <path class="chart-fill-income paint-fill" d="${incomeAreaD}" fill="url(#incomeFill)" />
+        <path class="chart-fill-expenses paint-fill" d="${expenseAreaD}" fill="url(#expensesFill)" />
+
+        <!-- lines (paint animation) -->
+        <path id="incomeLine" class="chart-line-income paint-line" d="${incomeD}" />
+        <path id="expenseLine" class="chart-line-expenses paint-line" d="${expenseD}" />
+
+        <!-- labels -->
+        ${labels}
+        ${yLabels.join('')}
+
+        <!-- legend -->
+        <g font-size="12" fill="#64748b">
+          <circle cx="${padL + 120}" cy="${h - 6}" r="6" fill="#10b981"></circle>
+          <text x="${padL + 132}" y="${h - 2}">Income</text>
+          <circle cx="${padL + 210}" cy="${h - 6}" r="6" fill="rgba(15,23,42,0.90)"></circle>
+          <text x="${padL + 222}" y="${h - 2}">Expenses</text>
+        </g>
+      </svg>
+    `;
+
+    // Apply dash lengths so the paint animation draws the full path
+    const incomePathEl = chartHost.querySelector('#incomeLine');
+    const expensePathEl = chartHost.querySelector('#expenseLine');
+
+    if (incomePathEl && incomePathEl.getTotalLength) {
+      const len = Math.ceil(incomePathEl.getTotalLength());
+      incomePathEl.style.setProperty('--dash', String(len));
+    }
+
+    if (expensePathEl && expensePathEl.getTotalLength) {
+      const len = Math.ceil(expensePathEl.getTotalLength());
+      expensePathEl.style.setProperty('--dash', String(len));
+      expensePathEl.style.animationDelay = '80ms';
+    }
+  }
+
+  function renderTotalsFromOverview(overview) {
+    const income = Number(overview && overview.income) || 0;
+    const expenses = Number(overview && overview.expenses) || 0;
+    const balance = Number(overview && overview.balance) || (income - expenses);
+    const rate = Number(overview && overview.savingsRate) || 0;
+
+    elBalance.textContent = money(balance);
+    elIncome.textContent = money(income);
+    elExpenses.textContent = money(expenses);
+    elSavings.textContent = income > 0 ? (rate.toFixed(1) + '%') : '0%';
+  }
+
+  function renderTransactionsFromOverview(overview) {
+    const items = (overview && Array.isArray(overview.recentTransactions)) ? overview.recentTransactions : [];
+
+    if (!items.length) {
+      txList.innerHTML = '';
+      return;
+    }
+
+    txList.innerHTML = items.slice(0, 7).map(function (t) {
       const isIncome = (t.category || '') === 'Income';
       const v = Number(t.amount) || 0;
       const amountStr = (isIncome ? '+' : '-') + money(Math.abs(v));
@@ -324,66 +394,121 @@ function renderDashboardOverview() {
     }).join('');
   }
 
-  function refresh() {
-    const p = periodSelect.value;
-    state.filtered = filterByPeriod(state.all, p);
-    renderTotals();
-    renderTransactions();
+  function setStatus(msg, type) {
+    if (!statusEl) return;
+    if (!msg) {
+      statusEl.style.display = 'none';
+      statusEl.textContent = '';
+      statusEl.className = 'dash-status';
+      return;
+    }
+    statusEl.style.display = 'block';
+    statusEl.textContent = msg;
+    statusEl.className = 'dash-status ' + (type || '');
   }
 
-  function load() {
-    // loading placeholders
+  function setLoading(isLoading) {
+    if (periodSelect) periodSelect.disabled = !!isLoading;
+  }
+
+  function setLoadingUI() {
+    setStatus('', '');
+    setLoading(true);
+
+    // show placeholders
     elBalance.textContent = 'Loading…';
     elIncome.textContent = 'Loading…';
     elExpenses.textContent = 'Loading…';
     elSavings.textContent = 'Loading…';
-    txList.innerHTML = '<div class="dash-loading">Loading transactions...</div>';
-    emptyEl.style.display = 'none';
 
-    fetch('/api/expenses')
+    txList.innerHTML = '<div class="dash-loading">Loading transactions...</div>';
+    if (chartHost) chartHost.innerHTML = '<div class="dash-chart-empty">Loading chart...</div>';
+
+    emptyEl.style.display = 'none';
+  }
+
+  // replace old setLoading with the improved one
+  function setLoadingLegacy() {
+    setLoadingUI();
+  }
+
+  function showEmptyState() {
+    // totals show zeros, not "Loading"
+    renderTotalsFromOverview({ income: 0, expenses: 0, balance: 0, savingsRate: 0 });
+
+    // chart empty
+    if (chartHost) chartHost.innerHTML = '<div class="dash-chart-empty">No data for this period</div>';
+
+    // transactions empty: we keep empty list, and show the main empty card
+    txList.innerHTML = '';
+    emptyEl.style.display = 'block';
+  }
+
+  function loadOverview() {
+    setLoadingUI();
+
+    const p = periodSelect.value;
+    fetch('/api/dashboard/overview?period=' + encodeURIComponent(p))
       .then(function (resp) {
-        if (!resp.ok) throw new Error('Failed to load expenses');
+        if (!resp.ok) {
+          return resp.json().then(function (err) {
+            throw new Error((err && err.error) || 'Failed to load dashboard');
+          }).catch(function () {
+            throw new Error('Failed to load dashboard');
+          });
+        }
         return resp.json();
       })
-      .then(function (data) {
-        state.all = Array.isArray(data) ? data : [];
-        refresh();
+      .then(function (overview) {
+        renderTotalsFromOverview(overview);
+        renderIncomeExpenseChart(overview && overview.chart);
+        renderTransactionsFromOverview(overview);
+
+        const hasData = !!(overview && overview.hasData);
+        if (!hasData) {
+          // If no data for this period, show empty state
+          showEmptyState();
+        } else {
+          emptyEl.style.display = 'none';
+        }
+
+        setLoading(false);
       })
-      .catch(function () {
-        // treat as empty state
-        state.all = [];
-        refresh();
+      .catch(function (err) {
+        // show error but still keep UX friendly
+        setStatus((err && err.message) ? err.message : 'Failed to load dashboard', 'error');
+        showEmptyState();
+        setLoading(false);
       });
   }
 
   periodSelect.addEventListener('change', function () {
-    refresh();
+    loadOverview();
   });
 
   if (btnGoExpenses) {
     btnGoExpenses.addEventListener('click', function () {
-      if (window.navigate) window.navigate('expenses');
-      else if (window.loadPage) window.loadPage('expenses');
+      if (globalThis.navigate) globalThis.navigate('expenses');
+      else if (globalThis.loadPage) globalThis.loadPage('expenses');
     });
   }
 
   if (viewAll) {
     viewAll.addEventListener('click', function (e) {
       e.preventDefault();
-      if (window.navigate) window.navigate('expenses');
-      else if (window.loadPage) window.loadPage('expenses');
+      if (globalThis.navigate) globalThis.navigate('expenses');
+      else if (globalThis.loadPage) globalThis.loadPage('expenses');
     });
   }
 
-  load();
+  // swap to new function name to avoid confusion
+  // (keep old call sites intact)
+  window.__dashSetLoading = setLoadingLegacy;
+
+  loadOverview();
 }
 
 // Auto-init on load
 document.addEventListener('DOMContentLoaded', function () {
-  try {
-    renderDashboardOverview();
-  } catch (e) {
-
-  }
+  renderDashboardOverview();
 });
-
