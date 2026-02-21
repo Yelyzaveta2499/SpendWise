@@ -97,6 +97,13 @@ function renderDashboardOverview() {
   const emptyEl = document.getElementById('dashEmpty');
   const chartHost = document.getElementById('dashIncomeExpenseChart');
 
+  // inline status area for network/errors
+  const dashTop = pageContent.querySelector('.dash-top');
+  if (dashTop) {
+    dashTop.insertAdjacentHTML('beforeend', '<div id="dashStatus" class="dash-status" style="display:none;"></div>');
+  }
+  const statusEl = document.getElementById('dashStatus');
+
   const elBalance = document.getElementById('dashTotalBalance');
   const elIncome = document.getElementById('dashIncome');
   const elExpenses = document.getElementById('dashExpenses');
@@ -377,18 +384,58 @@ function renderDashboardOverview() {
     }).join('');
   }
 
-  function setLoading() {
+  function setStatus(msg, type) {
+    if (!statusEl) return;
+    if (!msg) {
+      statusEl.style.display = 'none';
+      statusEl.textContent = '';
+      statusEl.className = 'dash-status';
+      return;
+    }
+    statusEl.style.display = 'block';
+    statusEl.textContent = msg;
+    statusEl.className = 'dash-status ' + (type || '');
+  }
+
+  function setLoading(isLoading) {
+    if (periodSelect) periodSelect.disabled = !!isLoading;
+  }
+
+  function setLoadingUI() {
+    setStatus('', '');
+    setLoading(true);
+
+    // show placeholders
     elBalance.textContent = 'Loading…';
     elIncome.textContent = 'Loading…';
     elExpenses.textContent = 'Loading…';
     elSavings.textContent = 'Loading…';
+
     txList.innerHTML = '<div class="dash-loading">Loading transactions...</div>';
     if (chartHost) chartHost.innerHTML = '<div class="dash-chart-empty">Loading chart...</div>';
+
     emptyEl.style.display = 'none';
   }
 
+  // replace old setLoading with the improved one
+  function setLoadingLegacy() {
+    setLoadingUI();
+  }
+
+  function showEmptyState() {
+    // totals show zeros, not "Loading"
+    renderTotalsFromOverview({ income: 0, expenses: 0, balance: 0, savingsRate: 0 });
+
+    // chart empty
+    if (chartHost) chartHost.innerHTML = '<div class="dash-chart-empty">No data for this period</div>';
+
+    // transactions empty: we keep empty list, and show the main empty card
+    txList.innerHTML = '';
+    emptyEl.style.display = 'block';
+  }
+
   function loadOverview() {
-    setLoading();
+    setLoadingUI();
 
     const p = periodSelect.value;
     fetch('/api/dashboard/overview?period=' + encodeURIComponent(p))
@@ -408,14 +455,20 @@ function renderDashboardOverview() {
         renderTransactionsFromOverview(overview);
 
         const hasData = !!(overview && overview.hasData);
-        emptyEl.style.display = hasData ? 'none' : 'block';
+        if (!hasData) {
+          // If no data for this period, show empty state
+          showEmptyState();
+        } else {
+          emptyEl.style.display = 'none';
+        }
+
+        setLoading(false);
       })
-      .catch(function () {
-        // fallback empty
-        renderTotalsFromOverview({ income: 0, expenses: 0, balance: 0, savingsRate: 0 });
-        renderIncomeExpenseChart([]);
-        txList.innerHTML = '';
-        emptyEl.style.display = 'block';
+      .catch(function (err) {
+        // show error but still keep UX friendly
+        setStatus((err && err.message) ? err.message : 'Failed to load dashboard', 'error');
+        showEmptyState();
+        setLoading(false);
       });
   }
 
@@ -437,6 +490,10 @@ function renderDashboardOverview() {
       else if (globalThis.loadPage) globalThis.loadPage('expenses');
     });
   }
+
+  // swap to new function name to avoid confusion
+  // (keep old call sites intact)
+  window.__dashSetLoading = setLoadingLegacy;
 
   loadOverview();
 }
