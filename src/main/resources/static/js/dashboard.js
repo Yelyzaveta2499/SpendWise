@@ -92,6 +92,16 @@ function renderDashboardOverview() {
     </div>
   `;
 
+  // Trigger dashboard box animations on load/render
+  const dashWrap = pageContent.querySelector('.dash-wrap');
+  if (dashWrap) {
+    dashWrap.classList.remove('dash-animate');
+    // Wait a frame so the browser paints the initial state, then add the class to start animations
+    requestAnimationFrame(function () {
+      dashWrap.classList.add('dash-animate');
+    });
+  }
+
   const periodSelect = document.getElementById('dashPeriod');
   const txList = document.getElementById('dashTxList');
   const emptyEl = document.getElementById('dashEmpty');

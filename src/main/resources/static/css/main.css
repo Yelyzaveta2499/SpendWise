@@ -47,6 +47,10 @@
 }
 
 /* RESET */
+:root {
+  --dash: 1200;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -1540,6 +1544,7 @@ body.dark-mode .btn-submit:hover {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  --dash: 1200;
 }
 
 .dash-chart-empty {
@@ -1739,3 +1744,24 @@ body.dark-mode .dash-period-select {
   animation-delay: 120ms;
 }
 
+/* --- Dashboard enter animations --- */
+.dash-wrap.dash-animate .dash-card,
+.dash-wrap.dash-animate .dash-panel {
+  opacity: 0;
+}
+
+.dash-wrap.dash-animate .dash-card {
+  animation: slideUp 0.45s ease-out forwards;
+}
+
+.dash-wrap.dash-animate .dash-card:nth-child(1) { animation-delay: 0.05s; }
+.dash-wrap.dash-animate .dash-card:nth-child(2) { animation-delay: 0.10s; }
+.dash-wrap.dash-animate .dash-card:nth-child(3) { animation-delay: 0.15s; }
+.dash-wrap.dash-animate .dash-card:nth-child(4) { animation-delay: 0.20s; }
+
+.dash-wrap.dash-animate .dash-panel {
+  animation: slideInLeft 0.50s ease-out forwards;
+}
+
+.dash-wrap.dash-animate .dash-grid .dash-panel:nth-child(1) { animation-delay: 0.18s; }
+.dash-wrap.dash-animate .dash-grid .dash-panel:nth-child(2) { animation-delay: 0.26s; }
