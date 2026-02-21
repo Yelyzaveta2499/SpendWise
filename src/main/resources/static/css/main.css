@@ -1381,6 +1381,302 @@ body.dark-mode .btn-submit:hover {
   gap: 10px;
 }
 
-.expense-right-top .expense-row-actions {
-  margin-left: 0;
+/* = Dashboard = */
+
+.dash-wrap {
+  max-width: 1200px;
+  padding: 20px;
+}
+
+.dash-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.dash-title {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.dash-subtitle {
+  margin-top: 6px;
+  color: #64748b;
+}
+
+.dash-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.dash-period-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.dash-period-select {
+  height: 40px;
+  min-width: 180px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  padding: 0 12px;
+  background: #fff;
+}
+
+.dash-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.dash-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.dash-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dash-card-label {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.dash-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.dash-card-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.dash-card-foot {
+  font-size: 13px;
+  color: #16a34a;
+}
+
+/* neutral footer text for hints */
+#dashBalanceHint, #dashIncomeHint, #dashExpensesHint, #dashSavingsHint {
+  color: #64748b;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+}
+
+.dash-panel {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 16px;
+}
+
+.dash-panel-head {
+  margin-bottom: 14px;
+}
+
+.dash-panel-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dash-panel-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.dash-panel-sub {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.dash-view-all {
+  color: #1e3a8a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dash-view-all:hover {
+  text-decoration: underline;
+}
+
+.dash-chart {
+  height: 320px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(16,185,129,0.12), rgba(15,23,42,0.04));
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dash-chart-empty {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.dash-tx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dash-tx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px;
+  border-radius: 12px;
+}
+
+.dash-tx-item:hover {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.dash-tx-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash-tx-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.dash-tx-name {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.dash-tx-cat {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.dash-tx-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.dash-tx-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.dash-loading {
+  padding: 12px 0;
+  color: #64748b;
+}
+
+.dash-empty {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  background: rgba(2, 132, 199, 0.04);
+}
+
+.dash-empty-title {
+  font-weight: 900;
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: #0f172a;
+}
+
+.dash-empty-sub {
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.dash-empty-btn {
+  background: #1e3a8a;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+.dash-empty-btn:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 1100px) {
+  .dash-cards { grid-template-columns: repeat(2, 1fr); }
+  .dash-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .dash-top { flex-direction: column; align-items: flex-start; }
+  .dash-controls { align-items: flex-start; width: 100%; }
+  .dash-period-select { width: 100%; }
+  .dash-cards { grid-template-columns: 1fr; }
+}
+
+/* Dark mode tweaks */
+body.dark-mode .dash-title { color: #f9fafb; }
+body.dark-mode .dash-card,
+body.dark-mode .dash-panel {
+  background: rgba(2, 6, 23, 0.55);
+  border-color: rgba(148, 163, 184, 0.14);
+}
+body.dark-mode .dash-card-value,
+body.dark-mode .dash-panel-title,
+body.dark-mode .dash-tx-name,
+body.dark-mode .dash-empty-title {
+  color: #f9fafb;
+}
+body.dark-mode .dash-subtitle,
+body.dark-mode .dash-panel-sub,
+body.dark-mode .dash-period-label,
+body.dark-mode .dash-tx-cat,
+body.dark-mode .dash-tx-date,
+body.dark-mode .dash-empty-sub,
+body.dark-mode #dashBalanceHint,
+body.dark-mode #dashIncomeHint,
+body.dark-mode #dashExpensesHint,
+body.dark-mode #dashSavingsHint {
+  color: #cbd5e1;
+}
+body.dark-mode .dash-period-select {
+  background: rgba(2, 6, 23, 0.65);
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.18);
 }
