@@ -25,10 +25,15 @@ pipeline {
         stage('Unit Test') {
              steps {
                 bat 'mvn -B clean test'
-
-                bat 'mvn -B jacoco:report'
              }
         }
+
+        stage('Code Coverage') {
+                     steps {
+                        bat 'mvn -B jacoco:report'
+                        bat 'mvn verify'
+                     }
+                }
 
         stage('Package') {
             steps {
