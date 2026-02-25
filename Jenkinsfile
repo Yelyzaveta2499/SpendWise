@@ -47,7 +47,6 @@ pipeline {
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
             archiveArtifacts artifacts: '**/target/*.jar, **/target/*.war', allowEmptyArchive: true
 
-
             publishHTML(target: [
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
