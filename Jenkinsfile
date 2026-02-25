@@ -25,6 +25,8 @@ pipeline {
         stage('Unit Test') {
              steps {
                 bat 'mvn -B clean test'
+
+                bat 'mvn -B jacoco:report'
              }
         }
 
@@ -39,6 +41,16 @@ pipeline {
         always {
             junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
             archiveArtifacts artifacts: '**/target/*.jar, **/target/*.war', allowEmptyArchive: true
+
+
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'target/site/jacoco',
+                reportFiles: 'index.html',
+                reportName: 'JaCoCo Code Coverage'
+            ])
         }
     }
 }
