@@ -38,7 +38,7 @@ pipeline {
         stage('SonarQube Analysis') {
                     steps {
                         withSonarQubeEnv('LocalSonar') {
-                            sh '''
+                            bat '''
                               mvn sonar:sonar \
                                 -Dsonar.projectKey=SpendWise
                             '''
