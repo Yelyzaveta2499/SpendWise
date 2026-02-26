@@ -35,6 +35,26 @@ pipeline {
                      }
                 }
 
+        stage('SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('LocalSonar') {
+                            sh '''
+                              mvn sonar:sonar \
+                                -Dsonar.projectKey=SpendWise
+                            '''
+                        }
+                    }
+                }
+
+                stage('Quality Gate') {
+                    steps {
+                        timeout(time: 2, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
+
+
         stage('Package') {
             steps {
                 bat 'mvn -B -DskipTests=true package'
