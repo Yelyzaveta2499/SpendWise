@@ -83,12 +83,9 @@
         }
         break;
       case 'goals':
-        contentDiv.innerHTML = `
-          <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
-            <h2 style="font-size: 32px; margin-bottom: 16px;">Goals</h2>
-            <p style="color: #6b7280;">Track your savings and milestones.</p>
-          </div>
-        `;
+        if (typeof renderGoals === 'function') {
+          renderGoals();
+        }
         break;
       case 'reports':
         contentDiv.innerHTML = `
