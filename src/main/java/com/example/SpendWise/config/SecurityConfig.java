@@ -22,6 +22,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
 				.requestMatchers("/api/expenses/**").authenticated()
+				.requestMatchers("/api/goals/**").authenticated()
 				.anyRequest().authenticated()
 			)
 			.formLogin(formLogin -> formLogin
@@ -53,13 +54,13 @@ public class SecurityConfig {
 			.roles("BUSINESS")
 			.build();
 
-		UserDetails kids = User.builder()
-				.username("kid")
-				.password(passwordEncoder().encode("password"))
-				.roles("KIDS")
-				.build();
+		//UserDetails kids = User.builder()
+				//.username("kid")
+				//.password(passwordEncoder().encode("password"))
+				//.roles("KIDS")
+				//.build();
 
-		return new InMemoryUserDetailsManager(user, business, kids);
+		return new InMemoryUserDetailsManager(user, business);
 	}
 
 	@Bean

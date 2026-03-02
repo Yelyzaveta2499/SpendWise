@@ -1782,6 +1782,14 @@ body.dark-mode .dash-period-select {
     padding: 0 8px;
 }
 
+.goals-header-row {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    margin-bottom: 32px;
+    padding: 0 8px;
+}
+
 .goals-header-left {
     flex: 1;
 }
@@ -1802,8 +1810,8 @@ body.dark-mode .dash-period-select {
 .btn-create-goal {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
+    gap: 5px;
+    padding: 5px 10px;
     background: #1e293b;
     color: white;
     border: none;
@@ -1844,6 +1852,8 @@ body.dark-mode .dash-period-select {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
     animation: slideUp 0.5s ease-out;
+    flex: 1;
+    min-width: 0;
 }
 
 .goal-summary-card:hover {
@@ -1923,6 +1933,12 @@ body.dark-mode .dash-period-select {
 .goal-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.goal-card:hover .budget-card-actions {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 .goal-card:nth-child(1) {
@@ -2008,13 +2024,20 @@ body.dark-mode .dash-period-select {
 .goal-card-body {
     padding: 20px;
     background: #f8fafc;
+    position: relative;
+}
+
+.goal-amount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
 .goal-amount {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    margin-bottom: 12px;
 }
 
 .amount-current {
