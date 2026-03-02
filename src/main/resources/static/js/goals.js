@@ -30,21 +30,16 @@ function fetchGoalsAndRender(contentDiv) {
 function renderGoalsContent(contentDiv, goals, summary) {
     const html = `
         <div class="goals-container">
-            <div class="goals-header">
-                <div class="goals-header-left">
-                    <h1 class="goals-title">Goals</h1>
-                    <p class="goals-subtitle">Track your savings and financial milestones</p>
-                </div>
+            <div class="goals-header-row">
                 <button class="btn-create-goal" id="btnCreateGoal"><span class="btn-icon">+</span><span>Create Goal</span></button>
-            </div>
-            <div class="goals-summary-grid">
+                
                 <div class="goal-summary-card">
                     <div class="summary-icon-wrapper" style="background: rgba(16, 185, 129, 0.1);"><svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
-                    <div class="summary-content"><div class="summary-label">Total Saved</div><div class="summary-value">${summary.totalSaved.toLocaleString()}</div></div>
+                    <div class="summary-content"><div class="summary-label">Total Saved</div><div class="summary-value">$${summary.totalSaved.toLocaleString()}</div></div>
                 </div>
                 <div class="goal-summary-card">
                     <div class="summary-icon-wrapper" style="background: rgba(59, 130, 246, 0.1);"><svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div>
-                    <div class="summary-content"><div class="summary-label">Total Target</div><div class="summary-value">${summary.totalTarget.toLocaleString()}</div></div>
+                    <div class="summary-content"><div class="summary-label">Total Target</div><div class="summary-value">$${summary.totalTarget.toLocaleString()}</div></div>
                 </div>
                 <div class="goal-summary-card">
                     <div class="summary-icon-wrapper" style="background: rgba(168, 85, 247, 0.1);"><svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg></div>
@@ -119,6 +114,55 @@ function renderGoalsContent(contentDiv, goals, summary) {
                 </form>
             </div>
         </div>
+        
+        <!-- Edit Goal Modal -->
+        <div id="edit-goal-modal" class="budget-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Edit Goal</h3>
+                    <button class="modal-close" id="edit-goal-modal-close">&times;</button>
+                </div>
+                <form id="edit-goal-form" class="budget-form">
+                    <input id="edit-goal-name" type="text" placeholder="Goal name" required maxlength="50" />
+                    
+                    <input id="edit-goal-target" type="number" step="0.01" placeholder="Target amount" required min="1" />
+                    
+                    <input id="edit-goal-deadline" type="date" placeholder="Deadline (optional)" />
+                    
+                    <div style="display: flex; gap: 12px; align-items: center; margin: 8px 0;">
+                        <label style="font-size: 14px; color: #64748b; font-weight: 500;">Icon:</label>
+                        <select id="edit-goal-icon" style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="🎯">🎯 Target</option>
+                            <option value="🏠">🏠 Home</option>
+                            <option value="🚗">🚗 Car</option>
+                            <option value="✈️">✈️ Travel</option>
+                            <option value="🛡️">🛡️ Emergency</option>
+                            <option value="💰">💰 Savings</option>
+                            <option value="🎓">🎓 Education</option>
+                            <option value="💍">💍 Wedding</option>
+                            <option value="📱">📱 Electronics</option>
+                            <option value="🏖️">🏖️ Vacation</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; align-items: center; margin: 8px 0;">
+                        <label style="font-size: 14px; color: #64748b; font-weight: 500;">Color:</label>
+                        <select id="edit-goal-color" style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="#10b981">🟢 Green</option>
+                            <option value="#3b82f6">🔵 Blue</option>
+                            <option value="#a855f7">🟣 Purple</option>
+                            <option value="#f59e0b">🟠 Orange</option>
+                            <option value="#ef4444">🔴 Red</option>
+                            <option value="#ec4899">🩷 Pink</option>
+                            <option value="#14b8a6">🐬 Teal</option>
+                            <option value="#475569">⚫ Dark Gray</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Update Goal</button>
+                </form>
+            </div>
+        </div>
     `;
     contentDiv.innerHTML = html;
     attachGoalEventListeners();
@@ -156,8 +200,10 @@ function renderGoalCard(goal) {
                 </div>
             </div>
             <div class="goal-card-body">
-                ${actionsHtml}
-                <div class="goal-amount"><span class="amount-current">$${currentAmount.toLocaleString()}</span><span class="amount-target">of $${targetAmount.toLocaleString()}</span></div>
+                <div class="goal-amount-row">
+                    <div class="goal-amount"><span class="amount-current">$${currentAmount.toLocaleString()}</span><span class="amount-target">of $${targetAmount.toLocaleString()}</span></div>
+                    ${actionsHtml}
+                </div>
                 <div class="goal-progress-wrapper"><div class="goal-progress-bar"><div class="goal-progress-fill" style="width: ${percentage}%; background: ${darkColor};"></div></div></div>
                 <div class="goal-footer"><div class="goal-remaining">$${remaining.toLocaleString()} remaining</div><div class="goal-monthly">Target: $${targetAmount.toLocaleString()}</div></div>
                 <button class="btn-add-contribution" data-goal-id="${goal.id}" data-is-placeholder="${goal.isPlaceholder || false}">Add Contribution</button>
@@ -183,7 +229,13 @@ function attachGoalEventListeners() {
     const contributionModal = document.getElementById('contribution-modal');
     const contributionModalClose = document.getElementById('contribution-modal-close');
     const contributionForm = document.getElementById('contribution-form');
+
+    const editModal = document.getElementById('edit-goal-modal');
+    const editModalClose = document.getElementById('edit-goal-modal-close');
+    const editGoalForm = document.getElementById('edit-goal-form');
+
     let currentGoalId = null;
+    let currentEditGoalId = null;
 
     // Create Goal Modal
     if (createBtn) {
@@ -226,6 +278,35 @@ function attachGoalEventListeners() {
         });
     }
 
+    // Edit Goal Modal
+    if (editModalClose) {
+        editModalClose.addEventListener('click', () => {
+            if (editModal) editModal.style.display = 'none';
+        });
+    }
+
+    if (editModal) {
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) editModal.style.display = 'none';
+        });
+    }
+
+    if (editGoalForm) {
+        editGoalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('edit-goal-name').value.trim();
+            const targetAmount = parseFloat(document.getElementById('edit-goal-target').value);
+            const deadline = document.getElementById('edit-goal-deadline').value || null;
+            const icon = document.getElementById('edit-goal-icon').value;
+            const color = document.getElementById('edit-goal-color').value;
+
+            if (name && targetAmount > 0 && currentEditGoalId) {
+                updateGoal(currentEditGoalId, { name, targetAmount, deadline, icon, color });
+                if (editModal) editModal.style.display = 'none';
+            }
+        });
+    }
+
     // Contribution Modal
     if (contributionModalClose) {
         contributionModalClose.addEventListener('click', () => {
@@ -252,24 +333,34 @@ function attachGoalEventListeners() {
         });
     }
 
-    // Edit buttons
+    // Edit buttons - Open edit modal with current goal data
     document.querySelectorAll('.budget-edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (btn.dataset.isPlaceholder === 'true') { alert('This is a demo card. Create a real goal to edit it!'); return; }
-            const newTarget = prompt(`Edit target amount for "${btn.dataset.name}":`, btn.dataset.target);
-            if (newTarget && !isNaN(newTarget) && parseFloat(newTarget) > 0) {
-                updateGoal(btn.dataset.id, { targetAmount: parseFloat(newTarget) });
-            } else if (newTarget !== null) alert('Please enter a valid amount');
+
+            currentEditGoalId = btn.dataset.id;
+            const goalName = btn.dataset.name;
+            const targetAmount = btn.dataset.target;
+
+            // Pre-fill the edit form
+            document.getElementById('edit-goal-name').value = goalName;
+            document.getElementById('edit-goal-target').value = targetAmount;
+
+            // Open edit modal
+            if (editModal) editModal.style.display = 'flex';
         });
     });
 
-    // Delete buttons
+    // Delete buttons - Direct delete with confirmation
     document.querySelectorAll('.budget-delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (btn.dataset.isPlaceholder === 'true') { alert('This is a demo card. Create a real goal to manage it!'); return; }
-            if (confirm(`Are you sure you want to delete the goal "${btn.dataset.name}"?`)) deleteGoal(btn.dataset.id);
+            const goalId = btn.dataset.id;
+            const goalName = btn.dataset.name;
+
+            if (confirm(`Are you sure you want to delete the goal "${goalName}"?`)) {
+                deleteGoal(goalId);
+            }
         });
     });
 
@@ -294,12 +385,27 @@ function createNewGoal(name, targetAmount, deadline, icon, color) {
         .catch(err => console.error('Error creating goal:', err));
 }
 function updateGoal(id, updates) {
+    // Check if it's a demo card
+    if (id && id.toString().startsWith('demo-')) {
+        console.log('Demo card - updates not saved:', { id, updates });
+        renderGoals(); // Just refresh to show the UI works
+        return;
+    }
+
     fetch(`/api/goals/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) })
         .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
         .then(() => { renderGoals(); })
         .catch(err => console.error('Error updating goal:', err));
 }
+
 function deleteGoal(id) {
+    // Check if it's a demo card
+    if (id && id.toString().startsWith('demo-')) {
+        console.log('Demo card - delete not saved:', { id });
+        renderGoals(); // Just refresh to show the UI works
+        return;
+    }
+
     fetch(`/api/goals/${id}`, { method: 'DELETE' })
         .then(res => { if (!res.ok) throw new Error('Failed'); renderGoals(); })
         .catch(err => console.error('Error deleting goal:', err));
