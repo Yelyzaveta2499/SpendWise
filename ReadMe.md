@@ -107,6 +107,105 @@ Tests:
 - `BudgetControllerTest`
 - `BudgetServiceTest`
 
+## US5 – Savings Goals Management
+Track savings goals by defining target amounts and monitoring progress over time to see how close you are to reaching your financial targets.
+
+### Features
+- **Create Goals**: Define savings goals with name, target amount, deadline (optional), icon, and color
+- **Track Progress**: Visual progress bars and percentage calculations show your progress
+- **Add Contributions**: Record savings contributions with optional notes
+- **Edit & Delete**: Modify goal details or remove goals using hover icons
+- **Summary Dashboard**: View total saved, total target, and active goals count
+
+### API Endpoints (REST)
+
+**Goals Management:**
+- `GET /api/goals` – List all goals for authenticated user
+- `GET /api/goals/{id}` – Get a specific goal
+- `POST /api/goals` – Create a new goal
+  - Body: `{ name, targetAmount, deadline?, icon?, color? }`
+- `PUT /api/goals/{id}` – Update a goal
+- `DELETE /api/goals/{id}` – Delete a goal
+
+**Contributions:**
+- `POST /api/goals/{id}/contributions` – Add contribution
+  - Body: `{ amount, note? }`
+- `GET /api/goals/{id}/contributions` – List contributions for a goal
+
+**Summary:**
+- `GET /api/goals/summary` – Get statistics
+  - Returns: `{ totalSaved, totalTarget, activeGoals }`
+
+### Progress Calculations
+
+```
+Progress % = (currentAmount / targetAmount) × 100
+Remaining = targetAmount - currentAmount
+```
+
+**Examples:**
+- $0 of $10,000 → 0% progress, $10,000 remaining
+- $2,500 of $10,000 → 25% progress, $7,500 remaining
+- $10,000 of $10,000 → 100% progress, $0 remaining
+
+**Contributions accumulate:**
+- Add $500 → currentAmount increases by $500
+- Multiple contributions: $1,000 + $500 + $750 = $2,250 total
+
+### Validation Rules
+
+**Goal Creation:**
+- `name` is required (max 50 chars)
+- `targetAmount` must be > 0
+- `userId` auto-set from authenticated user
+- `currentAmount` starts at 0.0
+
+**Contributions:**
+- `amount` must be > 0
+- Each contribution creates separate record with timestamp
+
+**Errors:**
+- Invalid target → 400: "Target amount must be greater than zero"
+- Empty name → 400: "Goal name is required"
+- Invalid contribution → 400: "Contribution amount must be greater than zero"
+- Goal not found → 400: "Goal not found"
+
+### UI Components
+
+**Create Goal Modal:**
+- Goal Name, Target Amount, Deadline, Icon (10 options), Color (8 options)
+
+**Edit Goal Modal:**
+- Opens with current data pre-filled, edit any field
+
+**Add Contribution Modal:**
+- Amount + optional note (e.g., "Bonus from work")
+
+**Goal Cards:**
+- Show icon, name, percentage, deadline, progress bar
+- Hover to see edit (✎) and delete (🗑) icons
+- "Add Contribution" button
+
+### Tests
+- `GoalServiceTest` – 30+ tests covering service logic, progress calculations, validations
+- `GoalControllerTest` – 15+ tests covering API endpoints, authentication, error handling
+
+### Example Flow
+
+```json
+// Create goal
+POST /api/goals
+{ "name": "Emergency Fund", "targetAmount": 10000, "icon": "🛡️", "color": "#10b981" }
+
+// Add contributions
+POST /api/goals/1/contributions
+{ "amount": 500, "note": "January savings" }
+
+// Check summary
+GET /api/goals/summary
+{ "totalSaved": 500, "totalTarget": 10000, "activeGoals": 1 }
+```
+
 ## Tests
 To run the unit and controller tests:
 
@@ -117,4 +216,18 @@ mvn test
 This runs Spring Boot tests for:
 - Basic application context loading
 - Login and home controllers
-- Expense service and expense REST API behaviour.
+- Expense service and expense REST API behaviour
+- Budget service and budget management (creation, updates, validation)
+- **Goal service with progress calculations** (create, update, delete, contributions)
+- **Goal controller with API endpoints** (CRUD operations, summary statistics)
+- **Contribution tracking and accumulation** (multiple contributions, edge cases)
+
+### Test Coverage
+- **Expenses**: Service + Controller tests
+- **Budgets**: Service + Controller tests  
+- **Dashboard**: Service + Controller tests
+- **Goals**: 30+ service tests + 15+ controller tests
+  - Progress calculation accuracy (0%, 25%, 50%, 100%, >100%)
+  - Contribution accumulation and validation
+  - Summary statistics (totalSaved, totalTarget, activeGoals)
+  - Error handling and edge cases
