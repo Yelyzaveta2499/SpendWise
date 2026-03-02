@@ -14,8 +14,8 @@ function renderGoals() {
                 id: 1,
                 name: 'Emergency Fund',
                 icon: '🛡️',
-                color: '#10b981',
-                darkColor: '#047857',
+                color: 'rgba(16,185,129,0.51)',
+                darkColor: 'rgba(4,120,87,0.56)',
                 saved: 7500,
                 target: 10000,
                 deadline: new Date('2025-12-01'),
@@ -25,8 +25,8 @@ function renderGoals() {
                 id: 2,
                 name: 'New Car',
                 icon: '🚗',
-                color: '#475569',
-                darkColor: '#1e293b',
+                color: 'rgba(71,85,105,0.58)',
+                darkColor: 'rgba(30,41,59,0.53)',
                 saved: 8200,
                 target: 25000,
                 deadline: new Date('2025-11-15'),
@@ -36,8 +36,8 @@ function renderGoals() {
                 id: 3,
                 name: 'Vacation Fund',
                 icon: '✈️',
-                color: '#0ea5e9',
-                darkColor: '#0369a1',
+                color: 'rgba(14,165,233,0.44)',
+                darkColor: 'rgba(3,105,161,0.49)',
                 saved: 3200,
                 target: 5000,
                 deadline: new Date('2025-10-20'),
@@ -47,8 +47,8 @@ function renderGoals() {
                 id: 4,
                 name: 'Home Down Payment',
                 icon: '🏠',
-                color: '#a855f7',
-                darkColor: '#7e22ce',
+                color: 'rgba(168,85,247,0.35)',
+                darkColor: 'rgba(126,34,206,0.3)',
                 saved: 12000,
                 target: 50000,
                 deadline: new Date('2026-11-30'),
@@ -61,10 +61,6 @@ function renderGoals() {
         <div class="goals-container">
             <!-- Header -->
             <div class="goals-header">
-                <div class="goals-header-left">
-                    <h1 class="goals-title">Goals</h1>
-                    <p class="goals-subtitle">Track your savings and financial milestones</p>
-                </div>
                 <button class="btn-create-goal">
                     <span class="btn-icon">+</span>
                     <span>Create Goal</span>
