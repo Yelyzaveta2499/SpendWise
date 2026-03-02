@@ -19,7 +19,7 @@ import java.util.Optional;
 public class GoalController {
 
     @Autowired
-    private GoalService goalService;
+    GoalService goalService;
 
     // Get all goals for the authenticated user
     @GetMapping
