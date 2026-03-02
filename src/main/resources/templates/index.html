@@ -14,9 +14,6 @@
 
     <style>
 
-        /* Splash overlay  */
-        .sw-splash { position: fixed; inset: 0; z-index: 10000; background: radial-gradient(1200px 800px at 50% 40%, rgba(21,101,192,0.18), transparent 65%), #0f172a; display: grid; place-items: center; }
-
         /* ---- LAYOUT BACKGROUND ---- */
         /* Light mode main background  */
         .app-layout {
@@ -336,8 +333,6 @@
                 linear-gradient(135deg, rgba(15,23,42,0.8) 0%, transparent 80%);
         }
 
-        /* splash overlay */
-        .sw-splash { position: fixed; inset: 0; z-index: 10000; background: radial-gradient(1200px 800px at 50% 40%, rgba(21,101,192,0.18), transparent 65%), #0f172a; display: grid; place-items: center; }
         /* Dashboard header with header.jpeg background */
         .header {
             position: relative;
@@ -411,19 +406,6 @@
             mix-blend-mode: soft-light;
             z-index: -1;
         }
-
-        .sw-splash.hidden { display: none; }
-        .sw-card { width: min(540px, 92vw); padding: 28px 24px; border-radius: 18px; background: rgba(2,6,23,0.72); box-shadow: 0 20px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06) inset; backdrop-filter: blur(10px); }
-        .sw-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-        .sw-logo { width: 56px; height: 56px; border-radius: 12px; background: rgba(255,255,255,0.06); display: grid; place-items: center; overflow: hidden; }
-        .sw-logo img { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)); }
-        .sw-title { font-size: 20px; color: #e5e7eb; letter-spacing: 0.4px; font-weight: 600; }
-        .sw-sub { font-size: 13px; color: #9ca3af; }
-        .sw-bar { position: relative; height: 10px; border-radius: 999px; background: rgba(148,163,184,0.22); overflow: hidden; }
-        .sw-bar-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; border-radius: inherit; background: linear-gradient(90deg, #22c55e, #16a34a 40%, #22c55e 100%); box-shadow: 0 0 20px rgba(34,197,94,0.45); transition: width 160ms ease; }
-        .sw-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 6px; }
-        .sw-percent { font-size: 12px; color: #93c5fd; }
-        .sw-tip { font-size: 12px; color: #94a3b8; }
 
         /* Compact horizontal card carousel */
         .cards-carousel { margin: 8px 0 18px; position: relative; }
@@ -1006,50 +988,8 @@
 
 </div>
 
-<!-- Stylish Splash Overlay -->
-<div class="sw-splash" id="swSplash">
-    <div class="sw-card">
-        <div class="sw-brand">
-            <div class="sw-logo"><img src="/images/piggie.png" alt="SpendWise"/></div>
-            <div>
-                <div class="sw-title">SpendWise</div>
-                <div class="sw-sub">Preparing your dashboard…</div>
-            </div>
-        </div>
-        <div class="sw-row">
-            <div class="sw-tip">Loading</div>
-            <div class="sw-percent" id="swPercent">0%</div>
-        </div>
-        <div class="sw-bar">
-            <div class="sw-bar-fill" id="swBarFill"></div>
-        </div>
-    </div>
-</div>
-
 <script>
-// Simple loading bar that fills smoothly, then hides splash
-(function(){
-  const splash = document.getElementById('swSplash');
-  const fill = document.getElementById('swBarFill');
-  const percentEl = document.getElementById('swPercent');
-  let p = 0;
-  let step = 0;
-  const steps = [6,7,5,8,12,10,9,11,14,8,10]; // irregular to feel organic
-  function tick(){
-    if (p >= 100) {
-      splash.classList.add('hidden');
-      return;
-    }
-    const inc = steps[step % steps.length];
-    p = Math.min(100, p + inc);
-    fill.style.width = p + '%';
-    percentEl.textContent = p + '%';
-    step++;
-    const delay = p < 60 ? 120 : (p < 90 ? 180 : 240);
-    setTimeout(tick, delay);
-  }
-  setTimeout(tick, 220); // small start delay
-})();
+// Splash screen removed - no third loading bar
 </script>
 
 <!-- <script src="js/character.js"></script> -->
@@ -1062,6 +1002,7 @@
 <script src="/js/dashboard.js" defer></script>
 <script src="/js/expenses.js" defer></script>
 <script src="/js/budgets.js" defer></script>
+<script src="/js/goals.js" defer></script>
 <script>
 // Arrow-controlled, looped 4-card carousel (call fit after render)
 (function(){
@@ -1073,10 +1014,10 @@
   if (!track || !prevBtn || !nextBtn || !toggleBtn || !cardsRegion) return;
 
     const data = [
-    { cls: 'bg-header-pattern bg-header-green-1', brand: 'SpendWise Debit', scheme: 'VISA', num: '3453 4626 7310 3728', name: 'Francis Crawford', exp: '03/29' },
-    { cls: 'bg-header-pattern bg-header-green-2', brand: 'SpendWise Black',  scheme: 'VISA', num: '5243 9834 2201 4458', name: 'Gail Bell',        exp: '02/30' },
-    { cls: 'bg-header-pattern bg-header-green-3', brand: 'SpendWise Gold',   scheme: 'VISA', num: '4012 8888 8888 1881', name: 'Shirley Swanson', exp: '08/29' },
-    { cls: 'bg-header-pattern bg-header-green-4', brand: 'SpendWise Premium',scheme: 'VISA', num: '4532 2214 7777 0042', name: 'Dianne Palmer',  exp: '07/29' },
+    { cls: 'bg-header-pattern bg-header-green-1', brand: 'SpendWise Debit', scheme: 'VISA', num: '3453 4626 7310 3728', name: 'Liza Hlushych', exp: '03/29' },
+    { cls: 'bg-header-pattern bg-header-green-2', brand: 'SpendWise Black',  scheme: 'VISA', num: '5243 9834 2201 4458', name: 'Liza Hlushych',        exp: '02/30' },
+    { cls: 'bg-header-pattern bg-header-green-3', brand: 'SpendWise Gold',   scheme: 'VISA', num: '4012 8888 8888 1881', name: 'Liza Hlushych', exp: '08/29' },
+    { cls: 'bg-header-pattern bg-header-green-4', brand: 'SpendWise Premium',scheme: 'VISA', num: '4532 2214 7777 0042', name: 'Liza Hlushych',  exp: '07/29' },
     ];
 
   let items = data.slice();
