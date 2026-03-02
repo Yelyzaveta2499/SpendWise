@@ -1,5 +1,4 @@
-﻿// Goals with Backend + Placeholder Cards
-function renderGoals() {
+﻿function renderGoals() {
     const section = document.getElementById('section-goals');
     if (!section) return;
     const contentDiv = section.querySelector('.section-content');
@@ -54,6 +53,72 @@ function renderGoalsContent(contentDiv, goals, summary) {
             </div>
             <div class="goals-grid">${goals.map(goal => renderGoalCard(goal)).join('')}</div>
         </div>
+        
+        <!-- Goal Creation Modal -->
+        <div id="goal-modal" class="budget-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="goal-modal-title">Create New Goal</h3>
+                    <button class="modal-close" id="goal-modal-close">&times;</button>
+                </div>
+                <form id="goal-form" class="budget-form">
+                    <input id="goal-name" type="text" placeholder="Goal name (e.g., Emergency Fund)" required maxlength="50" />
+                    
+                    <input id="goal-target" type="number" step="0.01" placeholder="Target amount (e.g., 10000)" required min="1" />
+                    
+                    <input id="goal-deadline" type="date" placeholder="Deadline (optional)" />
+                    
+                    <div style="display: flex; gap: 12px; align-items: center; margin: 8px 0;">
+                        <label style="font-size: 14px; color: #64748b; font-weight: 500;">Icon:</label>
+                        <select id="goal-icon" style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="🎯">🎯 Target</option>
+                            <option value="🏠">🏠 Home</option>
+                            <option value="🚗">🚗 Car</option>
+                            <option value="✈️">✈️ Travel</option>
+                            <option value="🛡️">🛡️ Emergency</option>
+                            <option value="💰">💰 Savings</option>
+                            <option value="🎓">🎓 Education</option>
+                            <option value="💍">💍 Wedding</option>
+                            <option value="📱">📱 Electronics</option>
+                            <option value="🏖️">🏖️ Vacation</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; align-items: center; margin: 8px 0;">
+                        <label style="font-size: 14px; color: #64748b; font-weight: 500;">Color:</label>
+                        <select id="goal-color" style="flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                            <option value="#10b981">🟢 Green</option>
+                            <option value="#3b82f6">🔵 Blue</option>
+                            <option value="#a855f7">🟣 Purple</option>
+                            <option value="#f59e0b">🟠 Orange</option>
+                            <option value="#ef4444">🔴 Red</option>
+                            <option value="#ec4899">🩷 Pink</option>
+                            <option value="#14b8a6">🐬 Teal</option>
+                            <option value="#475569">⚫ Dark Gray</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Create Goal</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Add Contribution Modal -->
+        <div id="contribution-modal" class="budget-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="contribution-modal-title">Add Contribution</h3>
+                    <button class="modal-close" id="contribution-modal-close">&times;</button>
+                </div>
+                <form id="contribution-form" class="budget-form">
+                    <input id="contribution-amount" type="number" step="0.01" placeholder="Contribution amount (e.g., 500)" required min="0.01" />
+                    
+                    <textarea id="contribution-note" placeholder="Add a note (optional)" rows="3" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+                    
+                    <button type="submit" class="btn-submit">Add Contribution</button>
+                </form>
+            </div>
+        </div>
     `;
     contentDiv.innerHTML = html;
     attachGoalEventListeners();
@@ -74,7 +139,6 @@ function renderGoalCard(goal) {
         const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
         deadlineText = isPassed ? 'Deadline passed' : daysLeft > 0 ? ` days left` : 'Due today';
     }
-    const placeholderBadge = goal.isPlaceholder ? '<span style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">DEMO</span>' : '';
     const editAttrs = `data-id="${goal.id}" data-name="${goal.name}" data-target="${targetAmount}" data-current="${currentAmount}" data-is-placeholder="${goal.isPlaceholder || false}"`;
     const editBtn = `<button type="button" class="budget-action-btn budget-edit-btn" ${editAttrs} aria-label="Edit goal" title="Edit">✎</button>`;
     const deleteBtn = `<button type="button" class="budget-action-btn budget-delete-btn" data-id="${goal.id}" data-name="${goal.name}" data-is-placeholder="${goal.isPlaceholder || false}" aria-label="Delete goal" title="Delete">🗑</button>`;
@@ -82,7 +146,6 @@ function renderGoalCard(goal) {
     return `
         <div class="goal-card" data-goal-id="${goal.id}">
             <div class="goal-card-header" style="background: ${color};">
-                ${placeholderBadge}
                 <div class="goal-header-content">
                     <div class="goal-icon-name"><div class="goal-icon">${icon}</div><div class="goal-name">${goal.name}</div></div>
                     <div class="goal-percentage">${percentage}%</div>
@@ -113,7 +176,83 @@ function adjustColorDarkness(hexColor) {
 }
 function attachGoalEventListeners() {
     const createBtn = document.getElementById('btnCreateGoal');
-    if (createBtn) createBtn.addEventListener('click', createNewGoal);
+    const modal = document.getElementById('goal-modal');
+    const modalClose = document.getElementById('goal-modal-close');
+    const goalForm = document.getElementById('goal-form');
+
+    const contributionModal = document.getElementById('contribution-modal');
+    const contributionModalClose = document.getElementById('contribution-modal-close');
+    const contributionForm = document.getElementById('contribution-form');
+    let currentGoalId = null;
+
+    // Create Goal Modal
+    if (createBtn) {
+        createBtn.addEventListener('click', () => {
+            document.getElementById('goal-modal-title').textContent = 'Create New Goal';
+            document.getElementById('goal-name').value = '';
+            document.getElementById('goal-target').value = '';
+            document.getElementById('goal-deadline').value = '';
+            document.getElementById('goal-icon').value = '🎯';
+            document.getElementById('goal-color').value = '#10b981';
+            if (modal) modal.style.display = 'flex';
+        });
+    }
+
+    if (modalClose) {
+        modalClose.addEventListener('click', () => {
+            if (modal) modal.style.display = 'none';
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    }
+
+    if (goalForm) {
+        goalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('goal-name').value.trim();
+            const targetAmount = parseFloat(document.getElementById('goal-target').value);
+            const deadline = document.getElementById('goal-deadline').value || null;
+            const icon = document.getElementById('goal-icon').value;
+            const color = document.getElementById('goal-color').value;
+
+            if (name && targetAmount > 0) {
+                createNewGoal(name, targetAmount, deadline, icon, color);
+                if (modal) modal.style.display = 'none';
+            }
+        });
+    }
+
+    // Contribution Modal
+    if (contributionModalClose) {
+        contributionModalClose.addEventListener('click', () => {
+            if (contributionModal) contributionModal.style.display = 'none';
+        });
+    }
+
+    if (contributionModal) {
+        contributionModal.addEventListener('click', (e) => {
+            if (e.target === contributionModal) contributionModal.style.display = 'none';
+        });
+    }
+
+    if (contributionForm) {
+        contributionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('contribution-amount').value);
+            const note = document.getElementById('contribution-note').value.trim() || '';
+
+            if (amount > 0 && currentGoalId) {
+                addContribution(currentGoalId, amount, note);
+                if (contributionModal) contributionModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Edit buttons
     document.querySelectorAll('.budget-edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -124,6 +263,8 @@ function attachGoalEventListeners() {
             } else if (newTarget !== null) alert('Please enter a valid amount');
         });
     });
+
+    // Delete buttons
     document.querySelectorAll('.budget-delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -131,44 +272,53 @@ function attachGoalEventListeners() {
             if (confirm(`Are you sure you want to delete the goal "${btn.dataset.name}"?`)) deleteGoal(btn.dataset.id);
         });
     });
+
+    // Add Contribution buttons
     document.querySelectorAll('.btn-add-contribution').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (btn.dataset.isPlaceholder === 'true') { alert('This is a demo card. Create a real goal to add contributions!'); return; }
-            addContribution(btn.dataset.goalId);
+
+            // Open contribution modal for all cards
+            currentGoalId = btn.dataset.goalId;
+            document.getElementById('contribution-amount').value = '';
+            document.getElementById('contribution-note').value = '';
+            if (contributionModal) contributionModal.style.display = 'flex';
         });
     });
 }
-function createNewGoal() {
-    const name = prompt('Enter goal name:');
-    if (!name) return;
-    const targetAmount = prompt('Enter target amount:');
-    if (!targetAmount || isNaN(targetAmount) || parseFloat(targetAmount) <= 0) { alert('Please enter a valid target amount'); return; }
-    const deadline = prompt('Enter deadline (YYYY-MM-DD) or leave empty:');
-    const goalData = { name: name.trim(), targetAmount: parseFloat(targetAmount), deadline: deadline || null, icon: '🎯', color: '#10b981' };
+function createNewGoal(name, targetAmount, deadline, icon, color) {
+    const goalData = { name, targetAmount, deadline, icon, color };
     fetch('/api/goals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(goalData) })
         .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
-        .then(() => { alert('Goal created!'); renderGoals(); })
-        .catch(err => alert('Error: ' + err.message));
+        .then(() => { renderGoals(); })
+        .catch(err => console.error('Error creating goal:', err));
 }
 function updateGoal(id, updates) {
     fetch(`/api/goals/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) })
         .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
-        .then(() => { alert('Goal updated!'); renderGoals(); })
-        .catch(err => alert('Error: ' + err.message));
+        .then(() => { renderGoals(); })
+        .catch(err => console.error('Error updating goal:', err));
 }
 function deleteGoal(id) {
     fetch(`/api/goals/${id}`, { method: 'DELETE' })
-        .then(res => { if (!res.ok) throw new Error('Failed'); alert('Goal deleted!'); renderGoals(); })
-        .catch(err => alert('Error: ' + err.message));
+        .then(res => { if (!res.ok) throw new Error('Failed'); renderGoals(); })
+        .catch(err => console.error('Error deleting goal:', err));
 }
-function addContribution(id) {
-    const amount = prompt('Enter contribution amount:');
-    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) { if (amount !== null) alert('Please enter a valid amount'); return; }
-    const note = prompt('Add a note (optional):') || '';
-    fetch(`/api/goals/${id}/contributions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: parseFloat(amount), note }) })
+function addContribution(id, amount, note) {
+    // Check if it's a placeholder/demo card
+    if (id && id.toString().startsWith('demo-')) {
+        console.log('Demo card - contribution not saved:', { id, amount, note });
+        renderGoals(); // Just refresh to show the UI works
+        return;
+    }
+
+    fetch(`/api/goals/${id}/contributions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, note })
+    })
         .then(res => { if (!res.ok) throw new Error('Failed'); return res.json(); })
-        .then(() => { alert('Contribution added!'); renderGoals(); })
-        .catch(err => alert('Error: ' + err.message));
+        .then(() => { renderGoals(); })
+        .catch(err => console.error('Error adding contribution:', err));
 }
 window.renderGoals = renderGoals;
