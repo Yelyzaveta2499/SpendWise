@@ -8,22 +8,52 @@
 }
 function fetchGoalsAndRender(contentDiv) {
     const placeholderGoals = [
-        { id: 'demo-1', name: 'Emergency Fund', icon: '🛡️', color: '#10b981', currentAmount: 7500, targetAmount: 10000, deadline: '2025-12-01', isPlaceholder: true },
-        { id: 'demo-2', name: 'New Car', icon: '🚗', color: '#475569', currentAmount: 8200, targetAmount: 25000, deadline: '2025-11-15', isPlaceholder: true },
-        { id: 'demo-3', name: 'Vacation Fund', icon: '✈️', color: '#0ea5e9', currentAmount: 3200, targetAmount: 5000, deadline: '2025-10-20', isPlaceholder: true },
-        { id: 'demo-4', name: 'Home Down Payment', icon: '🏠', color: '#a855f7', currentAmount: 12000, targetAmount: 50000, deadline: '2026-11-30', isPlaceholder: true }
+        { id: 'demo-1', name: 'Emergency Fund', icon: '🛡️', color: 'rgba(16,185,129,0.56)', currentAmount: 7500, targetAmount: 10000, deadline: '2027-12-01', isPlaceholder: true },
+        { id: 'demo-2', name: 'New Car', icon: '🚗', color: 'rgba(71,85,105,0.59)', currentAmount: 8200, targetAmount: 25000, deadline: '2027-11-15', isPlaceholder: true },
+        { id: 'demo-3', name: 'Vacation Fund', icon: '✈️', color: 'rgba(14,165,233,0.63)', currentAmount: 3200, targetAmount: 5000, deadline: '2027-10-20', isPlaceholder: true },
+        { id: 'demo-4', name: 'Home Down Payment', icon: '🏠', color: 'rgba(168,85,247,0.58)', currentAmount: 12000, targetAmount: 50000, deadline: '2028-11-30', isPlaceholder: true }
     ];
+
+    // apply stored contributions to demo goals from localStorage
+    const demoContributions = JSON.parse(localStorage.getItem('demoGoalContributions') || '{}');
+    placeholderGoals.forEach(goal => {
+        if (demoContributions[goal.id]) {
+            goal.currentAmount = demoContributions[goal.id];
+        }
+    });
+
     Promise.all([
         fetch('/api/goals').then(res => res.ok ? res.json() : []).catch(() => []),
         fetch('/api/goals/summary').then(res => res.ok ? res.json() : null).catch(() => null)
     ])
     .then(([backendGoals, backendSummary]) => {
-        const summary = backendSummary || { totalSaved: 30900, totalTarget: 90000, activeGoals: 4 };
+        // Calculate demo goals totals from updated amounts
+        const demoTotalSaved = placeholderGoals.reduce((sum, goal) => sum + (goal.currentAmount || 0), 0);
+        const demoTotalTarget = placeholderGoals.reduce((sum, goal) => sum + (goal.targetAmount || 0), 0);
+
+        // Combine all goals
         const allGoals = [...backendGoals, ...placeholderGoals];
+
+        // Calculate summary from actual displayed goals
+        const summary = {
+            totalSaved: (backendSummary?.totalSaved || 0) + demoTotalSaved,
+            totalTarget: (backendSummary?.totalTarget || 0) + demoTotalTarget,
+            activeGoals: allGoals.length  // Count all displayed goals (real + demo)
+        };
+
         renderGoalsContent(contentDiv, allGoals, summary);
     })
     .catch(() => {
-        const summary = { totalSaved: 30900, totalTarget: 90000, activeGoals: 4 };
+        // calculate from placeholder goals only
+        const demoTotalSaved = placeholderGoals.reduce((sum, goal) => sum + (goal.currentAmount || 0), 0);
+        const demoTotalTarget = placeholderGoals.reduce((sum, goal) => sum + (goal.targetAmount || 0), 0);
+
+        const summary = {
+            totalSaved: demoTotalSaved,
+            totalTarget: demoTotalTarget,
+            activeGoals: placeholderGoals.length
+        };
+
         renderGoalsContent(contentDiv, placeholderGoals, summary);
     });
 }
@@ -163,6 +193,24 @@ function renderGoalsContent(contentDiv, goals, summary) {
                 </form>
             </div>
         </div>
+        
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-goal-modal" class="budget-modal" style="display: none;">
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h3>Delete Goal</h3>
+                    <button class="modal-close" id="delete-goal-modal-close">&times;</button>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="margin: 0 0 20px 0; color: #64748b; font-size: 15px;">Are you sure you want to delete the goal "<span id="delete-goal-name" style="font-weight: 600; color: #0f172a;"></span>"?</p>
+                    <p style="margin: 0; color: #ef4444; font-size: 14px;">⚠️ This action cannot be undone.</p>
+                </div>
+                <div style="display: flex; gap: 12px; padding: 0 20px 20px 20px;">
+                    <button type="button" id="delete-goal-cancel" class="btn-submit" style="background: #64748b; flex: 1;">Cancel</button>
+                    <button type="button" id="delete-goal-confirm" class="btn-submit" style="background: #ef4444; flex: 1;">Delete</button>
+                </div>
+            </div>
+        </div>
     `;
     contentDiv.innerHTML = html;
     attachGoalEventListeners();
@@ -181,9 +229,9 @@ function renderGoalCard(goal) {
         const today = new Date();
         const isPassed = deadline < today;
         const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-        deadlineText = isPassed ? 'Deadline passed' : daysLeft > 0 ? ` days left` : 'Due today';
+        deadlineText = isPassed ? 'Deadline passed' : daysLeft > 0 ? `${daysLeft} days left` : 'Due today';
     }
-    const editAttrs = `data-id="${goal.id}" data-name="${goal.name}" data-target="${targetAmount}" data-current="${currentAmount}" data-is-placeholder="${goal.isPlaceholder || false}"`;
+    const editAttrs = `data-id="${goal.id}" data-name="${goal.name}" data-target="${targetAmount}" data-current="${currentAmount}" data-deadline="${goal.deadline || ''}" data-icon="${icon}" data-color="${color}" data-is-placeholder="${goal.isPlaceholder || false}"`;
     const editBtn = `<button type="button" class="budget-action-btn budget-edit-btn" ${editAttrs} aria-label="Edit goal" title="Edit">✎</button>`;
     const deleteBtn = `<button type="button" class="budget-action-btn budget-delete-btn" data-id="${goal.id}" data-name="${goal.name}" data-is-placeholder="${goal.isPlaceholder || false}" aria-label="Delete goal" title="Delete">🗑</button>`;
     const actionsHtml = `<div class="budget-card-actions">${editBtn}${deleteBtn}</div>`;
@@ -234,8 +282,14 @@ function attachGoalEventListeners() {
     const editModalClose = document.getElementById('edit-goal-modal-close');
     const editGoalForm = document.getElementById('edit-goal-form');
 
+    const deleteModal = document.getElementById('delete-goal-modal');
+    const deleteModalClose = document.getElementById('delete-goal-modal-close');
+    const deleteCancel = document.getElementById('delete-goal-cancel');
+    const deleteConfirm = document.getElementById('delete-goal-confirm');
+
     let currentGoalId = null;
     let currentEditGoalId = null;
+    let currentDeleteGoalId = null;
 
     // Create Goal Modal
     if (createBtn) {
@@ -307,6 +361,34 @@ function attachGoalEventListeners() {
         });
     }
 
+    // Delete Goal Modal
+    if (deleteModalClose) {
+        deleteModalClose.addEventListener('click', () => {
+            if (deleteModal) deleteModal.style.display = 'none';
+        });
+    }
+
+    if (deleteCancel) {
+        deleteCancel.addEventListener('click', () => {
+            if (deleteModal) deleteModal.style.display = 'none';
+        });
+    }
+
+    if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) deleteModal.style.display = 'none';
+        });
+    }
+
+    if (deleteConfirm) {
+        deleteConfirm.addEventListener('click', () => {
+            if (currentDeleteGoalId) {
+                deleteGoal(currentDeleteGoalId);
+                if (deleteModal) deleteModal.style.display = 'none';
+            }
+        });
+    }
+
     // Contribution Modal
     if (contributionModalClose) {
         contributionModalClose.addEventListener('click', () => {
@@ -341,26 +423,34 @@ function attachGoalEventListeners() {
             currentEditGoalId = btn.dataset.id;
             const goalName = btn.dataset.name;
             const targetAmount = btn.dataset.target;
+            const deadline = btn.dataset.deadline;
+            const icon = btn.dataset.icon;
+            const color = btn.dataset.color;
 
-            // Pre-fill the edit form
+            // Pre-fill the edit form with all fields
             document.getElementById('edit-goal-name').value = goalName;
             document.getElementById('edit-goal-target').value = targetAmount;
+            document.getElementById('edit-goal-deadline').value = deadline || '';
+            document.getElementById('edit-goal-icon').value = icon || '🎯';
+            document.getElementById('edit-goal-color').value = color || '#10b981';
 
             // Open edit modal
             if (editModal) editModal.style.display = 'flex';
         });
     });
 
-    // Delete buttons - Direct delete with confirmation
+    // Delete buttons - Open custom delete modal
     document.querySelectorAll('.budget-delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const goalId = btn.dataset.id;
+            currentDeleteGoalId = btn.dataset.id;
             const goalName = btn.dataset.name;
 
-            if (confirm(`Are you sure you want to delete the goal "${goalName}"?`)) {
-                deleteGoal(goalId);
-            }
+            // Set goal name in modal
+            document.getElementById('delete-goal-name').textContent = goalName;
+
+            // Open delete modal
+            if (deleteModal) deleteModal.style.display = 'flex';
         });
     });
 
@@ -407,14 +497,40 @@ function deleteGoal(id) {
     }
 
     fetch(`/api/goals/${id}`, { method: 'DELETE' })
-        .then(res => { if (!res.ok) throw new Error('Failed'); renderGoals(); })
+        .then(res => {
+            if (!res.ok) throw new Error('Failed');
+            return res;
+        })
+        .then(() => { renderGoals(); })
         .catch(err => console.error('Error deleting goal:', err));
 }
 function addContribution(id, amount, note) {
     // Check if it's a placeholder/demo card
     if (id && id.toString().startsWith('demo-')) {
-        console.log('Demo card - contribution not saved:', { id, amount, note });
-        renderGoals(); // Just refresh to show the UI works
+        console.log('Demo card - contribution saved to localStorage:', { id, amount, note });
+
+        // Get existing contributions from localStorage
+        const demoContributions = JSON.parse(localStorage.getItem('demoGoalContributions') || '{}');
+
+        // Default starting amounts for each demo goal
+        const defaultAmounts = {
+            'demo-1': 7500,  // Emergency Fund
+            'demo-2': 8200,  // New Car
+            'demo-3': 3200,  // Vacation Fund
+            'demo-4': 12000  // Home Down Payment
+        };
+
+        // Get current amount (from localStorage or default)
+        const currentAmount = demoContributions[id] || defaultAmounts[id] || 0;
+
+        // Add the new contribution
+        demoContributions[id] = currentAmount + amount;
+
+        // Save back to localStorage
+        localStorage.setItem('demoGoalContributions', JSON.stringify(demoContributions));
+
+        // Refresh to show updated amounts
+        renderGoals();
         return;
     }
 
