@@ -2554,19 +2554,25 @@ body.dark-mode .btn-add-contribution:hover {
 /* Recent Expenses Grid */
 .recent-expenses-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 12px;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1000px) {
     .recent-expenses-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1400px) {
     .recent-expenses-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1800px) {
+    .recent-expenses-grid {
+        grid-template-columns: repeat(5, 1fr);
     }
 }
 
@@ -2578,7 +2584,7 @@ body.dark-mode .btn-add-contribution:hover {
     background: #0f172a;
     border-radius: 10px;
     transition: all 0.2s;
-    min-height: 130px;
+    min-height: 120px;
     position: relative;
     overflow: hidden;
 }
@@ -2841,6 +2847,12 @@ body:not(.dark-mode) .notification-message {
     .category-amount-section {
         width: 100%;
         justify-content: space-between;
+    }
+}
+
+@media (max-width: 900px) {
+    .recent-expenses-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 

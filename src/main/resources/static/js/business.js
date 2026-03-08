@@ -53,7 +53,11 @@ function fetchBusinessAndRender(contentDiv) {
         { id: 5, name: 'Equipment Repair', icon: '🔧', iconColor: '#10b981', category: 'Maintenance', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$890' },
         { id: 6, name: 'Power & Internet', icon: '⚡', iconColor: '#06b6d4', category: 'Utilities', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$540' },
         { id: 7, name: 'Office Furniture', icon: '🪑', iconColor: '#8b5cf6', category: 'Office Supplies', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$1,450' },
-        { id: 8, name: 'Team Lunch', icon: '🍕', iconColor: '#f59e0b', category: 'Travel', tags: ['Client A', 'Marketing'], tagColors: ['#0ea5e9', '#ec4899'], amount: '-$320' }
+        { id: 8, name: 'Team Lunch', icon: '🍕', iconColor: '#f59e0b', category: 'Travel', tags: ['Client A', 'Marketing'], tagColors: ['#0ea5e9', '#ec4899'], amount: '-$320' },
+        { id: 9, name: 'Google Workspace', icon: '📧', iconColor: '#3b82f6', category: 'Software', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$720' },
+        { id: 10, name: 'Conference Tickets', icon: '🎫', iconColor: '#ec4899', category: 'Marketing', tags: ['Marketing', 'Q1 2024'], tagColors: ['#ec4899', '#f59e0b'], amount: '-$1,200' },
+        { id: 11, name: 'Office Cleaning', icon: '🧹', iconColor: '#10b981', category: 'Office Supplies', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$450' },
+        { id: 12, name: 'Printer Supplies', icon: '🖨️', iconColor: '#64748b', category: 'Office Supplies', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$280' }
     ];
 
     renderBusinessContent(contentDiv, { stats: statsData, expenseTags, spendingByTag, categoryData, recentExpenses });
