@@ -8,22 +8,50 @@
 }
 function fetchGoalsAndRender(contentDiv) {
     const placeholderGoals = [
-        { id: 'demo-1', name: 'Emergency Fund', icon: '🛡️', color: '#10b981', currentAmount: 7500, targetAmount: 10000, deadline: '2025-12-01', isPlaceholder: true },
-        { id: 'demo-2', name: 'New Car', icon: '🚗', color: '#475569', currentAmount: 8200, targetAmount: 25000, deadline: '2025-11-15', isPlaceholder: true },
-        { id: 'demo-3', name: 'Vacation Fund', icon: '✈️', color: '#0ea5e9', currentAmount: 3200, targetAmount: 5000, deadline: '2025-10-20', isPlaceholder: true },
-        { id: 'demo-4', name: 'Home Down Payment', icon: '🏠', color: '#a855f7', currentAmount: 12000, targetAmount: 50000, deadline: '2026-11-30', isPlaceholder: true }
+        { id: 'demo-1', name: 'Emergency Fund', icon: '🛡️', color: 'rgba(16,185,129,0.56)', currentAmount: 7500, targetAmount: 10000, deadline: '2027-12-01', isPlaceholder: true },
+        { id: 'demo-2', name: 'New Car', icon: '🚗', color: 'rgba(71,85,105,0.59)', currentAmount: 8200, targetAmount: 25000, deadline: '2027-11-15', isPlaceholder: true },
+        { id: 'demo-3', name: 'Vacation Fund', icon: '✈️', color: 'rgba(14,165,233,0.63)', currentAmount: 3200, targetAmount: 5000, deadline: '2027-10-20', isPlaceholder: true },
+        { id: 'demo-4', name: 'Home Down Payment', icon: '🏠', color: 'rgba(168,85,247,0.58)', currentAmount: 12000, targetAmount: 50000, deadline: '2028-11-30', isPlaceholder: true }
     ];
+
+    // apply stored contributions to demo goals from localStorage
+    const demoContributions = JSON.parse(localStorage.getItem('demoGoalContributions') || '{}');
+    placeholderGoals.forEach(goal => {
+        if (demoContributions[goal.id]) {
+            goal.currentAmount = demoContributions[goal.id];
+        }
+    });
+
     Promise.all([
         fetch('/api/goals').then(res => res.ok ? res.json() : []).catch(() => []),
         fetch('/api/goals/summary').then(res => res.ok ? res.json() : null).catch(() => null)
     ])
     .then(([backendGoals, backendSummary]) => {
-        const summary = backendSummary || { totalSaved: 30900, totalTarget: 90000, activeGoals: 4 };
+        // Calculate demo goals totals from updated amounts
+        const demoTotalSaved = placeholderGoals.reduce((sum, goal) => sum + (goal.currentAmount || 0), 0);
+        const demoTotalTarget = placeholderGoals.reduce((sum, goal) => sum + (goal.targetAmount || 0), 0);
+
+        // Combine backend and demo stats
+        const summary = {
+            totalSaved: (backendSummary?.totalSaved || 0) + demoTotalSaved,
+            totalTarget: (backendSummary?.totalTarget || 0) + demoTotalTarget,
+            activeGoals: (backendSummary?.activeGoals || 0) + placeholderGoals.length
+        };
+
         const allGoals = [...backendGoals, ...placeholderGoals];
         renderGoalsContent(contentDiv, allGoals, summary);
     })
     .catch(() => {
-        const summary = { totalSaved: 30900, totalTarget: 90000, activeGoals: 4 };
+        // calculate from placeholder goals only
+        const demoTotalSaved = placeholderGoals.reduce((sum, goal) => sum + (goal.currentAmount || 0), 0);
+        const demoTotalTarget = placeholderGoals.reduce((sum, goal) => sum + (goal.targetAmount || 0), 0);
+
+        const summary = {
+            totalSaved: demoTotalSaved,
+            totalTarget: demoTotalTarget,
+            activeGoals: placeholderGoals.length
+        };
+
         renderGoalsContent(contentDiv, placeholderGoals, summary);
     });
 }
@@ -413,8 +441,30 @@ function deleteGoal(id) {
 function addContribution(id, amount, note) {
     // Check if it's a placeholder/demo card
     if (id && id.toString().startsWith('demo-')) {
-        console.log('Demo card - contribution not saved:', { id, amount, note });
-        renderGoals(); // Just refresh to show the UI works
+        console.log('Demo card - contribution saved to localStorage:', { id, amount, note });
+
+        // Get existing contributions from localStorage
+        const demoContributions = JSON.parse(localStorage.getItem('demoGoalContributions') || '{}');
+
+        // Default starting amounts for each demo goal
+        const defaultAmounts = {
+            'demo-1': 7500,  // Emergency Fund
+            'demo-2': 8200,  // New Car
+            'demo-3': 3200,  // Vacation Fund
+            'demo-4': 12000  // Home Down Payment
+        };
+
+        // Get current amount (from localStorage or default)
+        const currentAmount = demoContributions[id] || defaultAmounts[id] || 0;
+
+        // Add the new contribution
+        demoContributions[id] = currentAmount + amount;
+
+        // Save back to localStorage
+        localStorage.setItem('demoGoalContributions', JSON.stringify(demoContributions));
+
+        // Refresh to show updated amounts
+        renderGoals();
         return;
     }
 
