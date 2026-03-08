@@ -8,59 +8,103 @@ function renderBusiness() {
 }
 
 function fetchBusinessAndRender(contentDiv) {
-    // Demo data
+    // Fetch real data from API
+    fetch('/api/business/analytics')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch business analytics');
+            }
+            return response.json();
+        })
+        .then(data => {
+
+            const transformedData = transformAnalyticsData(data);
+            renderBusinessContent(contentDiv, transformedData);
+        })
+        .catch(error => {
+            console.error('Error fetching business analytics:', error);
+            contentDiv.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #ef4444;">
+                    <p>Error loading business data</p>
+                    <p style="font-size: 14px; color: #64748b;">${error.message}</p>
+                </div>
+            `;
+        });
+}
+
+
+function transformAnalyticsData(apiData) {
+
+    const stats = apiData.stats || {};
     const statsData = {
-        totalRevenue: { amount: '$48,250', label: 'Total Revenue', change: '+12.5%', positive: true },
-        totalExpenses: { amount: '$31,840', label: 'Total Expenses', change: '+4.2%', positive: false },
-        activeClients: { amount: '12', label: 'Active Clients', change: '+2', positive: true },
-        activeTags: { amount: '8', label: 'Active Tags', change: '+1', positive: true }
+        totalRevenue: {
+            amount: '$0.00',
+            label: 'Total Revenue',
+            change: '+0%',
+            positive: true
+        },
+        totalExpenses: {
+            amount: stats.totalExpenses || '$0.00',
+            label: 'Total Expenses',
+            change: '+0%',
+            positive: false
+        },
+        activeClients: {
+            amount: '0',
+            label: 'Active Clients',
+            change: '+0',
+            positive: true
+        },
+        activeTags: {
+            amount: String(stats.activeTags || 0),
+            label: 'Active Tags',
+            change: '+0',
+            positive: true
+        }
     };
 
-    const expenseTags = [
-        { name: 'Client A', count: 24, color: '#0ea5e9' },
-        { name: 'Project X', count: 18, color: '#a855f7' },
-        { name: 'Q1 2024', count: 31, color: '#f59e0b' },
-        { name: 'Marketing', count: 12, color: '#ec4899' },
-        { name: 'Operations', count: 45, color: '#10b981' },
-        { name: 'Vendor B', count: 8, color: '#06b6d4' },
-        { name: 'Recurring', count: 56, color: '#10b981' },
-        { name: 'Tax Deductible', count: 33, color: '#eab308' }
-    ];
+    // Transform expense tags
+    const expenseTags = (apiData.expenseTags || []).map(tag => ({
+        name: tag.name,
+        count: tag.count,
+        color: tag.color || '#3b82f6'
+    }));
 
-    const spendingByTag = [
-        { name: 'Operations', amount: 14000, color: '#10b981' },
-        { name: 'Client A', amount: 12000, color: '#0ea5e9' },
-        { name: 'Marketing', amount: 9500, color: '#ec4899' },
-        { name: 'Project X', amount: 8000, color: '#a855f7' },
-        { name: 'Recurring', amount: 6500, color: '#f59e0b' },
-        { name: 'Vendor B', amount: 4000, color: '#06b6d4' }
-    ];
+    // Transform spending by tag
+    const spendingByTag = (apiData.spendingByTag || []).map(tag => ({
+        name: tag.name,
+        amount: tag.amount,
+        color: tag.color || '#3b82f6'
+    }));
 
-    const categoryData = [
-        { name: 'Office Supplies', amount: '$2,340', change: '+2%', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'] },
-        { name: 'Travel', amount: '$4,820', change: '+12%', tags: ['Client A', 'Marketing'], tagColors: ['#0ea5e9', '#ec4899'] },
-        { name: 'Software', amount: '$1,890', change: '+2%', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'] },
-        { name: 'Consulting', amount: '$6,500', change: '+18%', tags: ['Project X', 'Client A'], tagColors: ['#a855f7', '#0ea5e9'] },
-        { name: 'Advertising', amount: '$3,200', change: '-8%', tags: ['Marketing'], tagColors: ['#ec4899'] },
-        { name: 'Utilities', amount: '$1,100', change: '+1%', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'] }
-    ];
+    // Transform category data - add placeholder change percentages
+    const categoryData = (apiData.categoryData || []).map(category => ({
+        name: category.name,
+        amount: category.amount,
+        change: '+0%', // Placeholder for now
+        tags: category.tags || [],
+        tagColors: category.tagColors || []
+    }));
 
-    const recentExpenses = [
-        { id: 1, name: 'Cloud Infrastructure', icon: '💻', iconColor: '#3b82f6', category: 'Software', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$2,840' },
-        { id: 2, name: 'Client Dinner - NYC', icon: '🍽️', iconColor: '#a855f7', category: 'Travel', tags: ['Client A'], tagColors: ['#0ea5e9'], amount: '-$1,250' },
-        { id: 3, name: 'Facebook Ads', icon: '📢', iconColor: '#ec4899', category: 'Advertising', tags: ['Marketing'], tagColors: ['#ec4899'], amount: '-$3,200' },
-        { id: 4, name: 'Legal Consultation', icon: '⚖️', iconColor: '#f59e0b', category: 'Consulting', tags: ['Project X'], tagColors: ['#a855f7'], amount: '-$4,500' },
-        { id: 5, name: 'Equipment Repair', icon: '🔧', iconColor: '#10b981', category: 'Maintenance', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$890' },
-        { id: 6, name: 'Power & Internet', icon: '⚡', iconColor: '#06b6d4', category: 'Utilities', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$540' },
-        { id: 7, name: 'Office Furniture', icon: '🪑', iconColor: '#8b5cf6', category: 'Office Supplies', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$1,450' },
-        { id: 8, name: 'Team Lunch', icon: '🍕', iconColor: '#f59e0b', category: 'Travel', tags: ['Client A', 'Marketing'], tagColors: ['#0ea5e9', '#ec4899'], amount: '-$320' },
-        { id: 9, name: 'Google Workspace', icon: '📧', iconColor: '#3b82f6', category: 'Software', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$720' },
-        { id: 10, name: 'Conference Tickets', icon: '🎫', iconColor: '#ec4899', category: 'Marketing', tags: ['Marketing', 'Q1 2024'], tagColors: ['#ec4899', '#f59e0b'], amount: '-$1,200' },
-        { id: 11, name: 'Office Cleaning', icon: '🧹', iconColor: '#10b981', category: 'Office Supplies', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$450' },
-        { id: 12, name: 'Printer Supplies', icon: '🖨️', iconColor: '#64748b', category: 'Office Supplies', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$280' }
-    ];
+    // Transform recent expenses
+    const recentExpenses = (apiData.recentExpenses || []).map(expense => ({
+        id: expense.id,
+        name: expense.name,
+        icon: expense.icon,
+        iconColor: expense.iconColor,
+        category: expense.category,
+        tags: expense.tags || [],
+        tagColors: expense.tagColors || [],
+        amount: expense.amount
+    }));
 
-    renderBusinessContent(contentDiv, { stats: statsData, expenseTags, spendingByTag, categoryData, recentExpenses });
+    return {
+        stats: statsData,
+        expenseTags: expenseTags,
+        spendingByTag: spendingByTag,
+        categoryData: categoryData,
+        recentExpenses: recentExpenses
+    };
 }
 
 function renderBusinessContent(contentDiv, data) {
@@ -339,7 +383,7 @@ function initMonthlyTagChart() {
     const chartHost = document.getElementById('monthlyTagChart');
     if (!chartHost) return;
 
-    // Demo data for 6 months - Client A, Operations, Marketing
+
     const data = [
         { month: 'Oct', clientA: 2800, operations: 3200, marketing: 2100 },
         { month: 'Nov', clientA: 3400, operations: 3600, marketing: 2500 },
@@ -382,7 +426,7 @@ function initMonthlyTagChart() {
         return (h - padB) - (innerH * t);
     }
 
-    // Smooth path builder (simple cubic curves between points)
+
     function smoothPath(values) {
         const pts = values.map(function(v, i) {
             return { x: x(i), y: y(v) };
@@ -437,7 +481,7 @@ function initMonthlyTagChart() {
         yLabels.push(`<text class="chart-ylabel" x="${(padL - 14)}" y="${(yy + 4).toFixed(1)}" text-anchor="end">${label}</text>`);
     }
 
-    // vertical dotted grid for each month
+
     const xLines = data.map(function(p, i) {
         const xx = x(i);
         return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
@@ -492,7 +536,7 @@ function initMonthlyTagChart() {
       </svg>
     `;
 
-    // Apply dash lengths so the paint animation draws the full path
+
     const clientAPathEl = chartHost.querySelector('#clientALine');
     const operationsPathEl = chartHost.querySelector('#operationsLine');
     const marketingPathEl = chartHost.querySelector('#marketingLine');
@@ -519,7 +563,7 @@ function initIncomeExpensesChart() {
     const chartHost = document.getElementById('incomeExpensesChart');
     if (!chartHost) return;
 
-    // Demo data for 6 months - Income and Expenses
+
     const data = [
         { month: 'Oct', income: 18500, expenses: 12200 },
         { month: 'Nov', income: 21000, expenses: 14500 },
@@ -561,7 +605,6 @@ function initIncomeExpensesChart() {
         return (h - padB) - (innerH * t);
     }
 
-    // Smooth path builder (simple cubic curves between points)
     function smoothPath(values) {
         const pts = values.map(function(v, i) {
             return { x: x(i), y: y(v) };
@@ -661,7 +704,7 @@ function initIncomeExpensesChart() {
       </svg>
     `;
 
-    // Apply dash lengths so the paint animation draws the full path
+
     const incomePathEl = chartHost.querySelector('#incomeBusinessLine');
     const expensesPathEl = chartHost.querySelector('#expensesBusinessLine');
 
