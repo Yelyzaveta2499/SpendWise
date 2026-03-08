@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ExpenseService {
@@ -218,15 +220,62 @@ public class ExpenseService {
             expense.setExpenseDate(expenseDate);
         }
 
-        // Handle tags if provided
+        // Handle tags if provided - update tags properly
         Object tagsRaw = map.get("tags");
         if (tagsRaw instanceof List<?> tagsList) {
-            // Clear existing tags and add new ones
-            expense.clearTags();
-            processTags(expense, tagsList, user);
+            updateExpenseTags(expense, tagsList, user);
         }
 
         return expenseRepository.save(expense);
+    }
+
+    /**
+     * Update expense tags by synchronizing with the provided list
+     * Removes tags that are not in the list and adds new ones
+     */
+    @SuppressWarnings("unchecked")
+    private void updateExpenseTags(ExpenseEntity expense, List<?> tagsList, UserEntity user) {
+        // Get the desired tag IDs from the list
+        Set<Long> desiredTagIds = new HashSet<>();
+
+        for (Object tagObj : tagsList) {
+            if (tagObj instanceof Number tagId) {
+                desiredTagIds.add(tagId.longValue());
+            } else if (tagObj instanceof java.util.Map<?, ?> tagMap) {
+                java.util.Map<String, Object> map = (java.util.Map<String, Object>) tagMap;
+                Object idObj = map.get("id");
+                if (idObj instanceof Number tagId) {
+                    desiredTagIds.add(tagId.longValue());
+                }
+            }
+        }
+
+        // Get current tag IDs
+        Set<Long> currentTagIds = expense.getExpenseTags().stream()
+            .map(et -> et.getTag().getId())
+            .collect(java.util.stream.Collectors.toSet());
+
+        // Remove tags that are no longer wanted
+        Set<Long> tagsToRemove = new HashSet<>(currentTagIds);
+        tagsToRemove.removeAll(desiredTagIds);
+
+        for (Long tagId : tagsToRemove) {
+            TagEntity tagToRemove = tagRepository.findById(tagId).orElse(null);
+            if (tagToRemove != null) {
+                expense.removeTag(tagToRemove);
+            }
+        }
+
+        // Add new tags that aren't already present
+        Set<Long> tagsToAdd = new HashSet<>(desiredTagIds);
+        tagsToAdd.removeAll(currentTagIds);
+
+        for (Long tagId : tagsToAdd) {
+            TagEntity tagToAdd = tagRepository.findById(tagId).orElse(null);
+            if (tagToAdd != null && tagToAdd.getUser().getId().equals(user.getId())) {
+                expense.addTag(tagToAdd);
+            }
+        }
     }
 
     /**
@@ -264,7 +313,14 @@ public class ExpenseService {
             }
 
             if (tag != null) {
-                expense.addTag(tag);
+                // Check if tag is not already added to avoid duplicates
+                TagEntity finalTag = tag;
+                boolean alreadyAdded = expense.getExpenseTags().stream()
+                    .anyMatch(et -> et.getTag().getId().equals(finalTag.getId()));
+
+                if (!alreadyAdded) {
+                    expense.addTag(tag);
+                }
             }
         }
     }

@@ -104,8 +104,11 @@ public class ExpenseEntity {
     }
 
     public void clearTags() {
-        for (ExpenseTagEntity expenseTag : new HashSet<>(expenseTags)) {
+        // Create a copy to avoid ConcurrentModificationException
+        Set<ExpenseTagEntity> tagsToRemove = new HashSet<>(expenseTags);
+        for (ExpenseTagEntity expenseTag : tagsToRemove) {
             removeTag(expenseTag.getTag());
         }
+        expenseTags.clear();
     }
 }

@@ -166,8 +166,19 @@ function renderExpenses() {
       </div>
     ` : '';
 
+    // Corner ribbon for business expenses
+    const businessCornerRibbon = hasTags ? `
+      <div class="business-corner-ribbon" title="Business Expense">
+        <span>💼</span>
+      </div>
+    ` : '';
+
+
+    const itemClass = hasTags ? 'transaction-item business-expense' : 'transaction-item';
+
     return `
-      <div class="transaction-item" data-id="${item.id || ''}">
+      <div class="${itemClass}" data-id="${item.id || ''}">
+        ${businessCornerRibbon}
         <div class="transaction-left">
           <div class="category-icon" style="background-color: ${iconBg};">
             ${icon}
@@ -330,6 +341,9 @@ function renderExpenses() {
 
     selectedTagIds = selectedTagIds || [];
 
+    // Ensure state.selectedTags is synchronized
+    state.selectedTags = selectedTagIds;
+
     if (state.availableTags.length === 0) {
       container.innerHTML = '<div class="tags-empty">No tags available. Create tags in Business section.</div>';
       return;
@@ -463,6 +477,8 @@ function renderExpenses() {
     const url = isEdit ? ('/api/expenses/' + state.editingId) : '/api/expenses';
     const method = isEdit ? 'PUT' : 'POST';
 
+    console.log('Submitting expense:', payload);
+
     fetch(url, {
       method: method,
       headers: {
@@ -473,15 +489,18 @@ function renderExpenses() {
       .then(function (response) {
         if (!response.ok) {
           return response.json().then(function (err) {
+            console.error('Server error:', err);
             var msg = err && err.error ? err.error : (isEdit ? 'Failed to update expense' : 'Failed to create expense');
             throw new Error(msg);
-          }).catch(function () {
+          }).catch(function (parseErr) {
+            console.error('Error parsing response:', parseErr);
             throw new Error(isEdit ? 'Failed to update expense' : 'Failed to create expense');
           });
         }
         return response.json();
       })
-      .then(function() {
+      .then(function(result) {
+        console.log('Expense saved successfully:', result);
         modal.style.display = 'none';
         formEl.reset();
         state.selectedTags = [];
@@ -489,6 +508,7 @@ function renderExpenses() {
         loadExpensesFromApi();
       })
       .catch(function (err) {
+        console.error('Error saving expense:', err);
         alert(err.message || 'Error saving expense');
       });
   });
