@@ -2,6 +2,8 @@ package com.example.SpendWise.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "goals")
@@ -31,6 +33,9 @@ public class Goal {
 
     @Column(nullable = false)
     private LocalDate createdDate;
+
+    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Contribution> contributions = new ArrayList<>();
 
 
     public Goal() {
@@ -118,6 +123,14 @@ public class Goal {
 
     public void setCreatedDate(LocalDate createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public List<Contribution> getContributions() {
+        return contributions;
+    }
+
+    public void setContributions(List<Contribution> contributions) {
+        this.contributions = contributions;
     }
 
     // Helper methods to calculate remaining amount and percentage

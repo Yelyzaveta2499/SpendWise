@@ -489,7 +489,11 @@ function deleteGoal(id) {
     }
 
     fetch(`/api/goals/${id}`, { method: 'DELETE' })
-        .then(res => { if (!res.ok) throw new Error('Failed'); renderGoals(); })
+        .then(res => {
+            if (!res.ok) throw new Error('Failed');
+            return res;
+        })
+        .then(() => { renderGoals(); })
         .catch(err => console.error('Error deleting goal:', err));
 }
 function addContribution(id, amount, note) {
