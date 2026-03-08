@@ -66,6 +66,18 @@ function renderExpenses() {
 
           <input id="exp-amount" type="number" step="0.01" placeholder="Amount" required />
           <input id="exp-date" type="date" required />
+          
+          <!-- Tags selector -->
+          <div class="form-group-tags">
+            <label for="exp-tags" class="tags-label">
+              Business Tags (optional)
+              <span class="tags-hint">Select tags to mark this as a business expense</span>
+            </label>
+            <div id="exp-tags-container" class="tags-container">
+              <div class="tags-loading">Loading tags...</div>
+            </div>
+          </div>
+          
           <button type="submit" class="btn-submit">Add Expense</button>
         </form>
       </div>
@@ -76,7 +88,9 @@ function renderExpenses() {
   const state = {
     items: [],
     editingId: null,
-    showAll: false
+    showAll: false,
+    availableTags: [],
+    selectedTags: []
   };
 
   const listEl = document.getElementById('expense-list');
@@ -136,14 +150,45 @@ function renderExpenses() {
     const icon = item.icon || getCategoryIcon(item.category);
     const iconBg = getIconBg(item.category);
 
+    // Check if expense has tags
+    const hasTags = item.tags && item.tags.length > 0;
+    const tagCount = hasTags ? item.tags.length : 0;
+    const tagBadge = hasTags ? `
+      <div class="expense-tag-badge" title="${item.tags.join(', ')}">
+        🏷️ ${tagCount}
+      </div>
+    ` : '';
+
+    // Business indicator for tagged expenses
+    const businessBadge = hasTags ? `
+      <div class="business-indicator" title="Business Expense (Tagged)">
+        💼 BIZ
+      </div>
+    ` : '';
+
+    // Corner ribbon for business expenses
+    const businessCornerRibbon = hasTags ? `
+      <div class="business-corner-ribbon" title="Business Expense">
+        <span>💼</span>
+      </div>
+    ` : '';
+
+
+    const itemClass = hasTags ? 'transaction-item business-expense' : 'transaction-item';
+
     return `
-      <div class="transaction-item" data-id="${item.id || ''}">
+      <div class="${itemClass}" data-id="${item.id || ''}">
+        ${businessCornerRibbon}
         <div class="transaction-left">
           <div class="category-icon" style="background-color: ${iconBg};">
             ${icon}
           </div>
           <div class="transaction-details">
-            <div class="transaction-name">${item.name}</div>
+            <div class="transaction-name">
+              ${item.name}
+              ${tagBadge}
+              ${businessBadge}
+            </div>
             <div class="transaction-category">${item.category}</div>
           </div>
         </div>
@@ -222,6 +267,23 @@ function renderExpenses() {
         document.getElementById('exp-amount').value = Number(expense.amount || 0);
         document.getElementById('exp-date').value = (expense.expenseDate || expense.date || '').slice(0, 10);
 
+        // Load tags and pre-select the expense's current tags
+        loadAvailableTags().then(function() {
+          // Fetch current tags for this expense
+          return fetch('/api/expenses/' + id + '/tags')
+            .then(function(response) {
+              if (!response.ok) return [];
+              return response.json();
+            })
+            .catch(function() {
+              return [];
+            });
+        }).then(function(expenseTags) {
+          const tagIds = expenseTags.map(function(tag) { return tag.id; });
+          state.selectedTags = tagIds;
+          renderTagSelector(tagIds);
+        });
+
         modal.style.display = 'flex';
       });
     });
@@ -255,6 +317,68 @@ function renderExpenses() {
     });
   }
 
+  // Load available tags from API
+  function loadAvailableTags() {
+    return fetch('/api/tags')
+      .then(function(response) {
+        if (!response.ok) return [];
+        return response.json();
+      })
+      .then(function(tags) {
+        state.availableTags = tags || [];
+        return tags;
+      })
+      .catch(function() {
+        state.availableTags = [];
+        return [];
+      });
+  }
+
+  // Render tag checkboxes in modal
+  function renderTagSelector(selectedTagIds) {
+    const container = document.getElementById('exp-tags-container');
+    if (!container) return;
+
+    selectedTagIds = selectedTagIds || [];
+
+    // Ensure state.selectedTags is synchronized
+    state.selectedTags = selectedTagIds;
+
+    if (state.availableTags.length === 0) {
+      container.innerHTML = '<div class="tags-empty">No tags available. Create tags in Business section.</div>';
+      return;
+    }
+
+    const checkboxes = state.availableTags.map(function(tag) {
+      const isChecked = selectedTagIds.includes(tag.id);
+      return `
+        <label class="tag-checkbox-label">
+          <input 
+            type="checkbox" 
+            class="tag-checkbox" 
+            value="${tag.id}" 
+            ${isChecked ? 'checked' : ''}
+          />
+          <span class="tag-checkbox-box"></span>
+          <span class="tag-checkbox-text" style="color: ${tag.color};">
+            ${tag.name}
+          </span>
+        </label>
+      `;
+    }).join('');
+
+    container.innerHTML = checkboxes;
+
+    // Update selected tags when checkboxes change
+    const checkboxEls = container.querySelectorAll('.tag-checkbox');
+    checkboxEls.forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        state.selectedTags = Array.from(container.querySelectorAll('.tag-checkbox:checked'))
+          .map(function(cb) { return parseInt(cb.value); });
+      });
+    });
+  }
+
   // Load expenses from BE
   function loadExpensesFromApi() {
     listEl.innerHTML = '<div style="padding: 16px;">Loading expenses...</div>';
@@ -268,7 +392,31 @@ function renderExpenses() {
       })
       .then(function (data) {
         // data is an array of ExpenseEntity objects
-        state.items = Array.isArray(data) ? data : [];
+        const expenses = Array.isArray(data) ? data : [];
+
+        // Fetch tags for each expense
+        const tagFetchPromises = expenses.map(function(expense) {
+          return fetch('/api/expenses/' + expense.id + '/tags')
+            .then(function(response) {
+              if (!response.ok) return [];
+              return response.json();
+            })
+            .then(function(tags) {
+              // Add tag names to expense object
+              expense.tags = tags.map(function(tag) { return tag.name; });
+              return expense;
+            })
+            .catch(function() {
+              expense.tags = [];
+              return expense;
+            });
+        });
+
+        // Wait for all tag fetches to complete
+        return Promise.all(tagFetchPromises);
+      })
+      .then(function(expensesWithTags) {
+        state.items = expensesWithTags;
         renderList();
       })
       .catch(function () {
@@ -278,12 +426,22 @@ function renderExpenses() {
 
   loadExpensesFromApi();
 
+  // Load tags on page load
+  loadAvailableTags();
+
   // Modal handlers
   addBtn.addEventListener('click', function () {
     state.editingId = null;
+    state.selectedTags = [];
     const titleEl = document.querySelector('#expense-modal .modal-header h3');
     if (titleEl) titleEl.textContent = 'Add New Expense';
     formEl.reset();
+
+    // Load and render tags
+    loadAvailableTags().then(function() {
+      renderTagSelector([]);
+    });
+
     modal.style.display = 'flex';
   });
 
@@ -311,12 +469,15 @@ function renderExpenses() {
       name: name,
       category: category,
       amount: Math.abs(amount),
-      date: date
+      date: date,
+      tags: state.selectedTags  // Include selected tag IDs
     };
 
     const isEdit = !!state.editingId;
     const url = isEdit ? ('/api/expenses/' + state.editingId) : '/api/expenses';
     const method = isEdit ? 'PUT' : 'POST';
+
+    console.log('Submitting expense:', payload);
 
     fetch(url, {
       method: method,
@@ -328,29 +489,27 @@ function renderExpenses() {
       .then(function (response) {
         if (!response.ok) {
           return response.json().then(function (err) {
+            console.error('Server error:', err);
             var msg = err && err.error ? err.error : (isEdit ? 'Failed to update expense' : 'Failed to create expense');
             throw new Error(msg);
-          }).catch(function () {
+          }).catch(function (parseErr) {
+            console.error('Error parsing response:', parseErr);
             throw new Error(isEdit ? 'Failed to update expense' : 'Failed to create expense');
           });
         }
         return response.json();
       })
-      .then(function (saved) {
-        if (isEdit) {
-          state.items = state.items.map(function(it) {
-            return String(it.id) === String(state.editingId) ? saved : it;
-          });
-        } else {
-          state.items.unshift(saved);
-        }
-        renderList();
-        e.target.reset();
+      .then(function(result) {
+        console.log('Expense saved successfully:', result);
         modal.style.display = 'none';
+        formEl.reset();
+        state.selectedTags = [];
         state.editingId = null;
+        loadExpensesFromApi();
       })
       .catch(function (err) {
-        alert(err.message || 'Could not save expense. Please try again.');
+        console.error('Error saving expense:', err);
+        alert(err.message || 'Error saving expense');
       });
   });
 

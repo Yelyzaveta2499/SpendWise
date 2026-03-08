@@ -8,59 +8,105 @@ function renderBusiness() {
 }
 
 function fetchBusinessAndRender(contentDiv) {
-    // Demo data
+    // Fetch real data from API
+    fetch('/api/business/analytics')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch business analytics');
+            }
+            return response.json();
+        })
+        .then(data => {
+
+            const transformedData = transformAnalyticsData(data);
+            renderBusinessContent(contentDiv, transformedData);
+        })
+        .catch(error => {
+            console.error('Error fetching business analytics:', error);
+            contentDiv.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #ef4444;">
+                    <p>Error loading business data</p>
+                    <p style="font-size: 14px; color: #64748b;">${error.message}</p>
+                </div>
+            `;
+        });
+}
+
+
+function transformAnalyticsData(apiData) {
+
+    const stats = apiData.stats || {};
     const statsData = {
-        totalRevenue: { amount: '$48,250', label: 'Total Revenue', change: '+12.5%', positive: true },
-        totalExpenses: { amount: '$31,840', label: 'Total Expenses', change: '+4.2%', positive: false },
-        activeClients: { amount: '12', label: 'Active Clients', change: '+2', positive: true },
-        activeTags: { amount: '8', label: 'Active Tags', change: '+1', positive: true }
+        totalRevenue: {
+            amount: '$0.00',
+            label: 'Total Revenue',
+            change: '+0%',
+            positive: true
+        },
+        totalExpenses: {
+            amount: stats.totalExpenses || '$0.00',
+            label: 'Total Expenses',
+            change: '+0%',
+            positive: false
+        },
+        activeClients: {
+            amount: '0',
+            label: 'Active Clients',
+            change: '+0',
+            positive: true
+        },
+        activeTags: {
+            amount: String(stats.activeTags || 0),
+            label: 'Active Tags',
+            change: '+0',
+            positive: true
+        }
     };
 
-    const expenseTags = [
-        { name: 'Client A', count: 24, color: '#0ea5e9' },
-        { name: 'Project X', count: 18, color: '#a855f7' },
-        { name: 'Q1 2024', count: 31, color: '#f59e0b' },
-        { name: 'Marketing', count: 12, color: '#ec4899' },
-        { name: 'Operations', count: 45, color: '#10b981' },
-        { name: 'Vendor B', count: 8, color: '#06b6d4' },
-        { name: 'Recurring', count: 56, color: '#10b981' },
-        { name: 'Tax Deductible', count: 33, color: '#eab308' }
-    ];
+    // Transform expense tags
+    const expenseTags = (apiData.expenseTags || []).map(tag => ({
+        name: tag.name,
+        count: tag.count,
+        color: tag.color || '#3b82f6'
+    }));
 
-    const spendingByTag = [
-        { name: 'Operations', amount: 14000, color: '#10b981' },
-        { name: 'Client A', amount: 12000, color: '#0ea5e9' },
-        { name: 'Marketing', amount: 9500, color: '#ec4899' },
-        { name: 'Project X', amount: 8000, color: '#a855f7' },
-        { name: 'Recurring', amount: 6500, color: '#f59e0b' },
-        { name: 'Vendor B', amount: 4000, color: '#06b6d4' }
-    ];
+    // Transform spending by tag
+    const spendingByTag = (apiData.spendingByTag || []).map(tag => ({
+        name: tag.name,
+        amount: tag.amount,
+        color: tag.color || '#3b82f6'
+    }));
 
-    const categoryData = [
-        { name: 'Office Supplies', amount: '$2,340', change: '+2%', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'] },
-        { name: 'Travel', amount: '$4,820', change: '+12%', tags: ['Client A', 'Marketing'], tagColors: ['#0ea5e9', '#ec4899'] },
-        { name: 'Software', amount: '$1,890', change: '+2%', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'] },
-        { name: 'Consulting', amount: '$6,500', change: '+18%', tags: ['Project X', 'Client A'], tagColors: ['#a855f7', '#0ea5e9'] },
-        { name: 'Advertising', amount: '$3,200', change: '-8%', tags: ['Marketing'], tagColors: ['#ec4899'] },
-        { name: 'Utilities', amount: '$1,100', change: '+1%', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'] }
-    ];
+    // Transform category data - add placeholder change percentages
+    const categoryData = (apiData.categoryData || []).map(category => ({
+        name: category.name,
+        amount: category.amount,
+        change: '+0%', // Placeholder for now
+        tags: category.tags || [],
+        tagColors: category.tagColors || []
+    }));
 
-    const recentExpenses = [
-        { id: 1, name: 'Cloud Infrastructure', icon: '💻', iconColor: '#3b82f6', category: 'Software', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$2,840' },
-        { id: 2, name: 'Client Dinner - NYC', icon: '🍽️', iconColor: '#a855f7', category: 'Travel', tags: ['Client A'], tagColors: ['#0ea5e9'], amount: '-$1,250' },
-        { id: 3, name: 'Facebook Ads', icon: '📢', iconColor: '#ec4899', category: 'Advertising', tags: ['Marketing'], tagColors: ['#ec4899'], amount: '-$3,200' },
-        { id: 4, name: 'Legal Consultation', icon: '⚖️', iconColor: '#f59e0b', category: 'Consulting', tags: ['Project X'], tagColors: ['#a855f7'], amount: '-$4,500' },
-        { id: 5, name: 'Equipment Repair', icon: '🔧', iconColor: '#10b981', category: 'Maintenance', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$890' },
-        { id: 6, name: 'Power & Internet', icon: '⚡', iconColor: '#06b6d4', category: 'Utilities', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$540' },
-        { id: 7, name: 'Office Furniture', icon: '🪑', iconColor: '#8b5cf6', category: 'Office Supplies', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$1,450' },
-        { id: 8, name: 'Team Lunch', icon: '🍕', iconColor: '#f59e0b', category: 'Travel', tags: ['Client A', 'Marketing'], tagColors: ['#0ea5e9', '#ec4899'], amount: '-$320' },
-        { id: 9, name: 'Google Workspace', icon: '📧', iconColor: '#3b82f6', category: 'Software', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$720' },
-        { id: 10, name: 'Conference Tickets', icon: '🎫', iconColor: '#ec4899', category: 'Marketing', tags: ['Marketing', 'Q1 2024'], tagColors: ['#ec4899', '#f59e0b'], amount: '-$1,200' },
-        { id: 11, name: 'Office Cleaning', icon: '🧹', iconColor: '#10b981', category: 'Office Supplies', tags: ['Operations', 'Recurring'], tagColors: ['#10b981', '#10b981'], amount: '-$450' },
-        { id: 12, name: 'Printer Supplies', icon: '🖨️', iconColor: '#64748b', category: 'Office Supplies', tags: ['Operations'], tagColors: ['#10b981'], amount: '-$280' }
-    ];
+    // Transform recent expenses
+    const recentExpenses = (apiData.recentExpenses || []).map(expense => ({
+        id: expense.id,
+        name: expense.name,
+        icon: expense.icon,
+        iconColor: expense.iconColor,
+        category: expense.category,
+        tags: expense.tags || [],
+        tagColors: expense.tagColors || [],
+        amount: expense.amount
+    }));
 
-    renderBusinessContent(contentDiv, { stats: statsData, expenseTags, spendingByTag, categoryData, recentExpenses });
+    return {
+        stats: statsData,
+        expenseTags: expenseTags,
+        spendingByTag: spendingByTag,
+        categoryData: categoryData,
+        recentExpenses: recentExpenses,
+        monthlyTagData: apiData.monthlyTagData || [],
+        incomeExpensesData: apiData.incomeExpensesData || { income: [], expenses: [] }
+    };
 }
 
 function renderBusinessContent(contentDiv, data) {
@@ -322,32 +368,76 @@ function renderBusinessContent(contentDiv, data) {
     const businessWrap = contentDiv.querySelector('.business-wrap');
     if (businessWrap) {
         businessWrap.classList.remove('business-animate');
-        // Wait a frame so the browser paints the initial state, then add the class to start animations
+
         requestAnimationFrame(function () {
             businessWrap.classList.add('business-animate');
         });
     }
 
-    // Initialize charts after DOM is updated
+    // event listener for +New Tag button
+    const newTagBtn = contentDiv.querySelector('.btn-new-tag');
+    if (newTagBtn) {
+        newTagBtn.addEventListener('click', openTagModal);
+    }
+
+    // Initialize charts after DOM is updated with real data
     setTimeout(() => {
-        initMonthlyTagChart();
-        initIncomeExpensesChart();
+        // Pass chart data from API
+        initMonthlyTagChart(data.monthlyTagData || []);
+        initIncomeExpensesChart(data.incomeExpensesData || { income: [], expenses: [] });
     }, 100);
 }
 
-function initMonthlyTagChart() {
+function initMonthlyTagChart(apiData) {
     const chartHost = document.getElementById('monthlyTagChart');
     if (!chartHost) return;
 
-    // Demo data for 6 months - Client A, Operations, Marketing
-    const data = [
-        { month: 'Oct', clientA: 2800, operations: 3200, marketing: 2100 },
-        { month: 'Nov', clientA: 3400, operations: 3600, marketing: 2500 },
-        { month: 'Dec', clientA: 2200, operations: 2800, marketing: 1800 },
-        { month: 'Jan', clientA: 4100, operations: 4200, marketing: 3200 },
-        { month: 'Feb', clientA: 3600, operations: 3900, marketing: 2800 },
-        { month: 'Mar', clientA: 4500, operations: 4600, marketing: 3600 }
-    ];
+    // Transform API data to chart format
+
+
+    // If no data from API, use placeholder
+    if (!apiData || apiData.length === 0) {
+        chartHost.innerHTML = '<div class="business-chart-empty">No tag data available</div>';
+        return;
+    }
+
+    // Get all unique months from the data
+    const months = apiData[0]?.data?.map(d => d.month) || ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+
+    // Build data array for chart
+    const data = months.map((month, index) => {
+        const monthData = { month };
+        apiData.forEach(tag => {
+            const tagMonthData = tag.data[index];
+            if (tagMonthData) {
+                // Use tag name as key
+                const key = tag.name.toLowerCase().replace(/\s+/g, '');
+                monthData[key] = tagMonthData.amount || 0;
+            }
+        });
+        return monthData;
+    });
+
+    // Extract values for each tag
+    const tagValues = {};
+    const tagColors = {};
+    apiData.forEach(tag => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        tagValues[key] = data.map(d => Number(d[key]) || 0);
+        tagColors[key] = tag.color || '#3b82f6';
+    });
+
+    // Calculate max value from all tag values
+    const allValues = Object.values(tagValues).flat();
+    const rawMax = Math.max(1, ...allValues);
+
+    // max with 4 intervals
+    let chartMax = rawMax;
+    if (rawMax >= 1000) {
+        const step = 1500;
+        chartMax = Math.ceil(rawMax / step) * step;
+        if (chartMax < step * 4) chartMax = step * 4;
+    }
 
     const w = 760;
     const h = 260;
@@ -362,27 +452,12 @@ function initMonthlyTagChart() {
         return padL + (innerW * (i / (data.length - 1)));
     }
 
-    const clientAValues = data.map(p => Number(p.clientA) || 0);
-    const operationsValues = data.map(p => Number(p.operations) || 0);
-    const marketingValues = data.map(p => Number(p.marketing) || 0);
-
-    const rawMax = Math.max(1, ...clientAValues, ...operationsValues, ...marketingValues);
-
-    // max with 4 intervals
-    let chartMax = rawMax;
-    if (rawMax >= 1000) {
-        const step = 1500;
-        chartMax = Math.ceil(rawMax / step) * step;
-        if (chartMax < step * 4) chartMax = step * 4;
-    }
-
     function y(v) {
         const innerH = h - padT - padB;
         const t = (Number(v) || 0) / chartMax;
         return (h - padB) - (innerH * t);
     }
 
-    // Smooth path builder (simple cubic curves between points)
     function smoothPath(values) {
         const pts = values.map(function(v, i) {
             return { x: x(i), y: y(v) };
@@ -410,12 +485,13 @@ function initMonthlyTagChart() {
         return line + ' L ' + lastX.toFixed(1) + ' ' + baseY.toFixed(1) + ' L ' + firstX.toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
     }
 
-    const clientAD = smoothPath(clientAValues);
-    const operationsD = smoothPath(operationsValues);
-    const marketingD = smoothPath(marketingValues);
-    const clientAAreaD = areaPath(clientAValues);
-    const operationsAreaD = areaPath(operationsValues);
-    const marketingAreaD = areaPath(marketingValues);
+    // Create paths for each tag dynamically
+    const tagPaths = {};
+    const tagAreaPaths = {};
+    Object.keys(tagValues).forEach(key => {
+        tagPaths[key] = smoothPath(tagValues[key]);
+        tagAreaPaths[key] = areaPath(tagValues[key]);
+    });
 
     const labels = data.map(function(p, i) {
         const lbl = p.month || '';
@@ -437,27 +513,51 @@ function initMonthlyTagChart() {
         yLabels.push(`<text class="chart-ylabel" x="${(padL - 14)}" y="${(yy + 4).toFixed(1)}" text-anchor="end">${label}</text>`);
     }
 
-    // vertical dotted grid for each month
+
     const xLines = data.map(function(p, i) {
         const xx = x(i);
         return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
     }).join('');
 
+    // Generate gradient definitions for each tag
+    const gradientDefs = apiData.map((tag) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        const color = tag.color || '#3b82f6';
+        const r = parseInt(color.slice(1,3), 16);
+        const g = parseInt(color.slice(3,5), 16);
+        const b = parseInt(color.slice(5,7), 16);
+
+        return `<linearGradient id="${key}Fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(${r}, ${g}, ${b}, 0.22)" />
+            <stop offset="100%" stop-color="rgba(${r}, ${g}, ${b}, 0)" />
+          </linearGradient>`;
+    }).join('');
+
+    // Generate area fills
+    const areaFills = apiData.map((tag, index) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        return `<path class="chart-fill-${key} paint-fill" d="${tagAreaPaths[key]}" fill="url(#${key}Fill)" style="animation-delay: ${index * 80}ms" />`;
+    }).join('');
+
+    // Generate line paths
+    const linePaths = apiData.map((tag, index) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        const color = tag.color || '#3b82f6';
+        return `<path id="${key}Line" class="chart-line-${key} paint-line" d="${tagPaths[key]}" stroke="${color}" style="animation-delay: ${index * 80}ms" />`;
+    }).join('');
+
+    // Generate legend items
+    const legendItems = apiData.map((tag, index) => {
+        const color = tag.color || '#3b82f6';
+        const xPos = padL + 90 + (index * 150);
+        return `<circle cx="${xPos}" cy="${h - 6}" r="6" fill="${color}"></circle>
+                <text x="${xPos + 12}" y="${h - 2}">${tag.name}</text>`;
+    }).join('');
+
     chartHost.innerHTML = `
       <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="Monthly Tag Report chart">
         <defs>
-          <linearGradient id="clientAFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(14, 165, 233, 0.22)" />
-            <stop offset="100%" stop-color="rgba(14, 165, 233, 0)" />
-          </linearGradient>
-          <linearGradient id="operationsFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(16, 185, 129, 0.22)" />
-            <stop offset="100%" stop-color="rgba(16, 185, 129, 0)" />
-          </linearGradient>
-          <linearGradient id="marketingFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(236, 72, 153, 0.22)" />
-            <stop offset="100%" stop-color="rgba(236, 72, 153, 0)" />
-          </linearGradient>
+          ${gradientDefs}
         </defs>
 
         <!-- grid: horizontal + vertical (dotted) -->
@@ -467,14 +567,10 @@ function initMonthlyTagChart() {
         </g>
 
         <!-- area fills -->
-        <path class="chart-fill-clientA paint-fill" d="${clientAAreaD}" fill="url(#clientAFill)" />
-        <path class="chart-fill-operations paint-fill" d="${operationsAreaD}" fill="url(#operationsFill)" />
-        <path class="chart-fill-marketing paint-fill" d="${marketingAreaD}" fill="url(#marketingFill)" />
+        ${areaFills}
 
         <!-- lines (paint animation) -->
-        <path id="clientALine" class="chart-line-clientA paint-line" d="${clientAD}" />
-        <path id="operationsLine" class="chart-line-operations paint-line" d="${operationsD}" />
-        <path id="marketingLine" class="chart-line-marketing paint-line" d="${marketingD}" />
+        ${linePaths}
 
         <!-- labels -->
         ${labels}
@@ -482,52 +578,41 @@ function initMonthlyTagChart() {
 
         <!-- legend -->
         <g font-size="12" fill="#64748b">
-          <circle cx="${padL + 90}" cy="${h - 6}" r="6" fill="#0ea5e9"></circle>
-          <text x="${padL + 102}" y="${h - 2}">Client A</text>
-          <circle cx="${padL + 180}" cy="${h - 6}" r="6" fill="#10b981"></circle>
-          <text x="${padL + 192}" y="${h - 2}">Operations</text>
-          <circle cx="${padL + 290}" cy="${h - 6}" r="6" fill="#ec4899"></circle>
-          <text x="${padL + 302}" y="${h - 2}">Marketing</text>
+          ${legendItems}
         </g>
       </svg>
     `;
 
-    // Apply dash lengths so the paint animation draws the full path
-    const clientAPathEl = chartHost.querySelector('#clientALine');
-    const operationsPathEl = chartHost.querySelector('#operationsLine');
-    const marketingPathEl = chartHost.querySelector('#marketingLine');
-
-    if (clientAPathEl && clientAPathEl.getTotalLength) {
-        const len = Math.ceil(clientAPathEl.getTotalLength());
-        clientAPathEl.style.setProperty('--dash', String(len));
-    }
-
-    if (operationsPathEl && operationsPathEl.getTotalLength) {
-        const len = Math.ceil(operationsPathEl.getTotalLength());
-        operationsPathEl.style.setProperty('--dash', String(len));
-        operationsPathEl.style.animationDelay = '80ms';
-    }
-
-    if (marketingPathEl && marketingPathEl.getTotalLength) {
-        const len = Math.ceil(marketingPathEl.getTotalLength());
-        marketingPathEl.style.setProperty('--dash', String(len));
-        marketingPathEl.style.animationDelay = '160ms';
-    }
+    // Apply path animations
+    apiData.forEach((tag) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        const pathEl = chartHost.querySelector(`#${key}Line`);
+        if (pathEl && pathEl.getTotalLength) {
+            const len = pathEl.getTotalLength();
+            pathEl.style.setProperty('--dash', len);
+        }
+    });
 }
 
-function initIncomeExpensesChart() {
+function initIncomeExpensesChart(apiData) {
     const chartHost = document.getElementById('incomeExpensesChart');
     if (!chartHost) return;
 
-    // Demo data for 6 months - Income and Expenses
-    const data = [
-        { month: 'Oct', income: 18500, expenses: 12200 },
-        { month: 'Nov', income: 21000, expenses: 14500 },
-        { month: 'Dec', income: 19200, expenses: 13800 },
-        { month: 'Jan', income: 23240, expenses: 15600 },
-        { month: 'Feb', income: 20800, expenses: 14200 },
-        { month: 'Mar', income: 22500, expenses: 18853 }
-    ];
+    // apiData format: { income: [{month, amount}], expenses: [{month, amount}] }
+
+    // If no data from API, show placeholder
+    if (!apiData || !apiData.expenses || apiData.expenses.length === 0) {
+        chartHost.innerHTML = '<div class="business-chart-empty">No expense data available</div>';
+        return;
+    }
+
+    // Build data array for chart
+    const months = apiData.expenses.map(d => d.month);
+    const data = months.map((month, index) => ({
+        month: month,
+        income: apiData.income && apiData.income[index] ? apiData.income[index].amount : 0,
+        expenses: apiData.expenses[index] ? apiData.expenses[index].amount : 0
+    }));
 
     const w = 760;
     const h = 260;
@@ -561,7 +646,6 @@ function initIncomeExpensesChart() {
         return (h - padB) - (innerH * t);
     }
 
-    // Smooth path builder (simple cubic curves between points)
     function smoothPath(values) {
         const pts = values.map(function(v, i) {
             return { x: x(i), y: y(v) };
@@ -661,7 +745,7 @@ function initIncomeExpensesChart() {
       </svg>
     `;
 
-    // Apply dash lengths so the paint animation draws the full path
+
     const incomePathEl = chartHost.querySelector('#incomeBusinessLine');
     const expensesPathEl = chartHost.querySelector('#expensesBusinessLine');
 
@@ -679,6 +763,235 @@ function initIncomeExpensesChart() {
 
 // Make renderBusiness globally available
 window.renderBusiness = renderBusiness;
+
+/* ==================== TAG MODAL FUNCTIONS ==================== */
+
+function openTagModal() {
+    const modal = document.getElementById('tagModal');
+    if (!modal) return;
+
+    // Reset form
+    document.getElementById('tagForm').reset();
+    document.getElementById('tagColor').value = '#3b82f6';
+    document.getElementById('tagColorHex').value = '#3b82f6';
+    updateColorPreview('#3b82f6');
+    updateTagPreview();
+    hideFormMessages();
+
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // event listeners
+    setupModalEventListeners();
+}
+
+function closeTagModal() {
+    const modal = document.getElementById('tagModal');
+    if (!modal) return;
+
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function setupModalEventListeners() {
+    // Close button
+    const closeBtn = document.getElementById('closeTagModal');
+    const cancelBtn = document.getElementById('cancelTagBtn');
+    const overlay = document.querySelector('.tag-modal-overlay');
+
+    if (closeBtn) closeBtn.onclick = closeTagModal;
+    if (cancelBtn) cancelBtn.onclick = closeTagModal;
+    if (overlay) overlay.onclick = closeTagModal;
+
+
+    const colorInput = document.getElementById('tagColor');
+    const colorHexInput = document.getElementById('tagColorHex');
+
+    if (colorInput) {
+        colorInput.oninput = function() {
+            colorHexInput.value = this.value.toUpperCase();
+            updateColorPreview(this.value);
+            updateTagPreview();
+        };
+    }
+
+    if (colorHexInput) {
+        colorHexInput.oninput = function() {
+            const hexValue = this.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
+                colorInput.value = hexValue;
+                updateColorPreview(hexValue);
+                updateTagPreview();
+            }
+        };
+    }
+
+    // Color presets
+    const presetBtns = document.querySelectorAll('.color-preset');
+    presetBtns.forEach(btn => {
+        btn.onclick = function() {
+            const color = this.getAttribute('data-color');
+            colorInput.value = color;
+            colorHexInput.value = color.toUpperCase();
+            updateColorPreview(color);
+            updateTagPreview();
+
+            // Update active state
+            presetBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        };
+    });
+
+
+    const tagNameInput = document.getElementById('tagName');
+    if (tagNameInput) {
+        tagNameInput.oninput = updateTagPreview;
+    }
+
+
+    const descInput = document.getElementById('tagDescription');
+    const charCount = document.getElementById('descCharCount');
+    if (descInput && charCount) {
+        descInput.oninput = function() {
+            charCount.textContent = this.value.length;
+        };
+    }
+
+    // Form submission
+    const form = document.getElementById('tagForm');
+    if (form) {
+        form.onsubmit = handleTagFormSubmit;
+    }
+}
+
+function updateColorPreview(color) {
+    const preview = document.getElementById('colorPreview');
+    if (preview) {
+        preview.style.background = color;
+    }
+}
+
+function updateTagPreview() {
+    const nameInput = document.getElementById('tagName');
+    const colorInput = document.getElementById('tagColor');
+    const previewTag = document.getElementById('previewTag');
+    const previewName = document.getElementById('previewTagName');
+
+    if (!nameInput || !colorInput || !previewTag || !previewName) return;
+
+    const name = nameInput.value.trim() || 'New Tag';
+    const color = colorInput.value;
+
+    previewName.textContent = name;
+    previewTag.style.color = color;
+    previewTag.style.borderColor = color + '40';
+    previewTag.style.background = color + '20';
+}
+
+function hideFormMessages() {
+    const errorDiv = document.getElementById('formError');
+    const successDiv = document.getElementById('formSuccess');
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (successDiv) successDiv.style.display = 'none';
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('formError');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('formSuccess');
+    if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+    }
+}
+
+function handleTagFormSubmit(e) {
+    e.preventDefault();
+    hideFormMessages();
+
+    const submitBtn = e.target.querySelector('.btn-submit');
+    const tagName = document.getElementById('tagName').value.trim();
+    const tagColor = document.getElementById('tagColor').value;
+    const tagDescription = document.getElementById('tagDescription').value.trim();
+
+    // Simple validation
+    if (!tagName) {
+        showError('Tag name is required');
+        return;
+    }
+
+    if (tagName.length > 50) {
+        showError('Tag name must be 50 characters or less');
+        return;
+    }
+
+    if (!/^#[0-9A-Fa-f]{6}$/.test(tagColor)) {
+        showError('Please select a valid color');
+        return;
+    }
+
+    // Show loading state
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+
+    // Create tag object
+    const tagData = {
+        name: tagName,
+        color: tagColor,
+        description: tagDescription
+    };
+
+    // Call API to create tag
+    fetch('/api/tags', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tagData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || 'Failed to create tag');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+
+        showSuccess('Tag created successfully!');
+
+
+        setTimeout(() => {
+            closeTagModal();
+
+            renderBusiness();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Error creating tag:', error);
+        showError(error.message || 'Failed to create tag. Please try again.');
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    });
+}
+
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('tagModal');
+        if (modal && modal.style.display === 'flex') {
+            closeTagModal();
+        }
+    }
+});
 
 // Initialize on DOM ready
 if (document.readyState === 'loading') {

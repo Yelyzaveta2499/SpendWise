@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "expenses")
@@ -35,6 +37,9 @@ public class ExpenseEntity {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExpenseTagEntity> expenseTags = new HashSet<>();
 
     @PrePersist
     public void prePersist() {
@@ -75,4 +80,35 @@ public class ExpenseEntity {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Set<ExpenseTagEntity> getExpenseTags() { return expenseTags; }
+    public void setExpenseTags(Set<ExpenseTagEntity> expenseTags) { this.expenseTags = expenseTags; }
+
+    // Helper methods for managing bidirectional relationship
+    public void addTag(TagEntity tag) {
+        ExpenseTagEntity expenseTag = new ExpenseTagEntity(this, tag);
+        expenseTags.add(expenseTag);
+        tag.getExpenseTags().add(expenseTag);
+    }
+
+    public void removeTag(TagEntity tag) {
+        for (ExpenseTagEntity expenseTag : expenseTags) {
+            if (expenseTag.getExpense().equals(this) && expenseTag.getTag().equals(tag)) {
+                expenseTags.remove(expenseTag);
+                tag.getExpenseTags().remove(expenseTag);
+                expenseTag.setExpense(null);
+                expenseTag.setTag(null);
+                break;
+            }
+        }
+    }
+
+    public void clearTags() {
+        // Create a copy to avoid ConcurrentModificationException
+        Set<ExpenseTagEntity> tagsToRemove = new HashSet<>(expenseTags);
+        for (ExpenseTagEntity expenseTag : tagsToRemove) {
+            removeTag(expenseTag.getTag());
+        }
+        expenseTags.clear();
+    }
 }
