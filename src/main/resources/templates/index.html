@@ -1090,5 +1090,69 @@
 })();
 </script>
 
+<!-- Tag Creation Modal -->
+<div id="tagModal" class="tag-modal" style="display: none;">
+    <div class="tag-modal-overlay"></div>
+    <div class="tag-modal-content">
+        <div class="tag-modal-header">
+            <h2>Create New Tag</h2>
+            <button class="tag-modal-close" id="closeTagModal">&times;</button>
+        </div>
+        <form id="tagForm" class="tag-form">
+            <div class="form-group">
+                <label for="tagName">Tag Name <span class="required">*</span></label>
+                <input type="text" id="tagName" name="tagName" placeholder="e.g., Client A, Marketing" required maxlength="50">
+                <div class="form-help">Maximum 50 characters</div>
+            </div>
+
+            <div class="form-group">
+                <label for="tagColor">Tag Color <span class="required">*</span></label>
+                <div class="color-picker-wrapper">
+                    <input type="color" id="tagColor" name="tagColor" value="#3b82f6" required>
+                    <input type="text" id="tagColorHex" placeholder="#3b82f6" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$">
+                    <div class="color-preview" id="colorPreview"></div>
+                </div>
+                <div class="color-presets">
+                    <button type="button" class="color-preset" data-color="#3b82f6" style="background: #3b82f6;"></button>
+                    <button type="button" class="color-preset" data-color="#10b981" style="background: #10b981;"></button>
+                    <button type="button" class="color-preset" data-color="#ec4899" style="background: #ec4899;"></button>
+                    <button type="button" class="color-preset" data-color="#f59e0b" style="background: #f59e0b;"></button>
+                    <button type="button" class="color-preset" data-color="#a855f7" style="background: #a855f7;"></button>
+                    <button type="button" class="color-preset" data-color="#06b6d4" style="background: #06b6d4;"></button>
+                    <button type="button" class="color-preset" data-color="#eab308" style="background: #eab308;"></button>
+                    <button type="button" class="color-preset" data-color="#ef4444" style="background: #ef4444;"></button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tagDescription">Description (Optional)</label>
+                <textarea id="tagDescription" name="tagDescription" placeholder="Brief description of what this tag is for..." rows="3" maxlength="255"></textarea>
+                <div class="form-help"><span id="descCharCount">0</span>/255 characters</div>
+            </div>
+
+            <div class="tag-preview-section">
+                <label>Preview</label>
+                <div class="tag-preview-box">
+                    <span class="preview-tag" id="previewTag">
+                        <span id="previewTagName">New Tag</span>
+                        <span class="preview-tag-count">0</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" id="cancelTagBtn">Cancel</button>
+                <button type="submit" class="btn-submit">
+                    <span class="btn-text">Create Tag</span>
+                    <span class="btn-spinner" style="display: none;">Creating...</span>
+                </button>
+            </div>
+
+            <div class="form-error" id="formError" style="display: none;"></div>
+            <div class="form-success" id="formSuccess" style="display: none;"></div>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>

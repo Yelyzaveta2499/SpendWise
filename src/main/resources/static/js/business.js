@@ -372,6 +372,12 @@ function renderBusinessContent(contentDiv, data) {
         });
     }
 
+    // event listener for +New Tag button
+    const newTagBtn = contentDiv.querySelector('.btn-new-tag');
+    if (newTagBtn) {
+        newTagBtn.addEventListener('click', openTagModal);
+    }
+
     // Initialize charts after DOM is updated
     setTimeout(() => {
         initMonthlyTagChart();
@@ -722,6 +728,235 @@ function initIncomeExpensesChart() {
 
 // Make renderBusiness globally available
 window.renderBusiness = renderBusiness;
+
+/* ==================== TAG MODAL FUNCTIONS ==================== */
+
+function openTagModal() {
+    const modal = document.getElementById('tagModal');
+    if (!modal) return;
+
+    // Reset form
+    document.getElementById('tagForm').reset();
+    document.getElementById('tagColor').value = '#3b82f6';
+    document.getElementById('tagColorHex').value = '#3b82f6';
+    updateColorPreview('#3b82f6');
+    updateTagPreview();
+    hideFormMessages();
+
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // event listeners
+    setupModalEventListeners();
+}
+
+function closeTagModal() {
+    const modal = document.getElementById('tagModal');
+    if (!modal) return;
+
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function setupModalEventListeners() {
+    // Close button
+    const closeBtn = document.getElementById('closeTagModal');
+    const cancelBtn = document.getElementById('cancelTagBtn');
+    const overlay = document.querySelector('.tag-modal-overlay');
+
+    if (closeBtn) closeBtn.onclick = closeTagModal;
+    if (cancelBtn) cancelBtn.onclick = closeTagModal;
+    if (overlay) overlay.onclick = closeTagModal;
+
+
+    const colorInput = document.getElementById('tagColor');
+    const colorHexInput = document.getElementById('tagColorHex');
+
+    if (colorInput) {
+        colorInput.oninput = function() {
+            colorHexInput.value = this.value.toUpperCase();
+            updateColorPreview(this.value);
+            updateTagPreview();
+        };
+    }
+
+    if (colorHexInput) {
+        colorHexInput.oninput = function() {
+            const hexValue = this.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
+                colorInput.value = hexValue;
+                updateColorPreview(hexValue);
+                updateTagPreview();
+            }
+        };
+    }
+
+    // Color presets
+    const presetBtns = document.querySelectorAll('.color-preset');
+    presetBtns.forEach(btn => {
+        btn.onclick = function() {
+            const color = this.getAttribute('data-color');
+            colorInput.value = color;
+            colorHexInput.value = color.toUpperCase();
+            updateColorPreview(color);
+            updateTagPreview();
+
+            // Update active state
+            presetBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        };
+    });
+
+
+    const tagNameInput = document.getElementById('tagName');
+    if (tagNameInput) {
+        tagNameInput.oninput = updateTagPreview;
+    }
+
+
+    const descInput = document.getElementById('tagDescription');
+    const charCount = document.getElementById('descCharCount');
+    if (descInput && charCount) {
+        descInput.oninput = function() {
+            charCount.textContent = this.value.length;
+        };
+    }
+
+    // Form submission
+    const form = document.getElementById('tagForm');
+    if (form) {
+        form.onsubmit = handleTagFormSubmit;
+    }
+}
+
+function updateColorPreview(color) {
+    const preview = document.getElementById('colorPreview');
+    if (preview) {
+        preview.style.background = color;
+    }
+}
+
+function updateTagPreview() {
+    const nameInput = document.getElementById('tagName');
+    const colorInput = document.getElementById('tagColor');
+    const previewTag = document.getElementById('previewTag');
+    const previewName = document.getElementById('previewTagName');
+
+    if (!nameInput || !colorInput || !previewTag || !previewName) return;
+
+    const name = nameInput.value.trim() || 'New Tag';
+    const color = colorInput.value;
+
+    previewName.textContent = name;
+    previewTag.style.color = color;
+    previewTag.style.borderColor = color + '40';
+    previewTag.style.background = color + '20';
+}
+
+function hideFormMessages() {
+    const errorDiv = document.getElementById('formError');
+    const successDiv = document.getElementById('formSuccess');
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (successDiv) successDiv.style.display = 'none';
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('formError');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+}
+
+function showSuccess(message) {
+    const successDiv = document.getElementById('formSuccess');
+    if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+    }
+}
+
+function handleTagFormSubmit(e) {
+    e.preventDefault();
+    hideFormMessages();
+
+    const submitBtn = e.target.querySelector('.btn-submit');
+    const tagName = document.getElementById('tagName').value.trim();
+    const tagColor = document.getElementById('tagColor').value;
+    const tagDescription = document.getElementById('tagDescription').value.trim();
+
+    // Simple validation
+    if (!tagName) {
+        showError('Tag name is required');
+        return;
+    }
+
+    if (tagName.length > 50) {
+        showError('Tag name must be 50 characters or less');
+        return;
+    }
+
+    if (!/^#[0-9A-Fa-f]{6}$/.test(tagColor)) {
+        showError('Please select a valid color');
+        return;
+    }
+
+    // Show loading state
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+
+    // Create tag object
+    const tagData = {
+        name: tagName,
+        color: tagColor,
+        description: tagDescription
+    };
+
+    // Call API to create tag
+    fetch('/api/tags', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tagData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || 'Failed to create tag');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+
+        showSuccess('Tag created successfully!');
+
+
+        setTimeout(() => {
+            closeTagModal();
+
+            renderBusiness();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Error creating tag:', error);
+        showError(error.message || 'Failed to create tag. Please try again.');
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    });
+}
+
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('tagModal');
+        if (modal && modal.style.display === 'flex') {
+            closeTagModal();
+        }
+    }
+});
 
 // Initialize on DOM ready
 if (document.readyState === 'loading') {

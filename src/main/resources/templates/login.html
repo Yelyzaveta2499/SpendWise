@@ -116,6 +116,39 @@
             margin-bottom: 8px;
         }
 
+        /* Override any global form-group styles from main.css */
+        .login-card .form-group input[type="text"],
+        .login-card .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            background: #ffffff !important;
+            color: #1f2937 !important;
+            cursor: text;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        .login-card .form-group input[type="text"]:focus,
+        .login-card .form-group input[type="password"]:focus {
+            outline: none;
+            border-color: #22c55e !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+            background: #ffffff !important;
+        }
+
+        .login-card .form-group input[type="text"]::placeholder,
+        .login-card .form-group input[type="password"]::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Legacy support for .form-input class */
         .form-input {
             width: 100%;
             padding: 12px 16px;
@@ -124,12 +157,15 @@
             font-size: 15px;
             transition: all 0.2s ease;
             box-sizing: border-box;
+            background: #ffffff !important;
+            color: #1f2937 !important;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #22c55e;
+            border-color: #22c55e !important;
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+            background: #ffffff !important;
         }
 
         .form-input::placeholder {
