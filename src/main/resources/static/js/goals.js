@@ -231,7 +231,7 @@ function renderGoalCard(goal) {
         const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
         deadlineText = isPassed ? 'Deadline passed' : daysLeft > 0 ? `${daysLeft} days left` : 'Due today';
     }
-    const editAttrs = `data-id="${goal.id}" data-name="${goal.name}" data-target="${targetAmount}" data-current="${currentAmount}" data-is-placeholder="${goal.isPlaceholder || false}"`;
+    const editAttrs = `data-id="${goal.id}" data-name="${goal.name}" data-target="${targetAmount}" data-current="${currentAmount}" data-deadline="${goal.deadline || ''}" data-icon="${icon}" data-color="${color}" data-is-placeholder="${goal.isPlaceholder || false}"`;
     const editBtn = `<button type="button" class="budget-action-btn budget-edit-btn" ${editAttrs} aria-label="Edit goal" title="Edit">✎</button>`;
     const deleteBtn = `<button type="button" class="budget-action-btn budget-delete-btn" data-id="${goal.id}" data-name="${goal.name}" data-is-placeholder="${goal.isPlaceholder || false}" aria-label="Delete goal" title="Delete">🗑</button>`;
     const actionsHtml = `<div class="budget-card-actions">${editBtn}${deleteBtn}</div>`;
@@ -423,10 +423,16 @@ function attachGoalEventListeners() {
             currentEditGoalId = btn.dataset.id;
             const goalName = btn.dataset.name;
             const targetAmount = btn.dataset.target;
+            const deadline = btn.dataset.deadline;
+            const icon = btn.dataset.icon;
+            const color = btn.dataset.color;
 
-            // Pre-fill the edit form
+            // Pre-fill the edit form with all fields
             document.getElementById('edit-goal-name').value = goalName;
             document.getElementById('edit-goal-target').value = targetAmount;
+            document.getElementById('edit-goal-deadline').value = deadline || '';
+            document.getElementById('edit-goal-icon').value = icon || '🎯';
+            document.getElementById('edit-goal-color').value = color || '#10b981';
 
             // Open edit modal
             if (editModal) editModal.style.display = 'flex';
