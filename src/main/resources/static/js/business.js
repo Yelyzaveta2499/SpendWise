@@ -69,7 +69,8 @@ function renderBusinessContent(contentDiv, data) {
     const maxSpending = Math.max(...spendingByTag.map(t => t.amount));
 
     const html = `
-        <div class="business-page">
+        <div class="business-wrap">
+            <div class="business-page">
             <!-- Stats Cards Row -->
             <div class="business-stats-row">
                 <div class="business-stat-card">
@@ -316,6 +317,16 @@ function renderBusinessContent(contentDiv, data) {
     `;
 
     contentDiv.innerHTML = html;
+
+    // Trigger business cards animations on load/render
+    const businessWrap = contentDiv.querySelector('.business-wrap');
+    if (businessWrap) {
+        businessWrap.classList.remove('business-animate');
+        // Wait a frame so the browser paints the initial state, then add the class to start animations
+        requestAnimationFrame(function () {
+            businessWrap.classList.add('business-animate');
+        });
+    }
 
     // Initialize charts after DOM is updated
     setTimeout(() => {

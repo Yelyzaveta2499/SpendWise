@@ -2196,6 +2196,37 @@ body.dark-mode .btn-add-contribution:hover {
     margin: 0 auto;
 }
 
+/* Business Animation Wrapper */
+.business-wrap.business-animate .business-stat-card,
+.business-wrap.business-animate .business-card {
+    opacity: 0;
+}
+
+/* Stats Cards Animation - Staggered */
+.business-wrap.business-animate .business-stat-card {
+    animation: slideUp 0.5s ease-out forwards;
+}
+
+.business-wrap.business-animate .business-stat-card:nth-child(1) { animation-delay: 0.05s; }
+.business-wrap.business-animate .business-stat-card:nth-child(2) { animation-delay: 0.10s; }
+.business-wrap.business-animate .business-stat-card:nth-child(3) { animation-delay: 0.15s; }
+.business-wrap.business-animate .business-stat-card:nth-child(4) { animation-delay: 0.20s; }
+
+/* Business Cards Animation - Staggered */
+.business-wrap.business-animate .business-card {
+    animation: slideUp 0.55s ease-out forwards;
+}
+
+/* Left column cards */
+.business-wrap.business-animate .business-left-col .business-card:nth-child(1) { animation-delay: 0.25s; }
+.business-wrap.business-animate .business-left-col .business-card:nth-child(2) { animation-delay: 0.32s; }
+.business-wrap.business-animate .business-left-col .business-card:nth-child(3) { animation-delay: 0.39s; }
+
+/* Right column cards */
+.business-wrap.business-animate .business-right-col .business-card:nth-child(1) { animation-delay: 0.30s; }
+.business-wrap.business-animate .business-right-col .business-card:nth-child(2) { animation-delay: 0.37s; }
+.business-wrap.business-animate .business-right-col .business-card:nth-child(3) { animation-delay: 0.44s; }
+
 /* Stats Cards Row */
 .business-stats-row {
     display: grid;
