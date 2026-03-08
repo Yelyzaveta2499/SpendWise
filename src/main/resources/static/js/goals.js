@@ -31,11 +31,11 @@ function fetchGoalsAndRender(contentDiv) {
         const demoTotalSaved = placeholderGoals.reduce((sum, goal) => sum + (goal.currentAmount || 0), 0);
         const demoTotalTarget = placeholderGoals.reduce((sum, goal) => sum + (goal.targetAmount || 0), 0);
 
-        // Combine backend and demo stats
+        // Combine backend and demo stats (but activeGoals shows only real goals)
         const summary = {
             totalSaved: (backendSummary?.totalSaved || 0) + demoTotalSaved,
             totalTarget: (backendSummary?.totalTarget || 0) + demoTotalTarget,
-            activeGoals: (backendSummary?.activeGoals || 0) + placeholderGoals.length
+            activeGoals: (backendSummary?.activeGoals || 0)  // Only count real backend goals, not demos
         };
 
         const allGoals = [...backendGoals, ...placeholderGoals];

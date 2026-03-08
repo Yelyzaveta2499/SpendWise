@@ -1,5 +1,6 @@
 package com.example.SpendWise.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,7 +35,8 @@ public class Goal {
     @Column(nullable = false)
     private LocalDate createdDate;
 
-    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Contribution> contributions = new ArrayList<>();
 
 
