@@ -191,6 +191,24 @@ function renderGoalsContent(contentDiv, goals, summary) {
                 </form>
             </div>
         </div>
+        
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-goal-modal" class="budget-modal" style="display: none;">
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h3>Delete Goal</h3>
+                    <button class="modal-close" id="delete-goal-modal-close">&times;</button>
+                </div>
+                <div style="padding: 20px;">
+                    <p style="margin: 0 0 20px 0; color: #64748b; font-size: 15px;">Are you sure you want to delete the goal "<span id="delete-goal-name" style="font-weight: 600; color: #0f172a;"></span>"?</p>
+                    <p style="margin: 0; color: #ef4444; font-size: 14px;">⚠️ This action cannot be undone.</p>
+                </div>
+                <div style="display: flex; gap: 12px; padding: 0 20px 20px 20px;">
+                    <button type="button" id="delete-goal-cancel" class="btn-submit" style="background: #64748b; flex: 1;">Cancel</button>
+                    <button type="button" id="delete-goal-confirm" class="btn-submit" style="background: #ef4444; flex: 1;">Delete</button>
+                </div>
+            </div>
+        </div>
     `;
     contentDiv.innerHTML = html;
     attachGoalEventListeners();
@@ -262,8 +280,14 @@ function attachGoalEventListeners() {
     const editModalClose = document.getElementById('edit-goal-modal-close');
     const editGoalForm = document.getElementById('edit-goal-form');
 
+    const deleteModal = document.getElementById('delete-goal-modal');
+    const deleteModalClose = document.getElementById('delete-goal-modal-close');
+    const deleteCancel = document.getElementById('delete-goal-cancel');
+    const deleteConfirm = document.getElementById('delete-goal-confirm');
+
     let currentGoalId = null;
     let currentEditGoalId = null;
+    let currentDeleteGoalId = null;
 
     // Create Goal Modal
     if (createBtn) {
@@ -335,6 +359,34 @@ function attachGoalEventListeners() {
         });
     }
 
+    // Delete Goal Modal
+    if (deleteModalClose) {
+        deleteModalClose.addEventListener('click', () => {
+            if (deleteModal) deleteModal.style.display = 'none';
+        });
+    }
+
+    if (deleteCancel) {
+        deleteCancel.addEventListener('click', () => {
+            if (deleteModal) deleteModal.style.display = 'none';
+        });
+    }
+
+    if (deleteModal) {
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) deleteModal.style.display = 'none';
+        });
+    }
+
+    if (deleteConfirm) {
+        deleteConfirm.addEventListener('click', () => {
+            if (currentDeleteGoalId) {
+                deleteGoal(currentDeleteGoalId);
+                if (deleteModal) deleteModal.style.display = 'none';
+            }
+        });
+    }
+
     // Contribution Modal
     if (contributionModalClose) {
         contributionModalClose.addEventListener('click', () => {
@@ -379,16 +431,18 @@ function attachGoalEventListeners() {
         });
     });
 
-    // Delete buttons - Direct delete with confirmation
+    // Delete buttons - Open custom delete modal
     document.querySelectorAll('.budget-delete-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const goalId = btn.dataset.id;
+            currentDeleteGoalId = btn.dataset.id;
             const goalName = btn.dataset.name;
 
-            if (confirm(`Are you sure you want to delete the goal "${goalName}"?`)) {
-                deleteGoal(goalId);
-            }
+            // Set goal name in modal
+            document.getElementById('delete-goal-name').textContent = goalName;
+
+            // Open delete modal
+            if (deleteModal) deleteModal.style.display = 'flex';
         });
     });
 
