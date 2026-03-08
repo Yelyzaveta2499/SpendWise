@@ -34,9 +34,8 @@ If the port is busy, stop the other process or change `server.port` in `applicat
 Users are currently in-memory (configured in `SecurityConfig`) and mirrored in the database for ownership checks.
 
 Example accounts:
-- `indiv` / `password`  (individual user)
-- `business` / `password`  (business user)
-- `kid` / `password`  (kids account)
+- individual user
+- business user
 
 After successful login you are redirected to the main dashboard.
 

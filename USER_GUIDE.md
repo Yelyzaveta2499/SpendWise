@@ -15,8 +15,8 @@
 ### Login
 1. Navigate to http://localhost:1111
 2. Log in with one of these accounts:
-   - **Individual User**: `indiv` / `password`
-   - **Business User**: `business` / `password`
+   - **Individual User**
+   - **Business User**
    
 
 ### Navigation
