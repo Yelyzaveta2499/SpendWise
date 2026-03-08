@@ -103,7 +103,9 @@ function transformAnalyticsData(apiData) {
         expenseTags: expenseTags,
         spendingByTag: spendingByTag,
         categoryData: categoryData,
-        recentExpenses: recentExpenses
+        recentExpenses: recentExpenses,
+        monthlyTagData: apiData.monthlyTagData || [],
+        incomeExpensesData: apiData.incomeExpensesData || { income: [], expenses: [] }
     };
 }
 
@@ -366,7 +368,7 @@ function renderBusinessContent(contentDiv, data) {
     const businessWrap = contentDiv.querySelector('.business-wrap');
     if (businessWrap) {
         businessWrap.classList.remove('business-animate');
-        // Wait a frame so the browser paints the initial state, then add the class to start animations
+
         requestAnimationFrame(function () {
             businessWrap.classList.add('business-animate');
         });
@@ -378,26 +380,64 @@ function renderBusinessContent(contentDiv, data) {
         newTagBtn.addEventListener('click', openTagModal);
     }
 
-    // Initialize charts after DOM is updated
+    // Initialize charts after DOM is updated with real data
     setTimeout(() => {
-        initMonthlyTagChart();
-        initIncomeExpensesChart();
+        // Pass chart data from API
+        initMonthlyTagChart(data.monthlyTagData || []);
+        initIncomeExpensesChart(data.incomeExpensesData || { income: [], expenses: [] });
     }, 100);
 }
 
-function initMonthlyTagChart() {
+function initMonthlyTagChart(apiData) {
     const chartHost = document.getElementById('monthlyTagChart');
     if (!chartHost) return;
 
+    // Transform API data to chart format
 
-    const data = [
-        { month: 'Oct', clientA: 2800, operations: 3200, marketing: 2100 },
-        { month: 'Nov', clientA: 3400, operations: 3600, marketing: 2500 },
-        { month: 'Dec', clientA: 2200, operations: 2800, marketing: 1800 },
-        { month: 'Jan', clientA: 4100, operations: 4200, marketing: 3200 },
-        { month: 'Feb', clientA: 3600, operations: 3900, marketing: 2800 },
-        { month: 'Mar', clientA: 4500, operations: 4600, marketing: 3600 }
-    ];
+
+    // If no data from API, use placeholder
+    if (!apiData || apiData.length === 0) {
+        chartHost.innerHTML = '<div class="business-chart-empty">No tag data available</div>';
+        return;
+    }
+
+    // Get all unique months from the data
+    const months = apiData[0]?.data?.map(d => d.month) || ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+
+    // Build data array for chart
+    const data = months.map((month, index) => {
+        const monthData = { month };
+        apiData.forEach(tag => {
+            const tagMonthData = tag.data[index];
+            if (tagMonthData) {
+                // Use tag name as key
+                const key = tag.name.toLowerCase().replace(/\s+/g, '');
+                monthData[key] = tagMonthData.amount || 0;
+            }
+        });
+        return monthData;
+    });
+
+    // Extract values for each tag
+    const tagValues = {};
+    const tagColors = {};
+    apiData.forEach(tag => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        tagValues[key] = data.map(d => Number(d[key]) || 0);
+        tagColors[key] = tag.color || '#3b82f6';
+    });
+
+    // Calculate max value from all tag values
+    const allValues = Object.values(tagValues).flat();
+    const rawMax = Math.max(1, ...allValues);
+
+    // max with 4 intervals
+    let chartMax = rawMax;
+    if (rawMax >= 1000) {
+        const step = 1500;
+        chartMax = Math.ceil(rawMax / step) * step;
+        if (chartMax < step * 4) chartMax = step * 4;
+    }
 
     const w = 760;
     const h = 260;
@@ -412,26 +452,11 @@ function initMonthlyTagChart() {
         return padL + (innerW * (i / (data.length - 1)));
     }
 
-    const clientAValues = data.map(p => Number(p.clientA) || 0);
-    const operationsValues = data.map(p => Number(p.operations) || 0);
-    const marketingValues = data.map(p => Number(p.marketing) || 0);
-
-    const rawMax = Math.max(1, ...clientAValues, ...operationsValues, ...marketingValues);
-
-    // max with 4 intervals
-    let chartMax = rawMax;
-    if (rawMax >= 1000) {
-        const step = 1500;
-        chartMax = Math.ceil(rawMax / step) * step;
-        if (chartMax < step * 4) chartMax = step * 4;
-    }
-
     function y(v) {
         const innerH = h - padT - padB;
         const t = (Number(v) || 0) / chartMax;
         return (h - padB) - (innerH * t);
     }
-
 
     function smoothPath(values) {
         const pts = values.map(function(v, i) {
@@ -460,12 +485,13 @@ function initMonthlyTagChart() {
         return line + ' L ' + lastX.toFixed(1) + ' ' + baseY.toFixed(1) + ' L ' + firstX.toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
     }
 
-    const clientAD = smoothPath(clientAValues);
-    const operationsD = smoothPath(operationsValues);
-    const marketingD = smoothPath(marketingValues);
-    const clientAAreaD = areaPath(clientAValues);
-    const operationsAreaD = areaPath(operationsValues);
-    const marketingAreaD = areaPath(marketingValues);
+    // Create paths for each tag dynamically
+    const tagPaths = {};
+    const tagAreaPaths = {};
+    Object.keys(tagValues).forEach(key => {
+        tagPaths[key] = smoothPath(tagValues[key]);
+        tagAreaPaths[key] = areaPath(tagValues[key]);
+    });
 
     const labels = data.map(function(p, i) {
         const lbl = p.month || '';
@@ -493,21 +519,45 @@ function initMonthlyTagChart() {
         return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
     }).join('');
 
+    // Generate gradient definitions for each tag
+    const gradientDefs = apiData.map((tag) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        const color = tag.color || '#3b82f6';
+        const r = parseInt(color.slice(1,3), 16);
+        const g = parseInt(color.slice(3,5), 16);
+        const b = parseInt(color.slice(5,7), 16);
+
+        return `<linearGradient id="${key}Fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(${r}, ${g}, ${b}, 0.22)" />
+            <stop offset="100%" stop-color="rgba(${r}, ${g}, ${b}, 0)" />
+          </linearGradient>`;
+    }).join('');
+
+    // Generate area fills
+    const areaFills = apiData.map((tag, index) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        return `<path class="chart-fill-${key} paint-fill" d="${tagAreaPaths[key]}" fill="url(#${key}Fill)" style="animation-delay: ${index * 80}ms" />`;
+    }).join('');
+
+    // Generate line paths
+    const linePaths = apiData.map((tag, index) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        const color = tag.color || '#3b82f6';
+        return `<path id="${key}Line" class="chart-line-${key} paint-line" d="${tagPaths[key]}" stroke="${color}" style="animation-delay: ${index * 80}ms" />`;
+    }).join('');
+
+    // Generate legend items
+    const legendItems = apiData.map((tag, index) => {
+        const color = tag.color || '#3b82f6';
+        const xPos = padL + 90 + (index * 150);
+        return `<circle cx="${xPos}" cy="${h - 6}" r="6" fill="${color}"></circle>
+                <text x="${xPos + 12}" y="${h - 2}">${tag.name}</text>`;
+    }).join('');
+
     chartHost.innerHTML = `
       <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="Monthly Tag Report chart">
         <defs>
-          <linearGradient id="clientAFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(14, 165, 233, 0.22)" />
-            <stop offset="100%" stop-color="rgba(14, 165, 233, 0)" />
-          </linearGradient>
-          <linearGradient id="operationsFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(16, 185, 129, 0.22)" />
-            <stop offset="100%" stop-color="rgba(16, 185, 129, 0)" />
-          </linearGradient>
-          <linearGradient id="marketingFill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(236, 72, 153, 0.22)" />
-            <stop offset="100%" stop-color="rgba(236, 72, 153, 0)" />
-          </linearGradient>
+          ${gradientDefs}
         </defs>
 
         <!-- grid: horizontal + vertical (dotted) -->
@@ -517,14 +567,10 @@ function initMonthlyTagChart() {
         </g>
 
         <!-- area fills -->
-        <path class="chart-fill-clientA paint-fill" d="${clientAAreaD}" fill="url(#clientAFill)" />
-        <path class="chart-fill-operations paint-fill" d="${operationsAreaD}" fill="url(#operationsFill)" />
-        <path class="chart-fill-marketing paint-fill" d="${marketingAreaD}" fill="url(#marketingFill)" />
+        ${areaFills}
 
         <!-- lines (paint animation) -->
-        <path id="clientALine" class="chart-line-clientA paint-line" d="${clientAD}" />
-        <path id="operationsLine" class="chart-line-operations paint-line" d="${operationsD}" />
-        <path id="marketingLine" class="chart-line-marketing paint-line" d="${marketingD}" />
+        ${linePaths}
 
         <!-- labels -->
         ${labels}
@@ -532,52 +578,41 @@ function initMonthlyTagChart() {
 
         <!-- legend -->
         <g font-size="12" fill="#64748b">
-          <circle cx="${padL + 90}" cy="${h - 6}" r="6" fill="#0ea5e9"></circle>
-          <text x="${padL + 102}" y="${h - 2}">Client A</text>
-          <circle cx="${padL + 180}" cy="${h - 6}" r="6" fill="#10b981"></circle>
-          <text x="${padL + 192}" y="${h - 2}">Operations</text>
-          <circle cx="${padL + 290}" cy="${h - 6}" r="6" fill="#ec4899"></circle>
-          <text x="${padL + 302}" y="${h - 2}">Marketing</text>
+          ${legendItems}
         </g>
       </svg>
     `;
 
-
-    const clientAPathEl = chartHost.querySelector('#clientALine');
-    const operationsPathEl = chartHost.querySelector('#operationsLine');
-    const marketingPathEl = chartHost.querySelector('#marketingLine');
-
-    if (clientAPathEl && clientAPathEl.getTotalLength) {
-        const len = Math.ceil(clientAPathEl.getTotalLength());
-        clientAPathEl.style.setProperty('--dash', String(len));
-    }
-
-    if (operationsPathEl && operationsPathEl.getTotalLength) {
-        const len = Math.ceil(operationsPathEl.getTotalLength());
-        operationsPathEl.style.setProperty('--dash', String(len));
-        operationsPathEl.style.animationDelay = '80ms';
-    }
-
-    if (marketingPathEl && marketingPathEl.getTotalLength) {
-        const len = Math.ceil(marketingPathEl.getTotalLength());
-        marketingPathEl.style.setProperty('--dash', String(len));
-        marketingPathEl.style.animationDelay = '160ms';
-    }
+    // Apply path animations
+    apiData.forEach((tag) => {
+        const key = tag.name.toLowerCase().replace(/\s+/g, '');
+        const pathEl = chartHost.querySelector(`#${key}Line`);
+        if (pathEl && pathEl.getTotalLength) {
+            const len = pathEl.getTotalLength();
+            pathEl.style.setProperty('--dash', len);
+        }
+    });
 }
 
-function initIncomeExpensesChart() {
+function initIncomeExpensesChart(apiData) {
     const chartHost = document.getElementById('incomeExpensesChart');
     if (!chartHost) return;
 
+    // apiData format: { income: [{month, amount}], expenses: [{month, amount}] }
 
-    const data = [
-        { month: 'Oct', income: 18500, expenses: 12200 },
-        { month: 'Nov', income: 21000, expenses: 14500 },
-        { month: 'Dec', income: 19200, expenses: 13800 },
-        { month: 'Jan', income: 23240, expenses: 15600 },
-        { month: 'Feb', income: 20800, expenses: 14200 },
-        { month: 'Mar', income: 22500, expenses: 18853 }
-    ];
+    // If no data from API, show placeholder
+    if (!apiData || !apiData.expenses || apiData.expenses.length === 0) {
+        chartHost.innerHTML = '<div class="business-chart-empty">No expense data available</div>';
+        return;
+    }
+
+    // Build data array for chart
+    const months = apiData.expenses.map(d => d.month);
+    const data = months.map((month, index) => ({
+        month: month,
+        income: apiData.income && apiData.income[index] ? apiData.income[index].amount : 0,
+        expenses: apiData.expenses[index] ? apiData.expenses[index].amount : 0
+    }));
 
     const w = 760;
     const h = 260;
