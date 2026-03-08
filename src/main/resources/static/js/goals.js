@@ -229,7 +229,7 @@ function renderGoalCard(goal) {
         const today = new Date();
         const isPassed = deadline < today;
         const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-        deadlineText = isPassed ? 'Deadline passed' : daysLeft > 0 ? ` days left` : 'Due today';
+        deadlineText = isPassed ? 'Deadline passed' : daysLeft > 0 ? `${daysLeft} days left` : 'Due today';
     }
     const editAttrs = `data-id="${goal.id}" data-name="${goal.name}" data-target="${targetAmount}" data-current="${currentAmount}" data-is-placeholder="${goal.isPlaceholder || false}"`;
     const editBtn = `<button type="button" class="budget-action-btn budget-edit-btn" ${editAttrs} aria-label="Edit goal" title="Edit">✎</button>`;
