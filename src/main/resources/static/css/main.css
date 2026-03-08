@@ -1386,6 +1386,187 @@ body.dark-mode .btn-submit:hover {
   gap: 10px;
 }
 
+/* Expense tag badge */
+.expense-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  margin-left: 8px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #3b82f6;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+body.dark-mode .expense-tag-badge {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #60a5fa;
+}
+
+.expense-tag-badge:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: scale(1.05);
+}
+
+body.dark-mode .expense-tag-badge:hover {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* Expense Modal Tag Selector */
+.form-group-tags {
+  margin: 16px 0;
+}
+
+.tags-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+body.dark-mode .tags-label {
+  color: #f8fafc;
+}
+
+.tags-hint {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+body.dark-mode .tags-hint {
+  color: #94a3b8;
+}
+
+.tags-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+body.dark-mode .tags-container {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.tags-loading,
+.tags-empty {
+  padding: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+body.dark-mode .tags-loading,
+body.dark-mode .tags-empty {
+  color: #94a3b8;
+}
+
+.tag-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.tag-checkbox-label:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+body.dark-mode .tag-checkbox-label:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.tag-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.tag-checkbox-box {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+body.dark-mode .tag-checkbox-box {
+  border-color: #475569;
+}
+
+.tag-checkbox:checked + .tag-checkbox-box {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.tag-checkbox:checked + .tag-checkbox-box::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.tag-checkbox-text {
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Business indicator (for expenses with tags) */
+.business-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  margin-left: 8px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+  }
+}
+
 /* = Dashboard = */
 
 .dash-wrap {
