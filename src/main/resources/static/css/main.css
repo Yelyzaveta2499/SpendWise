@@ -2472,6 +2472,16 @@ body.dark-mode .btn-add-contribution:hover {
     stroke-width: 2.5;
 }
 
+.business-chart .chart-line-income-business {
+    stroke: #10b981;
+    stroke-width: 2.5;
+}
+
+.business-chart .chart-line-expenses-business {
+    stroke: #ef4444;
+    stroke-width: 2.5;
+}
+
 .business-chart .chart-label,
 .business-chart .chart-ylabel {
     fill: #64748b;
@@ -2480,6 +2490,8 @@ body.dark-mode .btn-add-contribution:hover {
 .business-chart .chart-fill-clientA { opacity: 0.9; }
 .business-chart .chart-fill-operations { opacity: 0.85; }
 .business-chart .chart-fill-marketing { opacity: 0.82; }
+.business-chart .chart-fill-income-business { opacity: 0.9; }
+.business-chart .chart-fill-expenses-business { opacity: 0.85; }
 
 .business-chart .paint-line { animation-duration: 1000ms; }
 

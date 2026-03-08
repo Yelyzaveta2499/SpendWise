@@ -291,8 +291,8 @@ function renderBusinessContent(contentDiv, data) {
                                 </div>
                             </div>
                         </div>
-                        <div class="chart-container">
-                            <canvas id="incomeExpensesChart"></canvas>
+                        <div class="business-chart" id="incomeExpensesChart">
+                            <div class="business-chart-empty">Loading chart...</div>
                         </div>
                     </div>
 
@@ -505,39 +505,165 @@ function initMonthlyTagChart() {
 }
 
 function initIncomeExpensesChart() {
-    const canvas = document.getElementById('incomeExpensesChart');
-    if (!canvas) return;
+    const chartHost = document.getElementById('incomeExpensesChart');
+    if (!chartHost) return;
 
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 200;
+    // Demo data for 6 months - Income and Expenses
+    const data = [
+        { month: 'Oct', income: 18500, expenses: 12200 },
+        { month: 'Nov', income: 21000, expenses: 14500 },
+        { month: 'Dec', income: 19200, expenses: 13800 },
+        { month: 'Jan', income: 23240, expenses: 15600 },
+        { month: 'Feb', income: 20800, expenses: 14200 },
+        { month: 'Mar', income: 22500, expenses: 18853 }
+    ];
 
-    const width = canvas.width;
-    const height = canvas.height;
-    const months = 12;
+    const w = 760;
+    const h = 260;
+    const padT = 28;
+    const padB = 24;
+    const padL = 40;
+    const padR = 20;
 
-    // Draw two lines
-    ctx.beginPath();
-    ctx.moveTo(0, height - 100);
-    for (let i = 0; i <= months; i++) {
-        const x = (width / months) * i;
-        const y = height - (80 + Math.sin(i * 0.8) * 30 + i * 5);
-        ctx.lineTo(x, y);
+    function x(i) {
+        if (data.length === 1) return padL;
+        const innerW = w - padL - padR;
+        return padL + (innerW * (i / (data.length - 1)));
     }
-    ctx.strokeStyle = '#0ea5e9';
-    ctx.lineWidth = 3;
-    ctx.stroke();
 
-    ctx.beginPath();
-    ctx.moveTo(0, height - 80);
-    for (let i = 0; i <= months; i++) {
-        const x = (width / months) * i;
-        const y = height - (60 + Math.sin(i * 0.6) * 20 + i * 6);
-        ctx.lineTo(x, y);
+    const incomeValues = data.map(p => Number(p.income) || 0);
+    const expensesValues = data.map(p => Number(p.expenses) || 0);
+
+    const rawMax = Math.max(1, ...incomeValues, ...expensesValues);
+
+    // max with 4 intervals
+    let chartMax = rawMax;
+    if (rawMax >= 1000) {
+        const step = 1500;
+        chartMax = Math.ceil(rawMax / step) * step;
+        if (chartMax < step * 4) chartMax = step * 4;
     }
-    ctx.strokeStyle = '#ec4899';
-    ctx.lineWidth = 3;
-    ctx.stroke();
+
+    function y(v) {
+        const innerH = h - padT - padB;
+        const t = (Number(v) || 0) / chartMax;
+        return (h - padB) - (innerH * t);
+    }
+
+    // Smooth path builder (simple cubic curves between points)
+    function smoothPath(values) {
+        const pts = values.map(function(v, i) {
+            return { x: x(i), y: y(v) };
+        });
+
+        if (pts.length === 1) {
+            return 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+        }
+
+        let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+        for (let i = 1; i < pts.length; i++) {
+            const prev = pts[i - 1];
+            const curr = pts[i];
+            const midX = (prev.x + curr.x) / 2;
+            d += ' C ' + midX.toFixed(1) + ' ' + prev.y.toFixed(1) + ', ' + midX.toFixed(1) + ' ' + curr.y.toFixed(1) + ', ' + curr.x.toFixed(1) + ' ' + curr.y.toFixed(1);
+        }
+        return d;
+    }
+
+    function areaPath(values) {
+        const line = smoothPath(values);
+        const baseY = h - padB;
+        const firstX = x(0);
+        const lastX = x(values.length - 1);
+        return line + ' L ' + lastX.toFixed(1) + ' ' + baseY.toFixed(1) + ' L ' + firstX.toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
+    }
+
+    const incomeD = smoothPath(incomeValues);
+    const expensesD = smoothPath(expensesValues);
+    const incomeAreaD = areaPath(incomeValues);
+    const expensesAreaD = areaPath(expensesValues);
+
+    const labels = data.map(function(p, i) {
+        const lbl = p.month || '';
+        return `<text class="chart-label" x="${x(i).toFixed(1)}" y="${(h - 8)}" text-anchor="middle">${lbl}</text>`;
+    }).join('');
+
+    const ticks = 4;
+    const yLines = [];
+    const yLabels = [];
+    for (let i = 0; i <= ticks; i++) {
+        const t = i / ticks;
+        const value = chartMax * (1 - t);
+        const yy = padT + (h - padT - padB) * t;
+
+        yLines.push(`<line class="chart-grid" x1="${padL}" y1="${yy.toFixed(1)}" x2="${(w - padR)}" y2="${yy.toFixed(1)}" />`);
+
+        const k = value / 1000;
+        const label = '$' + (k === 0 ? '0' : (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1))) + 'k';
+        yLabels.push(`<text class="chart-ylabel" x="${(padL - 14)}" y="${(yy + 4).toFixed(1)}" text-anchor="end">${label}</text>`);
+    }
+
+    // vertical dotted grid for each month
+    const xLines = data.map(function(p, i) {
+        const xx = x(i);
+        return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
+    }).join('');
+
+    chartHost.innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="Income & Expenses chart">
+        <defs>
+          <linearGradient id="incomeBusinessFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(16, 185, 129, 0.22)" />
+            <stop offset="100%" stop-color="rgba(16, 185, 129, 0)" />
+          </linearGradient>
+          <linearGradient id="expensesBusinessFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(239, 68, 68, 0.22)" />
+            <stop offset="100%" stop-color="rgba(239, 68, 68, 0)" />
+          </linearGradient>
+        </defs>
+
+        <!-- grid: horizontal + vertical (dotted) -->
+        <g>
+          ${yLines.join('')}
+          ${xLines}
+        </g>
+
+        <!-- area fills -->
+        <path class="chart-fill-income-business paint-fill" d="${incomeAreaD}" fill="url(#incomeBusinessFill)" />
+        <path class="chart-fill-expenses-business paint-fill" d="${expensesAreaD}" fill="url(#expensesBusinessFill)" />
+
+        <!-- lines (paint animation) -->
+        <path id="incomeBusinessLine" class="chart-line-income-business paint-line" d="${incomeD}" />
+        <path id="expensesBusinessLine" class="chart-line-expenses-business paint-line" d="${expensesD}" />
+
+        <!-- labels -->
+        ${labels}
+        ${yLabels.join('')}
+
+        <!-- legend -->
+        <g font-size="12" fill="#64748b">
+          <circle cx="${padL + 120}" cy="${h - 6}" r="6" fill="#10b981"></circle>
+          <text x="${padL + 132}" y="${h - 2}">Income</text>
+          <circle cx="${padL + 210}" cy="${h - 6}" r="6" fill="#ef4444"></circle>
+          <text x="${padL + 222}" y="${h - 2}">Expenses</text>
+        </g>
+      </svg>
+    `;
+
+    // Apply dash lengths so the paint animation draws the full path
+    const incomePathEl = chartHost.querySelector('#incomeBusinessLine');
+    const expensesPathEl = chartHost.querySelector('#expensesBusinessLine');
+
+    if (incomePathEl && incomePathEl.getTotalLength) {
+        const len = Math.ceil(incomePathEl.getTotalLength());
+        incomePathEl.style.setProperty('--dash', String(len));
+    }
+
+    if (expensesPathEl && expensesPathEl.getTotalLength) {
+        const len = Math.ceil(expensesPathEl.getTotalLength());
+        expensesPathEl.style.setProperty('--dash', String(len));
+        expensesPathEl.style.animationDelay = '80ms';
+    }
 }
 
 // Make renderBusiness globally available
