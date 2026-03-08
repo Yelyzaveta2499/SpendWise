@@ -14,8 +14,9 @@
     'expenses': 1,
     'budgets': 2,
     'goals': 3,
-    'reports': 4,
-    'settings': 5
+    'business': 4,
+    'reports': 5,
+    'settings': 6
   };
 
   // Scroll to specific section smoothly
@@ -85,6 +86,11 @@
       case 'goals':
         if (typeof renderGoals === 'function') {
           renderGoals();
+        }
+        break;
+      case 'business':
+        if (typeof renderBusiness === 'function') {
+          renderBusiness();
         }
         break;
       case 'reports':
