@@ -1,6 +1,7 @@
 package com.example.SpendWise.controller;
 
 import com.example.SpendWise.model.entity.ExpenseEntity;
+import com.example.SpendWise.model.entity.TagEntity;
 import com.example.SpendWise.service.ExpenseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +24,53 @@ public class ExpenseController {
 
     // Listing expenses for authenticated user
     @GetMapping
-    public List<ExpenseEntity> listExpenses(Authentication authentication) {
+    public List<ExpenseEntity> listExpenses(
+            @RequestParam(value = "tagId", required = false) Long tagId,
+            @RequestParam(value = "tagName", required = false) String tagName,
+            Authentication authentication) {
         String username = authentication.getName();
+
+        // Filter by tag if provided
+        if (tagId != null) {
+            return expenseService.getExpensesByTagId(username, tagId);
+        } else if (tagName != null && !tagName.isBlank()) {
+            return expenseService.getExpensesByTag(username, tagName);
+        }
+
+        // Otherwise return all expenses
         return expenseService.getExpensesForUser(username);
+    }
+
+    // Get tags for a specific expense
+    @GetMapping("/{id}/tags")
+    public ResponseEntity<List<TagEntity>> getExpenseTags(
+            @PathVariable("id") Long expenseId,
+            Authentication authentication) {
+        String username = authentication.getName();
+        List<TagEntity> tags = expenseService.getTagsForExpense(username, expenseId);
+        return ResponseEntity.ok(tags);
+    }
+
+    // Add a tag to an expense
+    @PostMapping("/{id}/tags/{tagId}")
+    public ResponseEntity<ExpenseEntity> addTagToExpense(
+            @PathVariable("id") Long expenseId,
+            @PathVariable("tagId") Long tagId,
+            Authentication authentication) {
+        String username = authentication.getName();
+        ExpenseEntity updated = expenseService.addTagToExpense(username, expenseId, tagId);
+        return ResponseEntity.ok(updated);
+    }
+
+    // Remove a tag from an expense
+    @DeleteMapping("/{id}/tags/{tagId}")
+    public ResponseEntity<ExpenseEntity> removeTagFromExpense(
+            @PathVariable("id") Long expenseId,
+            @PathVariable("tagId") Long tagId,
+            Authentication authentication) {
+        String username = authentication.getName();
+        ExpenseEntity updated = expenseService.removeTagFromExpense(username, expenseId, tagId);
+        return ResponseEntity.ok(updated);
     }
     // Creating expense for authenticated user
     @PostMapping
