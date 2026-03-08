@@ -170,13 +170,8 @@ function renderBusinessContent(contentDiv, data) {
                             </div>
                             <button class="btn-export">Export</button>
                         </div>
-                        <div class="chart-container">
-                            <canvas id="monthlyTagChart"></canvas>
-                        </div>
-                        <div class="chart-legend">
-                            <div class="legend-item"><span class="legend-dot" style="background: #0ea5e9;"></span> Client A</div>
-                            <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span> Operations</div>
-                            <div class="legend-item"><span class="legend-dot" style="background: #ec4899;"></span> Marketing</div>
+                        <div class="business-chart" id="monthlyTagChart">
+                            <div class="business-chart-empty">Loading chart...</div>
                         </div>
                     </div>
 
@@ -330,70 +325,183 @@ function renderBusinessContent(contentDiv, data) {
 }
 
 function initMonthlyTagChart() {
-    const canvas = document.getElementById('monthlyTagChart');
-    if (!canvas) return;
+    const chartHost = document.getElementById('monthlyTagChart');
+    if (!chartHost) return;
 
-    const ctx = canvas.getContext('2d');
-    // Simple area chart simulation
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 200;
+    // Demo data for 6 months - Client A, Operations, Marketing
+    const data = [
+        { month: 'Oct', clientA: 2800, operations: 3200, marketing: 2100 },
+        { month: 'Nov', clientA: 3400, operations: 3600, marketing: 2500 },
+        { month: 'Dec', clientA: 2200, operations: 2800, marketing: 1800 },
+        { month: 'Jan', clientA: 4100, operations: 4200, marketing: 3200 },
+        { month: 'Feb', clientA: 3600, operations: 3900, marketing: 2800 },
+        { month: 'Mar', clientA: 4500, operations: 4600, marketing: 3600 }
+    ];
 
-    // Draw gradient area chart
-    const gradient1 = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient1.addColorStop(0, 'rgba(14, 165, 233, 0.3)');
-    gradient1.addColorStop(1, 'rgba(14, 165, 233, 0.0)');
+    const w = 760;
+    const h = 260;
+    const padT = 28;
+    const padB = 24;
+    const padL = 40;
+    const padR = 20;
 
-    const gradient2 = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient2.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
-    gradient2.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-
-    const gradient3 = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient3.addColorStop(0, 'rgba(236, 72, 153, 0.3)');
-    gradient3.addColorStop(1, 'rgba(236, 72, 153, 0.0)');
-
-    // Draw three area curves
-    drawAreaCurve(ctx, gradient1, '#0ea5e9', 0);
-    drawAreaCurve(ctx, gradient2, '#10b981', 30);
-    drawAreaCurve(ctx, gradient3, '#ec4899', 60);
-}
-
-function drawAreaCurve(ctx, gradient, strokeColor, offset) {
-    const width = ctx.canvas.width;
-    const height = ctx.canvas.height;
-    const points = 20;
-
-    ctx.beginPath();
-    ctx.moveTo(0, height);
-
-    for (let i = 0; i <= points; i++) {
-        const x = (width / points) * i;
-        const y = height - (Math.sin(i * 0.5) * 30 + Math.random() * 20 + offset + 80);
-        if (i === 0) {
-            ctx.lineTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
+    function x(i) {
+        if (data.length === 1) return padL;
+        const innerW = w - padL - padR;
+        return padL + (innerW * (i / (data.length - 1)));
     }
 
-    ctx.lineTo(width, height);
-    ctx.closePath();
-    ctx.fillStyle = gradient;
-    ctx.fill();
+    const clientAValues = data.map(p => Number(p.clientA) || 0);
+    const operationsValues = data.map(p => Number(p.operations) || 0);
+    const marketingValues = data.map(p => Number(p.marketing) || 0);
 
-    // Draw line on top
-    ctx.beginPath();
-    for (let i = 0; i <= points; i++) {
-        const x = (width / points) * i;
-        const y = height - (Math.sin(i * 0.5) * 30 + Math.random() * 20 + offset + 80);
-        if (i === 0) {
-            ctx.moveTo(x, y);
-        } else {
-            ctx.lineTo(x, y);
-        }
+    const rawMax = Math.max(1, ...clientAValues, ...operationsValues, ...marketingValues);
+
+    // max with 4 intervals
+    let chartMax = rawMax;
+    if (rawMax >= 1000) {
+        const step = 1500;
+        chartMax = Math.ceil(rawMax / step) * step;
+        if (chartMax < step * 4) chartMax = step * 4;
     }
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 2;
-    ctx.stroke();
+
+    function y(v) {
+        const innerH = h - padT - padB;
+        const t = (Number(v) || 0) / chartMax;
+        return (h - padB) - (innerH * t);
+    }
+
+    // Smooth path builder (simple cubic curves between points)
+    function smoothPath(values) {
+        const pts = values.map(function(v, i) {
+            return { x: x(i), y: y(v) };
+        });
+
+        if (pts.length === 1) {
+            return 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+        }
+
+        let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+        for (let i = 1; i < pts.length; i++) {
+            const prev = pts[i - 1];
+            const curr = pts[i];
+            const midX = (prev.x + curr.x) / 2;
+            d += ' C ' + midX.toFixed(1) + ' ' + prev.y.toFixed(1) + ', ' + midX.toFixed(1) + ' ' + curr.y.toFixed(1) + ', ' + curr.x.toFixed(1) + ' ' + curr.y.toFixed(1);
+        }
+        return d;
+    }
+
+    function areaPath(values) {
+        const line = smoothPath(values);
+        const baseY = h - padB;
+        const firstX = x(0);
+        const lastX = x(values.length - 1);
+        return line + ' L ' + lastX.toFixed(1) + ' ' + baseY.toFixed(1) + ' L ' + firstX.toFixed(1) + ' ' + baseY.toFixed(1) + ' Z';
+    }
+
+    const clientAD = smoothPath(clientAValues);
+    const operationsD = smoothPath(operationsValues);
+    const marketingD = smoothPath(marketingValues);
+    const clientAAreaD = areaPath(clientAValues);
+    const operationsAreaD = areaPath(operationsValues);
+    const marketingAreaD = areaPath(marketingValues);
+
+    const labels = data.map(function(p, i) {
+        const lbl = p.month || '';
+        return `<text class="chart-label" x="${x(i).toFixed(1)}" y="${(h - 8)}" text-anchor="middle">${lbl}</text>`;
+    }).join('');
+
+    const ticks = 4;
+    const yLines = [];
+    const yLabels = [];
+    for (let i = 0; i <= ticks; i++) {
+        const t = i / ticks;
+        const value = chartMax * (1 - t);
+        const yy = padT + (h - padT - padB) * t;
+
+        yLines.push(`<line class="chart-grid" x1="${padL}" y1="${yy.toFixed(1)}" x2="${(w - padR)}" y2="${yy.toFixed(1)}" />`);
+
+        const k = value / 1000;
+        const label = '$' + (k === 0 ? '0' : (k % 1 === 0 ? k.toFixed(0) : k.toFixed(1))) + 'k';
+        yLabels.push(`<text class="chart-ylabel" x="${(padL - 14)}" y="${(yy + 4).toFixed(1)}" text-anchor="end">${label}</text>`);
+    }
+
+    // vertical dotted grid for each month
+    const xLines = data.map(function(p, i) {
+        const xx = x(i);
+        return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
+    }).join('');
+
+    chartHost.innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" aria-label="Monthly Tag Report chart">
+        <defs>
+          <linearGradient id="clientAFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(14, 165, 233, 0.22)" />
+            <stop offset="100%" stop-color="rgba(14, 165, 233, 0)" />
+          </linearGradient>
+          <linearGradient id="operationsFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(16, 185, 129, 0.22)" />
+            <stop offset="100%" stop-color="rgba(16, 185, 129, 0)" />
+          </linearGradient>
+          <linearGradient id="marketingFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="rgba(236, 72, 153, 0.22)" />
+            <stop offset="100%" stop-color="rgba(236, 72, 153, 0)" />
+          </linearGradient>
+        </defs>
+
+        <!-- grid: horizontal + vertical (dotted) -->
+        <g>
+          ${yLines.join('')}
+          ${xLines}
+        </g>
+
+        <!-- area fills -->
+        <path class="chart-fill-clientA paint-fill" d="${clientAAreaD}" fill="url(#clientAFill)" />
+        <path class="chart-fill-operations paint-fill" d="${operationsAreaD}" fill="url(#operationsFill)" />
+        <path class="chart-fill-marketing paint-fill" d="${marketingAreaD}" fill="url(#marketingFill)" />
+
+        <!-- lines (paint animation) -->
+        <path id="clientALine" class="chart-line-clientA paint-line" d="${clientAD}" />
+        <path id="operationsLine" class="chart-line-operations paint-line" d="${operationsD}" />
+        <path id="marketingLine" class="chart-line-marketing paint-line" d="${marketingD}" />
+
+        <!-- labels -->
+        ${labels}
+        ${yLabels.join('')}
+
+        <!-- legend -->
+        <g font-size="12" fill="#64748b">
+          <circle cx="${padL + 90}" cy="${h - 6}" r="6" fill="#0ea5e9"></circle>
+          <text x="${padL + 102}" y="${h - 2}">Client A</text>
+          <circle cx="${padL + 180}" cy="${h - 6}" r="6" fill="#10b981"></circle>
+          <text x="${padL + 192}" y="${h - 2}">Operations</text>
+          <circle cx="${padL + 290}" cy="${h - 6}" r="6" fill="#ec4899"></circle>
+          <text x="${padL + 302}" y="${h - 2}">Marketing</text>
+        </g>
+      </svg>
+    `;
+
+    // Apply dash lengths so the paint animation draws the full path
+    const clientAPathEl = chartHost.querySelector('#clientALine');
+    const operationsPathEl = chartHost.querySelector('#operationsLine');
+    const marketingPathEl = chartHost.querySelector('#marketingLine');
+
+    if (clientAPathEl && clientAPathEl.getTotalLength) {
+        const len = Math.ceil(clientAPathEl.getTotalLength());
+        clientAPathEl.style.setProperty('--dash', String(len));
+    }
+
+    if (operationsPathEl && operationsPathEl.getTotalLength) {
+        const len = Math.ceil(operationsPathEl.getTotalLength());
+        operationsPathEl.style.setProperty('--dash', String(len));
+        operationsPathEl.style.animationDelay = '80ms';
+    }
+
+    if (marketingPathEl && marketingPathEl.getTotalLength) {
+        const len = Math.ceil(marketingPathEl.getTotalLength());
+        marketingPathEl.style.setProperty('--dash', String(len));
+        marketingPathEl.style.animationDelay = '160ms';
+    }
 }
 
 function initIncomeExpensesChart() {

@@ -2438,6 +2438,78 @@ body.dark-mode .btn-add-contribution:hover {
     height: 100% !important;
 }
 
+/* Business Chart (SVG-based with animations) */
+.business-chart {
+    margin: 20px 0 0 0;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.business-chart-empty {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.business-chart .chart-grid {
+    stroke: rgba(148, 163, 184, 0.55);
+    stroke-dasharray: 3 5;
+}
+
+.business-chart .chart-line-clientA {
+    stroke: #0ea5e9;
+    stroke-width: 2.5;
+}
+
+.business-chart .chart-line-operations {
+    stroke: #10b981;
+    stroke-width: 2.5;
+}
+
+.business-chart .chart-line-marketing {
+    stroke: #ec4899;
+    stroke-width: 2.5;
+}
+
+.business-chart .chart-label,
+.business-chart .chart-ylabel {
+    fill: #64748b;
+}
+
+.business-chart .chart-fill-clientA { opacity: 0.9; }
+.business-chart .chart-fill-operations { opacity: 0.85; }
+.business-chart .chart-fill-marketing { opacity: 0.82; }
+
+.business-chart .paint-line { animation-duration: 1000ms; }
+
+.business-chart .paint-line {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: var(--dash, 1200);
+    stroke-dashoffset: var(--dash, 1200);
+    animation-name: dashPaint;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+}
+
+.business-chart .paint-fill {
+    opacity: 0;
+    animation: dashFadeUp 600ms ease forwards;
+    animation-delay: 120ms;
+}
+
+@keyframes dashPaint {
+    from { stroke-dashoffset: var(--dash, 1200); }
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes dashFadeUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .chart-legend {
     display: flex;
     gap: 20px;
