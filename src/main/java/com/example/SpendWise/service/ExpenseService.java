@@ -1,6 +1,7 @@
 package com.example.SpendWise.service;
 
 import com.example.SpendWise.model.entity.ExpenseEntity;
+import com.example.SpendWise.model.entity.ExpenseTagEntity;
 import com.example.SpendWise.model.entity.TagEntity;
 import com.example.SpendWise.model.entity.UserEntity;
 import com.example.SpendWise.model.repository.ExpenseRepository;
@@ -8,6 +9,7 @@ import com.example.SpendWise.model.repository.ExpenseTagRepository;
 import com.example.SpendWise.model.repository.TagRepository;
 import com.example.SpendWise.model.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,20 +37,14 @@ public class ExpenseService {
         this.expenseTagRepository = expenseTagRepository;
     }
 
-    /**
-     * Loadong all expenses for the given username.
-     */
+
     public List<ExpenseEntity> getExpensesForUser(String username) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
         return expenseRepository.findTop20ByUserOrderByExpenseDateDesc(user);
     }
 
-    /**
-     * Creatin a new expense for the given username.
-     * a simple map-like request object:
-     *   name (String), category (String), amount (BigDecimal or Number), date (LocalDate or String "yyyy-MM-dd").
-     */
+
     @SuppressWarnings("unchecked")
     public ExpenseEntity createExpenseForUser(String username, Object expenseCreateRequest) {
         if (!(expenseCreateRequest instanceof java.util.Map<?, ?> rawMap)) {
@@ -145,9 +141,10 @@ public class ExpenseService {
     }
 
     /**
-     * Updating an existing expense for the given username.
+     * Updating an existing expense for the authenticated user.
      */
     @SuppressWarnings("unchecked")
+    @Transactional
     public ExpenseEntity updateExpenseForUser(String username, Long expenseId, Object updateRequest) {
         if (expenseId == null) {
             throw new IllegalArgumentException("expenseId is required");
@@ -229,13 +226,16 @@ public class ExpenseService {
         return expenseRepository.save(expense);
     }
 
-    /**
-     * Update expense tags by synchronizing with the provided list
-     * Removes tags that are not in the list and adds new ones
-     */
+
     @SuppressWarnings("unchecked")
     private void updateExpenseTags(ExpenseEntity expense, List<?> tagsList, UserEntity user) {
-        // Get the desired tag IDs from the list
+        //Delete all existing tag associations from database to prevent duplicates
+        expenseTagRepository.deleteByExpense(expense);
+
+        //Clear the in-memory collection
+        expense.getExpenseTags().clear();
+
+        //Get the desired tag IDs from the list
         Set<Long> desiredTagIds = new HashSet<>();
 
         for (Object tagObj : tagsList) {
@@ -250,30 +250,12 @@ public class ExpenseService {
             }
         }
 
-        // Get current tag IDs
-        Set<Long> currentTagIds = expense.getExpenseTags().stream()
-            .map(et -> et.getTag().getId())
-            .collect(java.util.stream.Collectors.toSet());
-
-        // Remove tags that are no longer wanted
-        Set<Long> tagsToRemove = new HashSet<>(currentTagIds);
-        tagsToRemove.removeAll(desiredTagIds);
-
-        for (Long tagId : tagsToRemove) {
-            TagEntity tagToRemove = tagRepository.findById(tagId).orElse(null);
-            if (tagToRemove != null) {
-                expense.removeTag(tagToRemove);
-            }
-        }
-
-        // Add new tags that aren't already present
-        Set<Long> tagsToAdd = new HashSet<>(desiredTagIds);
-        tagsToAdd.removeAll(currentTagIds);
-
-        for (Long tagId : tagsToAdd) {
-            TagEntity tagToAdd = tagRepository.findById(tagId).orElse(null);
-            if (tagToAdd != null && tagToAdd.getUser().getId().equals(user.getId())) {
-                expense.addTag(tagToAdd);
+        //Add new tags
+        for (Long tagId : desiredTagIds) {
+            TagEntity tag = tagRepository.findById(tagId).orElse(null);
+            if (tag != null && tag.getUser().getId().equals(user.getId())) {
+                ExpenseTagEntity expenseTag = new ExpenseTagEntity(expense, tag);
+                expense.getExpenseTags().add(expenseTag);
             }
         }
     }

@@ -241,7 +241,7 @@ class GoalServiceTest {
         double percentage = (goal.getCurrentAmount() / goal.getTargetAmount()) * 100;
 
         // Assert
-        assertEquals(110.0, percentage);
+        assertEquals(110.0, percentage, 0.01);
     }
 
     @Test
@@ -392,7 +392,8 @@ class GoalServiceTest {
         double percentage = (goal.getCurrentAmount() / goal.getTargetAmount()) * 100;
 
         // Assert
-        assertEquals(0.01, percentage, 0.001);
+        // 0.01 / 100000 * 100 = 0.00001 (or 1E-5)
+        assertEquals(0.00001, percentage, 0.000001);
     }
 
     @Test

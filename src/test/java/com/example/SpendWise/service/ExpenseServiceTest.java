@@ -3,6 +3,8 @@ package com.example.SpendWise.service;
 import com.example.SpendWise.model.entity.ExpenseEntity;
 import com.example.SpendWise.model.entity.UserEntity;
 import com.example.SpendWise.model.repository.ExpenseRepository;
+import com.example.SpendWise.model.repository.ExpenseTagRepository;
+import com.example.SpendWise.model.repository.TagRepository;
 import com.example.SpendWise.model.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,13 +25,17 @@ class ExpenseServiceTest {
 
     private ExpenseRepository expenseRepository;
     private UserRepository userRepository;
+    private TagRepository tagRepository;
+    private ExpenseTagRepository expenseTagRepository;
     private ExpenseService expenseService;
 
     @BeforeEach
     void setUp() {
         expenseRepository = Mockito.mock(ExpenseRepository.class);
         userRepository = Mockito.mock(UserRepository.class);
-        expenseService = new ExpenseService(expenseRepository, userRepository);
+        tagRepository = Mockito.mock(TagRepository.class);
+        expenseTagRepository = Mockito.mock(ExpenseTagRepository.class);
+        expenseService = new ExpenseService(expenseRepository, userRepository, tagRepository, expenseTagRepository);
     }
 
     @Test

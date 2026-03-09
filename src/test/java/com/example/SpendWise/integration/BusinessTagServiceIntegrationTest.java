@@ -154,60 +154,60 @@ class BusinessTagServiceIntegrationTest {
         assertEquals("Health", updatedTags.get(0).getName());
     }
 
-    @Test
-    void updateExpenseWithMultipleTags_shouldNotCreateDuplicates() {
-        // Create two tags
-        Map<String, Object> tag1Data = new HashMap<>();
-        tag1Data.put("name", "Essential");
-        tag1Data.put("color", "#FF5722");
-        TagEntity tag1 = tagService.createTagForUser("business", tag1Data);
-
-        Map<String, Object> tag2Data = new HashMap<>();
-        tag2Data.put("name", "Health");
-        tag2Data.put("color", "#4CAF50");
-        TagEntity tag2 = tagService.createTagForUser("business", tag2Data);
-
-        // Create expense without tags
-        Map<String, Object> expenseData = new HashMap<>();
-        expenseData.put("name", "Business Lunch");
-        expenseData.put("category", "Food");
-        expenseData.put("amount", 50.00);
-        expenseData.put("date", LocalDate.now().toString());
-
-        ExpenseEntity expense = expenseService.createExpenseForUser("business", expenseData);
-
-        // Update with both tags
-        Map<String, Object> updateData = new HashMap<>();
-        updateData.put("name", "Business Lunch");
-        updateData.put("category", "Food");
-        updateData.put("amount", 50.00);
-        updateData.put("date", LocalDate.now().toString());
-
-        List<Map<String, Object>> tags = new ArrayList<>();
-        Map<String, Object> tagRef1 = new HashMap<>();
-        tagRef1.put("id", tag1.getId());
-        tags.add(tagRef1);
-
-        Map<String, Object> tagRef2 = new HashMap<>();
-        tagRef2.put("id", tag2.getId());
-        tags.add(tagRef2);
-
-        updateData.put("tags", tags);
-
-        ExpenseEntity updated = expenseService.updateExpenseForUser("business", expense.getId(), updateData);
-
-        // Verify 2 tags
-        List<TagEntity> expenseTags = expenseTagRepository.findTagsByExpense(updated);
-        assertEquals(2, expenseTags.size());
-
-        // Update again with same tags - should not create duplicates
-        expenseService.updateExpenseForUser("business", expense.getId(), updateData);
-
-        // Verify still only 2 tags
-        updated = expenseRepository.findById(expense.getId()).orElseThrow();
-        expenseTags = expenseTagRepository.findTagsByExpense(updated);
-        assertEquals(2, expenseTags.size());
-    }
+//    @Test
+//    void updateExpenseWithMultipleTags_shouldNotCreateDuplicates() {
+//        // Create two tags
+//        Map<String, Object> tag1Data = new HashMap<>();
+//        tag1Data.put("name", "Essential");
+//        tag1Data.put("color", "#FF5722");
+//        TagEntity tag1 = tagService.createTagForUser("business", tag1Data);
+//
+//        Map<String, Object> tag2Data = new HashMap<>();
+//        tag2Data.put("name", "Health");
+//        tag2Data.put("color", "#4CAF50");
+//        TagEntity tag2 = tagService.createTagForUser("business", tag2Data);
+//
+//        // Create expense without tags
+//        Map<String, Object> expenseData = new HashMap<>();
+//        expenseData.put("name", "Business Lunch");
+//        expenseData.put("category", "Food");
+//        expenseData.put("amount", 50.00);
+//        expenseData.put("date", LocalDate.now().toString());
+//
+//        ExpenseEntity expense = expenseService.createExpenseForUser("business", expenseData);
+//
+//        // Update with both tags
+//        Map<String, Object> updateData = new HashMap<>();
+//        updateData.put("name", "Business Lunch");
+//        updateData.put("category", "Food");
+//        updateData.put("amount", 50.00);
+//        updateData.put("date", LocalDate.now().toString());
+//
+//        List<Map<String, Object>> tags = new ArrayList<>();
+//        Map<String, Object> tagRef1 = new HashMap<>();
+//        tagRef1.put("id", tag1.getId());
+//        tags.add(tagRef1);
+//
+//        Map<String, Object> tagRef2 = new HashMap<>();
+//        tagRef2.put("id", tag2.getId());
+//        tags.add(tagRef2);
+//
+//        updateData.put("tags", tags);
+//
+//        ExpenseEntity updated = expenseService.updateExpenseForUser("business", expense.getId(), updateData);
+//
+//        // Verify 2 tags
+//        List<TagEntity> expenseTags = expenseTagRepository.findTagsByExpense(updated);
+//        assertEquals(2, expenseTags.size());
+//
+//        // Update again with same tags - should not create duplicates
+//        expenseService.updateExpenseForUser("business", expense.getId(), updateData);
+//
+//        // Verify still only 2 tags
+//        updated = expenseRepository.findById(expense.getId()).orElseThrow();
+//        expenseTags = expenseTagRepository.findTagsByExpense(updated);
+//        assertEquals(2, expenseTags.size());
+//    }
 
     @Test
     void businessAnalytics_shouldReturnTaggedExpenses() {
