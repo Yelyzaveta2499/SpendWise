@@ -9,11 +9,6 @@ function renderReportsSection() {
   pageContent.innerHTML = `
     <div class="reports-container">
       <!-- Header -->
-      <div class="reports-header">
-        <div>
-          <h1 class="reports-title">Financial Analytics</h1>
-          <p class="reports-subtitle">Comprehensive overview of your financial trends</p>
-        </div>
         <div class="reports-controls">
           <select id="reportsTimeRange" class="reports-select">
             <option value="6months">Last 6 Months</option>
@@ -21,9 +16,6 @@ function renderReportsSection() {
             <option value="ytd">Year to Date</option>
             <option value="custom">Custom Range</option>
           </select>
-          <button class="reports-export-btn" id="exportReportBtn">
-            <span>📊</span> Export PDF
-          </button>
         </div>
       </div>
 
@@ -73,35 +65,35 @@ function renderReportsSection() {
       <!-- Bottom Stats Row -->
       <div class="reports-stats-row">
         <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);">💰</div>
+          
           <div class="stat-content">
             <div class="stat-label">Total Saved</div>
             <div class="stat-value" id="totalSaved">$0</div>
-            <div class="stat-change positive">+12.5% from last period</div>
+            
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">📈</div>
+         
           <div class="stat-content">
             <div class="stat-label">Avg Monthly Income</div>
             <div class="stat-value" id="avgIncome">$0</div>
-            <div class="stat-change positive">+8.2% from last period</div>
+            
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">💳</div>
+          
           <div class="stat-content">
             <div class="stat-label">Avg Monthly Expenses</div>
             <div class="stat-value" id="avgExpenses">$0</div>
-            <div class="stat-change negative">+5.3% from last period</div>
+            
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">🎯</div>
+          
           <div class="stat-content">
             <div class="stat-label">Savings Rate</div>
             <div class="stat-value" id="savingsRate">0%</div>
-            <div class="stat-change positive">+3.1% from last period</div>
+            
           </div>
         </div>
       </div>
@@ -130,6 +122,18 @@ function initializeReportsCharts() {
   // Income vs Expenses Chart (Bar Chart)
   const incomeExpensesCtx = document.getElementById('incomeVsExpensesChart');
   if (incomeExpensesCtx) {
+    const ctx = incomeExpensesCtx.getContext('2d');
+
+
+    const incomeGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    incomeGradient.addColorStop(0, 'rgba(34, 197, 94, 0.9)');
+    incomeGradient.addColorStop(1, 'rgba(16, 185, 129, 0.7)');
+
+    // Create gradient for Expenses bars
+    const expensesGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    expensesGradient.addColorStop(0, 'rgba(236, 72, 153, 0.9)');
+    expensesGradient.addColorStop(1, 'rgba(219, 39, 119, 0.7)');
+
     incomeExpensesChartInstance = new Chart(incomeExpensesCtx, {
       type: 'bar',
       data: {
@@ -138,63 +142,125 @@ function initializeReportsCharts() {
           {
             label: 'Income',
             data: [4200, 4500, 4300, 4700, 4500, 4600],
-            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+            backgroundColor: incomeGradient,
             borderColor: 'rgba(34, 197, 94, 1)',
             borderWidth: 0,
-            borderRadius: 6,
-            barThickness: 40
+            borderRadius: 10,
+            borderSkipped: false,
+            barThickness: 36,
+            shadowOffsetX: 0,
+            shadowOffsetY: 4,
+            shadowBlur: 8,
+            shadowColor: 'rgba(34, 197, 94, 0.3)'
           },
           {
             label: 'Expenses',
             data: [3100, 3000, 3300, 3100, 3400, 3200],
-            backgroundColor: 'rgba(236, 72, 153, 0.8)',
+            backgroundColor: expensesGradient,
             borderColor: 'rgba(236, 72, 153, 1)',
             borderWidth: 0,
-            borderRadius: 6,
-            barThickness: 40
+            borderRadius: 10,
+            borderSkipped: false,
+            barThickness: 36,
+            shadowOffsetX: 0,
+            shadowOffsetY: 4,
+            shadowBlur: 8,
+            shadowColor: 'rgba(236, 72, 153, 0.3)'
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
         plugins: {
           legend: {
             display: true,
             position: 'bottom',
             labels: {
-              color: '#94a3b8',
+              color: '#cbd5e1',
               usePointStyle: true,
-              padding: 15,
-              font: { size: 12 }
+              pointStyle: 'rectRounded',
+              padding: 20,
+              font: {
+                size: 13,
+                weight: '600',
+                family: "'Inter', sans-serif"
+              }
             }
           },
           tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            padding: 12,
+            enabled: true,
+            backgroundColor: 'rgba(15, 23, 42, 0.98)',
             titleColor: '#f1f5f9',
-            bodyColor: '#cbd5e1',
-            borderColor: 'rgba(148, 163, 184, 0.2)',
-            borderWidth: 1
+            bodyColor: '#e2e8f0',
+            borderColor: 'rgba(34, 197, 94, 0.3)',
+            borderWidth: 1,
+            padding: 16,
+            displayColors: true,
+            boxPadding: 6,
+            cornerRadius: 12,
+            titleFont: {
+              size: 14,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 13
+            },
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                label += '$' + context.parsed.y.toLocaleString();
+                return label;
+              }
+            }
           }
         },
         scales: {
           y: {
             beginAtZero: true,
             grid: {
-              color: 'rgba(148, 163, 184, 0.1)',
-              drawBorder: false
+              color: 'rgba(148, 163, 184, 0.08)',
+              drawBorder: false,
+              lineWidth: 1
+            },
+            border: {
+              display: false
             },
             ticks: {
-              color: '#64748b',
+              color: '#94a3b8',
+              font: {
+                size: 12,
+                weight: '500'
+              },
+              padding: 8,
               callback: function(value) {
                 return '$' + (value / 1000) + 'k';
               }
             }
           },
           x: {
-            grid: { display: false },
-            ticks: { color: '#64748b' }
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            border: {
+              display: false
+            },
+            ticks: {
+              color: '#94a3b8',
+              font: {
+                size: 12,
+                weight: '600'
+              },
+              padding: 8
+            }
           }
         }
       }
@@ -204,6 +270,19 @@ function initializeReportsCharts() {
   // Savings Trend Chart (Line Chart)
   const savingsTrendCtx = document.getElementById('savingsTrendChart');
   if (savingsTrendCtx) {
+    const ctx = savingsTrendCtx.getContext('2d');
+
+    // Create gradient for line
+    const lineGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    lineGradient.addColorStop(0, 'rgba(34, 197, 94, 1)');
+    lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0.8)');
+
+    // Create gradient for fill area
+    const fillGradient = ctx.createLinearGradient(0, 0, 0, 300);
+    fillGradient.addColorStop(0, 'rgba(34, 197, 94, 0.3)');
+    fillGradient.addColorStop(0.5, 'rgba(34, 197, 94, 0.15)');
+    fillGradient.addColorStop(1, 'rgba(34, 197, 94, 0.02)');
+
     savingsTrendChartInstance = new Chart(savingsTrendCtx, {
       type: 'line',
       data: {
@@ -211,49 +290,103 @@ function initializeReportsCharts() {
         datasets: [{
           label: 'Savings',
           data: [1200, 1900, 1100, 1650, 2100, 1350],
-          borderColor: 'rgba(34, 197, 94, 1)',
-          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          borderColor: lineGradient,
+          backgroundColor: fillGradient,
           borderWidth: 3,
           fill: true,
-          tension: 0.4,
-          pointRadius: 5,
-          pointBackgroundColor: 'rgba(34, 197, 94, 1)',
-          pointBorderColor: '#1e293b',
-          pointBorderWidth: 2,
-          pointHoverRadius: 7
+          tension: 0.42,
+          pointRadius: 6,
+          pointBackgroundColor: '#22c55e',
+          pointBorderColor: 'rgba(15, 23, 42, 0.9)',
+          pointBorderWidth: 3,
+          pointHoverRadius: 9,
+          pointHoverBackgroundColor: '#22c55e',
+          pointHoverBorderColor: '#ffffff',
+          pointHoverBorderWidth: 3,
+          segment: {
+            borderColor: ctx => {
+              // sparkle effect for rising trends
+              return ctx.p0.parsed.y < ctx.p1.parsed.y ? 'rgba(34, 197, 94, 1)' : 'rgba(34, 197, 94, 0.8)';
+            }
+          }
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            padding: 12,
+            enabled: true,
+            backgroundColor: 'rgba(15, 23, 42, 0.98)',
             titleColor: '#f1f5f9',
-            bodyColor: '#cbd5e1',
-            borderColor: 'rgba(148, 163, 184, 0.2)',
-            borderWidth: 1
+            bodyColor: '#e2e8f0',
+            borderColor: 'rgba(34, 197, 94, 0.4)',
+            borderWidth: 2,
+            padding: 16,
+            displayColors: false,
+            cornerRadius: 12,
+            titleFont: {
+              size: 14,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 13,
+              weight: '600'
+            },
+            callbacks: {
+              label: function(context) {
+                return 'Saved: $' + context.parsed.y.toLocaleString();
+              },
+              title: function(context) {
+                return context[0].label;
+              }
+            }
           }
         },
         scales: {
           y: {
             beginAtZero: true,
             grid: {
-              color: 'rgba(148, 163, 184, 0.1)',
-              drawBorder: false
+              color: 'rgba(148, 163, 184, 0.08)',
+              drawBorder: false,
+              lineWidth: 1
+            },
+            border: {
+              display: false
             },
             ticks: {
-              color: '#64748b',
+              color: '#94a3b8',
+              font: {
+                size: 12,
+                weight: '500'
+              },
+              padding: 8,
               callback: function(value) {
                 return '$' + (value / 1000) + 'k';
               }
             }
           },
           x: {
-            grid: { display: false },
-            ticks: { color: '#64748b' }
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            border: {
+              display: false
+            },
+            ticks: {
+              color: '#94a3b8',
+              font: {
+                size: 12,
+                weight: '600'
+              },
+              padding: 8
+            }
           }
         }
       }
@@ -261,6 +394,7 @@ function initializeReportsCharts() {
   }
 
 
+  // Category Spending Trends
   const categoryTrendsCtx = document.getElementById('categoryTrendsChart');
   if (categoryTrendsCtx) {
     categoryTrendsChartInstance = new Chart(categoryTrendsCtx, {
@@ -272,49 +406,69 @@ function initializeReportsCharts() {
             label: 'Housing',
             data: [1200, 1200, 1200, 1200, 1200, 1200],
             borderColor: '#06b6d4',
-            backgroundColor: 'rgba(6, 182, 212, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 4,
+            backgroundColor: 'rgba(6, 182, 212, 0.15)',
+            borderWidth: 3,
+            tension: 0.42,
+            pointRadius: 5,
             pointBackgroundColor: '#06b6d4',
-            pointBorderColor: '#1e293b',
-            pointBorderWidth: 2
+            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8,
+            pointHoverBackgroundColor: '#06b6d4',
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 3,
+            fill: true
           },
           {
             label: 'Food',
             data: [300, 350, 400, 450, 520, 480],
             borderColor: '#22c55e',
-            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 4,
+            backgroundColor: 'rgba(34, 197, 94, 0.15)',
+            borderWidth: 3,
+            tension: 0.42,
+            pointRadius: 5,
             pointBackgroundColor: '#22c55e',
-            pointBorderColor: '#1e293b',
-            pointBorderWidth: 2
+            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8,
+            pointHoverBackgroundColor: '#22c55e',
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 3,
+            fill: true
           },
           {
             label: 'Transport',
             data: [300, 280, 350, 320, 340, 330],
             borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 4,
+            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+            borderWidth: 3,
+            tension: 0.42,
+            pointRadius: 5,
             pointBackgroundColor: '#f59e0b',
-            pointBorderColor: '#1e293b',
-            pointBorderWidth: 2
+            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8,
+            pointHoverBackgroundColor: '#f59e0b',
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 3,
+            fill: true
           },
           {
             label: 'Entertainment',
             data: [120, 150, 200, 180, 220, 190],
             borderColor: '#a855f7',
-            backgroundColor: 'rgba(168, 85, 247, 0.1)',
-            borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 4,
+            backgroundColor: 'rgba(168, 85, 247, 0.15)',
+            borderWidth: 3,
+            tension: 0.42,
+            pointRadius: 5,
             pointBackgroundColor: '#a855f7',
-            pointBorderColor: '#1e293b',
-            pointBorderWidth: 2
+            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8,
+            pointHoverBackgroundColor: '#a855f7',
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 3,
+            fill: true
           }
         ]
       },
@@ -328,15 +482,34 @@ function initializeReportsCharts() {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            padding: 12,
+            enabled: true,
+            backgroundColor: 'rgba(15, 23, 42, 0.98)',
             titleColor: '#f1f5f9',
-            bodyColor: '#cbd5e1',
-            borderColor: 'rgba(148, 163, 184, 0.2)',
-            borderWidth: 1,
+            bodyColor: '#e2e8f0',
+            borderColor: 'rgba(148, 163, 184, 0.3)',
+            borderWidth: 2,
+            padding: 16,
+            displayColors: true,
+            usePointStyle: true,
+            boxPadding: 8,
+            cornerRadius: 12,
+            titleFont: {
+              size: 14,
+              weight: 'bold'
+            },
+            bodyFont: {
+              size: 13,
+              weight: '600'
+            },
             callbacks: {
               label: function(context) {
-                return context.dataset.label + ': $' + context.parsed.y;
+                return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+              },
+              labelPointStyle: function(context) {
+                return {
+                  pointStyle: 'circle',
+                  rotation: 0
+                };
               }
             }
           }
@@ -344,20 +517,43 @@ function initializeReportsCharts() {
         scales: {
           y: {
             beginAtZero: true,
+            stacked: false,
             grid: {
-              color: 'rgba(148, 163, 184, 0.1)',
-              drawBorder: false
+              color: 'rgba(148, 163, 184, 0.08)',
+              drawBorder: false,
+              lineWidth: 1
+            },
+            border: {
+              display: false
             },
             ticks: {
-              color: '#64748b',
+              color: '#94a3b8',
+              font: {
+                size: 12,
+                weight: '500'
+              },
+              padding: 8,
               callback: function(value) {
-                return '$' + value;
+                return '$' + value.toLocaleString();
               }
             }
           },
           x: {
-            grid: { display: false },
-            ticks: { color: '#64748b' }
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            border: {
+              display: false
+            },
+            ticks: {
+              color: '#94a3b8',
+              font: {
+                size: 12,
+                weight: '600'
+              },
+              padding: 8
+            }
           }
         }
       }

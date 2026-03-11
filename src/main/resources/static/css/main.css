@@ -3609,6 +3609,7 @@ body:not(.dark-mode) .notification-message {
   cursor: pointer;
   transition: all 0.2s;
   outline: none;
+    align-items: start;
 }
 
 .reports-select:hover {
