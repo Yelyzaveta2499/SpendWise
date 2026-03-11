@@ -3928,45 +3928,29 @@ body:not(.dark-mode) .reports-select:hover {
   border-color: #cbd5e1;
 }
 
-/* ── Reports pop-in animations */
-.reports-animate .report-card,
-.reports-animate .stat-card,
-.reports-animate .reports-header-custom {
+/* ── Reports pop-in animations — exact same pattern as .business-wrap.business-animate ── */
+
+.reports-wrap.reports-animate .report-card,
+.reports-wrap.reports-animate .stat-card {
   opacity: 0;
 }
 
-/* Pop-in trigger */
-.reports-animate .reports-header-custom {
-  animation: fadeIn 0.35s ease-out forwards;
-  animation-delay: 0.0s;
+.reports-wrap.reports-animate .report-card {
+  animation: slideUp 0.55s ease-out forwards;
 }
 
-.reports-animate .report-card {
-  animation: slideUp 0.45s ease-out forwards;
-}
+.reports-wrap.reports-animate .reports-grid-top .report-card:nth-child(1) { animation-delay: 0.05s; }
+.reports-wrap.reports-animate .reports-grid-top .report-card:nth-child(2) { animation-delay: 0.12s; }
 
-/* Top row: income vs expenses card */
-.reports-animate .reports-grid-top .report-card:nth-child(1) {
-  animation-delay: 0.05s;
-}
-
-/* Top row: savings trend card */
-.reports-animate .reports-grid-top .report-card:nth-child(2) {
-  animation-delay: 0.12s;
-}
-
-/* Full-width category trends card */
-.reports-animate .report-card-full {
-  animation: scaleIn 0.45s ease-out forwards;
+.reports-wrap.reports-animate .report-card-full {
   animation-delay: 0.20s;
 }
 
-/* Stat cards at bottom  */
-.reports-animate .stat-card {
-  animation: slideUp 0.4s ease-out forwards;
+.reports-wrap.reports-animate .stat-card {
+  animation: slideUp 0.5s ease-out forwards;
 }
 
-.reports-animate .stat-card:nth-child(1) { animation-delay: 0.30s; }
-.reports-animate .stat-card:nth-child(2) { animation-delay: 0.38s; }
-.reports-animate .stat-card:nth-child(3) { animation-delay: 0.46s; }
-.reports-animate .stat-card:nth-child(4) { animation-delay: 0.54s; }
+.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(1) { animation-delay: 0.30s; }
+.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(2) { animation-delay: 0.37s; }
+.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(3) { animation-delay: 0.44s; }
+.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(4) { animation-delay: 0.51s; }

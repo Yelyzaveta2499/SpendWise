@@ -7,117 +7,114 @@ function renderReportsSection() {
   if (!pageContent) return;
 
   pageContent.innerHTML = `
-    <div class="reports-container">
-      <!-- Header -->
-        <div class="reports-controls">
-          <select id="reportsTimeRange" class="reports-select">
-            <option value="6months">Last 6 Months</option>
-            <option value="12months">Last 12 Months</option>
-            <option value="ytd">Year to Date</option>
-            <option value="custom">Custom Range</option>
-          </select>
-        </div>
-      </div>
+    <div class="reports-wrap">
+      <div class="reports-container">
 
-      <!-- Top Row Charts -->
-      <div class="reports-grid-top">
-        <!-- Income vs Expenses Chart -->
-        <div class="report-card">
-          <div class="report-card-header">
-            <div>
-              <h3 class="report-card-title">Income vs Expenses</h3>
-              <p class="report-card-subtitle">Monthly comparison</p>
+        <!-- Dropdown -->
+        <div class="reports-header-custom">
+          <div class="reports-controls">
+            <select id="reportsTimeRange" class="reports-select">
+              <option value="6months">Last 6 Months</option>
+              <option value="12months">Last 12 Months</option>
+              <option value="ytd">Year to Date</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Top Row Charts -->
+        <div class="reports-grid-top">
+          <div class="report-card">
+            <div class="report-card-header">
+              <div>
+                <h3 class="report-card-title">Income vs Expenses</h3>
+                <p class="report-card-subtitle">Monthly comparison</p>
+              </div>
+            </div>
+            <div class="report-chart-container">
+              <canvas id="incomeVsExpensesChart"></canvas>
             </div>
           </div>
-          <div class="report-chart-container">
-            <canvas id="incomeVsExpensesChart"></canvas>
-          </div>
-        </div>
 
-        <!-- Savings Trend Chart -->
-        <div class="report-card">
-          <div class="report-card-header">
-            <div>
-              <h3 class="report-card-title">Savings Trend</h3>
-              <p class="report-card-subtitle">Monthly savings over time</p>
+          <div class="report-card">
+            <div class="report-card-header">
+              <div>
+                <h3 class="report-card-title">Savings Trend</h3>
+                <p class="report-card-subtitle">Monthly savings over time</p>
+              </div>
+            </div>
+            <div class="report-chart-container">
+              <canvas id="savingsTrendChart"></canvas>
             </div>
           </div>
-          <div class="report-chart-container">
-            <canvas id="savingsTrendChart"></canvas>
-          </div>
         </div>
-      </div>
 
-      <!-- Category Spending Trends -->
-      <div class="report-card report-card-full">
-        <div class="report-card-header">
-          <div>
-            <h3 class="report-card-title">Category Spending Trends</h3>
-            <p class="report-card-subtitle">How your spending categories change over time</p>
+        <!-- Category Spending Trends -->
+        <div class="report-card report-card-full">
+          <div class="report-card-header">
+            <div>
+              <h3 class="report-card-title">Category Spending Trends</h3>
+              <p class="report-card-subtitle">How your spending categories change over time</p>
+            </div>
+            <div class="category-legend" id="categoryLegend"></div>
           </div>
-          <div class="category-legend" id="categoryLegend"></div>
+          <div class="report-chart-container report-chart-large">
+            <canvas id="categoryTrendsChart"></canvas>
+          </div>
         </div>
-        <div class="report-chart-container report-chart-large">
-          <canvas id="categoryTrendsChart"></canvas>
-        </div>
-      </div>
 
-      <!-- Bottom Stats Row -->
-      <div class="reports-stats-row">
-        <div class="stat-card">
-          
-          <div class="stat-content">
-            <div class="stat-label">Total Saved</div>
-            <div class="stat-value" id="totalSaved">$0</div>
-            
+        <!-- Bottom Stats Row -->
+        <div class="reports-stats-row">
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-label">Total Saved</div>
+              <div class="stat-value" id="totalSaved">$0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-label">Avg Monthly Income</div>
+              <div class="stat-value" id="avgIncome">$0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-label">Avg Monthly Expenses</div>
+              <div class="stat-value" id="avgExpenses">$0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-content">
+              <div class="stat-label">Savings Rate</div>
+              <div class="stat-value" id="savingsRate">0%</div>
+            </div>
           </div>
         </div>
-        <div class="stat-card">
-         
-          <div class="stat-content">
-            <div class="stat-label">Avg Monthly Income</div>
-            <div class="stat-value" id="avgIncome">$0</div>
-            
-          </div>
-        </div>
-        <div class="stat-card">
-          
-          <div class="stat-content">
-            <div class="stat-label">Avg Monthly Expenses</div>
-            <div class="stat-value" id="avgExpenses">$0</div>
-            
-          </div>
-        </div>
-        <div class="stat-card">
-          
-          <div class="stat-content">
-            <div class="stat-label">Savings Rate</div>
-            <div class="stat-value" id="savingsRate">0%</div>
-            
-          </div>
-        </div>
+
       </div>
     </div>
   `;
 
-  // Initialize charts
-  initializeReportsCharts();
   loadReportsData();
 
-  // Trigger pop-in animations (same pattern as dash-animate)
-  const container = pageContent.querySelector('.reports-container');
-  if (container) {
+
+  const reportsWrap = pageContent.querySelector('.reports-wrap');
+  if (reportsWrap) {
+    reportsWrap.classList.remove('reports-animate');
     requestAnimationFrame(function () {
-      container.classList.add('reports-animate');
+      reportsWrap.classList.add('reports-animate');
     });
   }
+
+  // Init charts after DOM is painted — 300ms delay
+  setTimeout(function () {
+    initializeReportsCharts();
+    setupReportsResizeObserver();
+  }, 300);
 
   // Event listeners
   document.getElementById('reportsTimeRange')?.addEventListener('change', loadReportsData);
   document.getElementById('exportReportBtn')?.addEventListener('click', exportReportAsPDF);
-
-  // ResizeObserver – makes charts auto-adjust when the sidebar or window resizes
-  setupReportsResizeObserver();
 }
 
 let incomeExpensesChartInstance = null;
