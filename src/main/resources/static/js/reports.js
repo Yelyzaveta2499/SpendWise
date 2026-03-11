@@ -95,9 +95,7 @@ function renderReportsSection() {
     </div>
   `;
 
-  loadReportsData();
-
-
+  // Trigger animations
   const reportsWrap = pageContent.querySelector('.reports-wrap');
   if (reportsWrap) {
     reportsWrap.classList.remove('reports-animate');
@@ -106,10 +104,11 @@ function renderReportsSection() {
     });
   }
 
-  // Init charts after DOM is painted — 300ms delay
+  // Init charts first, then load  data from API
   setTimeout(function () {
     initializeReportsCharts();
     setupReportsResizeObserver();
+    loadReportsData();
   }, 300);
 
   // Event listeners
@@ -123,7 +122,7 @@ let categoryTrendsChartInstance = null;
 let reportsResizeObserver = null;
 
 function setupReportsResizeObserver() {
-  // Clean up any previous observer
+
   if (reportsResizeObserver) {
     reportsResizeObserver.disconnect();
     reportsResizeObserver = null;
@@ -168,35 +167,27 @@ function initializeReportsCharts() {
     incomeExpensesChartInstance = new Chart(incomeExpensesCtx, {
       type: 'bar',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [],
         datasets: [
           {
             label: 'Income',
-            data: [4200, 4500, 4300, 4700, 4500, 4600],
+            data: [],
             backgroundColor: incomeGradient,
             borderColor: 'rgba(34, 197, 94, 1)',
             borderWidth: 0,
             borderRadius: 10,
             borderSkipped: false,
-            barThickness: 36,
-            shadowOffsetX: 0,
-            shadowOffsetY: 4,
-            shadowBlur: 8,
-            shadowColor: 'rgba(34, 197, 94, 0.3)'
+            barThickness: 36
           },
           {
             label: 'Expenses',
-            data: [3100, 3000, 3300, 3100, 3400, 3200],
+            data: [],
             backgroundColor: expensesGradient,
             borderColor: 'rgba(236, 72, 153, 1)',
             borderWidth: 0,
             borderRadius: 10,
             borderSkipped: false,
-            barThickness: 36,
-            shadowOffsetX: 0,
-            shadowOffsetY: 4,
-            shadowBlur: 8,
-            shadowColor: 'rgba(236, 72, 153, 0.3)'
+            barThickness: 36
           }
         ]
       },
@@ -317,10 +308,10 @@ function initializeReportsCharts() {
     savingsTrendChartInstance = new Chart(savingsTrendCtx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [],
         datasets: [{
           label: 'Savings',
-          data: [1200, 1900, 1100, 1650, 2100, 1350],
+          data: [],
           borderColor: lineGradient,
           backgroundColor: fillGradient,
           borderWidth: 3,
@@ -431,77 +422,8 @@ function initializeReportsCharts() {
     categoryTrendsChartInstance = new Chart(categoryTrendsCtx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [
-          {
-            label: 'Housing',
-            data: [1200, 1200, 1200, 1200, 1200, 1200],
-            borderColor: '#06b6d4',
-            backgroundColor: 'rgba(6, 182, 212, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#06b6d4',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#06b6d4',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          },
-          {
-            label: 'Food',
-            data: [300, 350, 400, 450, 520, 480],
-            borderColor: '#22c55e',
-            backgroundColor: 'rgba(34, 197, 94, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#22c55e',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#22c55e',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          },
-          {
-            label: 'Transport',
-            data: [300, 280, 350, 320, 340, 330],
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#f59e0b',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#f59e0b',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          },
-          {
-            label: 'Entertainment',
-            data: [120, 150, 200, 180, 220, 190],
-            borderColor: '#a855f7',
-            backgroundColor: 'rgba(168, 85, 247, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#a855f7',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#a855f7',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          }
-        ]
+        labels: [],
+        datasets: []
       },
       options: {
         responsive: true,
@@ -589,9 +511,6 @@ function initializeReportsCharts() {
         }
       }
     });
-
-    // Create custom legend
-    createCategoryLegend();
   }
 }
 
@@ -623,16 +542,19 @@ function loadReportsData() {
       return res.json();
     })
     .then(function (data) {
+      console.log('[Reports] API response:', data);
       if (!data.hasData) {
+        console.log('[Reports] No data for this period — showing empty state');
         showReportsEmptyState();
         return;
       }
       hideReportsEmptyState();
       updateReportsCharts(data);
       updateReportsStats(data.stats);
+      console.log('[Reports] Stats applied:', data.stats);
     })
     .catch(function (err) {
-      console.error('Reports error:', err);
+      console.error('[Reports] fetch error:', err);
       showReportsEmptyState();
     });
 }
