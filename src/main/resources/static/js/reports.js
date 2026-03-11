@@ -615,16 +615,159 @@ function createCategoryLegend() {
 }
 
 function loadReportsData() {
+  const range = document.getElementById('reportsTimeRange')?.value || '6months';
 
-  const timeRange = document.getElementById('reportsTimeRange')?.value || '6months';
+  fetch('/api/reports/data?range=' + encodeURIComponent(range))
+    .then(function (res) {
+      if (!res.ok) throw new Error('Failed to load report data');
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data.hasData) {
+        showReportsEmptyState();
+        return;
+      }
+      hideReportsEmptyState();
+      updateReportsCharts(data);
+      updateReportsStats(data.stats);
+    })
+    .catch(function (err) {
+      console.error('Reports error:', err);
+      showReportsEmptyState();
+    });
+}
 
-  // Update stats
-  document.getElementById('totalSaved').textContent = '$12,450';
-  document.getElementById('avgIncome').textContent = '$4,467';
-  document.getElementById('avgExpenses').textContent = '$3,183';
-  document.getElementById('savingsRate').textContent = '28.7%';
+function showReportsEmptyState() {
+  // Show a message inside each chart container
+  ['incomeVsExpensesChart', 'savingsTrendChart', 'categoryTrendsChart'].forEach(function (id) {
+    var canvas = document.getElementById(id);
+    if (!canvas) return;
+    var container = canvas.parentElement;
+    if (!container) return;
+    canvas.style.display = 'none';
+    if (!container.querySelector('.reports-empty-msg')) {
+      var msg = document.createElement('div');
+      msg.className = 'reports-empty-msg';
+      msg.textContent = 'No financial data for this period.';
+      container.appendChild(msg);
+    }
+  });
+}
 
+function hideReportsEmptyState() {
+  ['incomeVsExpensesChart', 'savingsTrendChart', 'categoryTrendsChart'].forEach(function (id) {
+    var canvas = document.getElementById(id);
+    if (!canvas) return;
+    canvas.style.display = '';
+    var container = canvas.parentElement;
+    if (container) {
+      var msg = container.querySelector('.reports-empty-msg');
+      if (msg) msg.remove();
+    }
+  });
+}
 
+function updateReportsCharts(data) {
+  var labels = data.labels || [];
+
+  // ── Income vs Expenses ────────────────────────────────────────
+  if (incomeExpensesChartInstance) {
+    var ctx = incomeExpensesChartInstance.ctx;
+    var h = ctx.canvas.offsetHeight || 300;
+
+    var incomeGrad = ctx.createLinearGradient(0, 0, 0, h);
+    incomeGrad.addColorStop(0, 'rgba(34, 197, 94, 0.9)');
+    incomeGrad.addColorStop(1, 'rgba(16, 185, 129, 0.7)');
+
+    var expensesGrad = ctx.createLinearGradient(0, 0, 0, h);
+    expensesGrad.addColorStop(0, 'rgba(236, 72, 153, 0.9)');
+    expensesGrad.addColorStop(1, 'rgba(219, 39, 119, 0.7)');
+
+    incomeExpensesChartInstance.data.labels = labels;
+    incomeExpensesChartInstance.data.datasets[0].data = data.incomeVsExpenses.income;
+    incomeExpensesChartInstance.data.datasets[0].backgroundColor = incomeGrad;
+    incomeExpensesChartInstance.data.datasets[1].data = data.incomeVsExpenses.expenses;
+    incomeExpensesChartInstance.data.datasets[1].backgroundColor = expensesGrad;
+    incomeExpensesChartInstance.update();
+  }
+
+  // ── Savings Trend ─────────────────────────────────────────────
+  if (savingsTrendChartInstance) {
+    var sCtx = savingsTrendChartInstance.ctx;
+    var sH = sCtx.canvas.offsetHeight || 300;
+
+    var lineGrad = sCtx.createLinearGradient(0, 0, 0, sH);
+    lineGrad.addColorStop(0, 'rgba(34, 197, 94, 1)');
+    lineGrad.addColorStop(1, 'rgba(16, 185, 129, 0.8)');
+
+    var fillGrad = sCtx.createLinearGradient(0, 0, 0, sH);
+    fillGrad.addColorStop(0,   'rgba(34, 197, 94, 0.3)');
+    fillGrad.addColorStop(0.5, 'rgba(34, 197, 94, 0.15)');
+    fillGrad.addColorStop(1,   'rgba(34, 197, 94, 0.02)');
+
+    savingsTrendChartInstance.data.labels = labels;
+    savingsTrendChartInstance.data.datasets[0].data = data.savingsTrend;
+    savingsTrendChartInstance.data.datasets[0].borderColor = lineGrad;
+    savingsTrendChartInstance.data.datasets[0].backgroundColor = fillGrad;
+    savingsTrendChartInstance.update();
+  }
+
+  // ── Category Trends ───────────────────────────────────────────
+  if (categoryTrendsChartInstance && data.categoryTrends && data.categoryTrends.length > 0) {
+    categoryTrendsChartInstance.data.labels = labels;
+    categoryTrendsChartInstance.data.datasets = data.categoryTrends.map(function (series) {
+      return {
+        label:                  series.label,
+        data:                   series.data,
+        borderColor:            series.color,
+        backgroundColor:        hexToRgba(series.color, 0.15),
+        borderWidth:            3,
+        tension:                0.42,
+        fill:                   true,
+        pointRadius:            5,
+        pointBackgroundColor:   series.color,
+        pointBorderColor:       'rgba(15, 23, 42, 0.9)',
+        pointBorderWidth:       2,
+        pointHoverRadius:       8,
+        pointHoverBackgroundColor: series.color,
+        pointHoverBorderColor:  '#ffffff',
+        pointHoverBorderWidth:  3
+      };
+    });
+    categoryTrendsChartInstance.update();
+
+    // Rebuild legend
+    var legendContainer = document.getElementById('categoryLegend');
+    if (legendContainer) {
+      legendContainer.innerHTML = data.categoryTrends.map(function (s) {
+        return '<div class="legend-item">' +
+          '<span class="legend-dot" style="background-color:' + s.color + ';"></span>' +
+          '<span class="legend-label">' + s.label + '</span>' +
+          '</div>';
+      }).join('');
+    }
+  }
+}
+
+function updateReportsStats(stats) {
+  if (!stats) return;
+  var fmt = function (n) { return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); };
+  var el = function (id) { return document.getElementById(id); };
+
+  if (el('totalSaved'))   el('totalSaved').textContent   = fmt(stats.totalSaved);
+  if (el('avgIncome'))    el('avgIncome').textContent    = fmt(stats.avgIncome);
+  if (el('avgExpenses'))  el('avgExpenses').textContent  = fmt(stats.avgExpenses);
+  if (el('savingsRate'))  el('savingsRate').textContent  = Number(stats.savingsRate).toFixed(1) + '%';
+}
+
+function hexToRgba(hex, alpha) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return 'rgba(100,100,100,' + alpha + ')';
+  return 'rgba(' +
+    parseInt(result[1], 16) + ',' +
+    parseInt(result[2], 16) + ',' +
+    parseInt(result[3], 16) + ',' +
+    alpha + ')';
 }
 
 

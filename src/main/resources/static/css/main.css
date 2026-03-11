@@ -3720,6 +3720,19 @@ body:not(.dark-mode) .notification-message {
   height: 100% !important;
 }
 
+/* Empty state shown inside chart box when no data exists */
+.reports-empty-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 14px;
+  font-style: italic;
+  pointer-events: none;
+}
+
 /* Category Legend */
 .category-legend {
   display: flex;
