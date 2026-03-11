@@ -3622,6 +3622,52 @@ body:not(.dark-mode) .notification-message {
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
+/* Custom date range row */
+.reports-custom-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.reports-date-input {
+  padding: 9px 12px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  color-scheme: dark;
+}
+
+.reports-date-input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.reports-date-sep {
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.reports-apply-btn {
+  padding: 9px 18px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.reports-apply-btn:hover { opacity: 0.88; }
+
 .reports-export-btn {
   padding: 10px 20px;
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
@@ -3718,6 +3764,19 @@ body:not(.dark-mode) .notification-message {
   display: block;
   width: 100% !important;
   height: 100% !important;
+}
+
+/* Empty state shown inside chart box when no data exists */
+.reports-empty-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 14px;
+  font-style: italic;
+  pointer-events: none;
 }
 
 /* Category Legend */

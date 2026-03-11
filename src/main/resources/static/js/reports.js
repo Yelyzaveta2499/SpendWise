@@ -10,7 +10,7 @@ function renderReportsSection() {
     <div class="reports-wrap">
       <div class="reports-container">
 
-        <!-- Dropdown -->
+        <!-- Dropdown + custom date pickers -->
         <div class="reports-header-custom">
           <div class="reports-controls">
             <select id="reportsTimeRange" class="reports-select">
@@ -19,6 +19,12 @@ function renderReportsSection() {
               <option value="ytd">Year to Date</option>
               <option value="custom">Custom Range</option>
             </select>
+            <div class="reports-custom-range" id="reportsCustomRange" style="display:none;">
+              <input type="date" id="reportsDateFrom" class="reports-date-input" title="From" />
+              <span class="reports-date-sep">→</span>
+              <input type="date" id="reportsDateTo"   class="reports-date-input" title="To" />
+              <button id="reportsApplyCustom" class="reports-apply-btn">Apply</button>
+            </div>
           </div>
         </div>
 
@@ -95,9 +101,7 @@ function renderReportsSection() {
     </div>
   `;
 
-  loadReportsData();
-
-
+  // Trigger animations
   const reportsWrap = pageContent.querySelector('.reports-wrap');
   if (reportsWrap) {
     reportsWrap.classList.remove('reports-animate');
@@ -106,14 +110,29 @@ function renderReportsSection() {
     });
   }
 
-  // Init charts after DOM is painted — 300ms delay
+  // Init charts first, then load  data from API
   setTimeout(function () {
     initializeReportsCharts();
     setupReportsResizeObserver();
+    loadReportsData();
   }, 300);
 
   // Event listeners
-  document.getElementById('reportsTimeRange')?.addEventListener('change', loadReportsData);
+  document.getElementById('reportsTimeRange')?.addEventListener('change', function () {
+    const val = this.value;
+    const customRow = document.getElementById('reportsCustomRange');
+    if (customRow) customRow.style.display = (val === 'custom') ? 'flex' : 'none';
+    if (val !== 'custom') loadReportsData();
+  });
+
+  document.getElementById('reportsApplyCustom')?.addEventListener('click', function () {
+    const from = document.getElementById('reportsDateFrom')?.value;
+    const to   = document.getElementById('reportsDateTo')?.value;
+    if (!from || !to) { alert('Please select both a start and end date.'); return; }
+    if (from > to)    { alert('Start date must be before end date.'); return; }
+    loadReportsData();
+  });
+
   document.getElementById('exportReportBtn')?.addEventListener('click', exportReportAsPDF);
 }
 
@@ -123,7 +142,7 @@ let categoryTrendsChartInstance = null;
 let reportsResizeObserver = null;
 
 function setupReportsResizeObserver() {
-  // Clean up any previous observer
+
   if (reportsResizeObserver) {
     reportsResizeObserver.disconnect();
     reportsResizeObserver = null;
@@ -168,35 +187,27 @@ function initializeReportsCharts() {
     incomeExpensesChartInstance = new Chart(incomeExpensesCtx, {
       type: 'bar',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [],
         datasets: [
           {
             label: 'Income',
-            data: [4200, 4500, 4300, 4700, 4500, 4600],
+            data: [],
             backgroundColor: incomeGradient,
             borderColor: 'rgba(34, 197, 94, 1)',
             borderWidth: 0,
             borderRadius: 10,
             borderSkipped: false,
-            barThickness: 36,
-            shadowOffsetX: 0,
-            shadowOffsetY: 4,
-            shadowBlur: 8,
-            shadowColor: 'rgba(34, 197, 94, 0.3)'
+            barThickness: 36
           },
           {
             label: 'Expenses',
-            data: [3100, 3000, 3300, 3100, 3400, 3200],
+            data: [],
             backgroundColor: expensesGradient,
             borderColor: 'rgba(236, 72, 153, 1)',
             borderWidth: 0,
             borderRadius: 10,
             borderSkipped: false,
-            barThickness: 36,
-            shadowOffsetX: 0,
-            shadowOffsetY: 4,
-            shadowBlur: 8,
-            shadowColor: 'rgba(236, 72, 153, 0.3)'
+            barThickness: 36
           }
         ]
       },
@@ -317,10 +328,10 @@ function initializeReportsCharts() {
     savingsTrendChartInstance = new Chart(savingsTrendCtx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [],
         datasets: [{
           label: 'Savings',
-          data: [1200, 1900, 1100, 1650, 2100, 1350],
+          data: [],
           borderColor: lineGradient,
           backgroundColor: fillGradient,
           borderWidth: 3,
@@ -431,77 +442,8 @@ function initializeReportsCharts() {
     categoryTrendsChartInstance = new Chart(categoryTrendsCtx, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [
-          {
-            label: 'Housing',
-            data: [1200, 1200, 1200, 1200, 1200, 1200],
-            borderColor: '#06b6d4',
-            backgroundColor: 'rgba(6, 182, 212, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#06b6d4',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#06b6d4',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          },
-          {
-            label: 'Food',
-            data: [300, 350, 400, 450, 520, 480],
-            borderColor: '#22c55e',
-            backgroundColor: 'rgba(34, 197, 94, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#22c55e',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#22c55e',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          },
-          {
-            label: 'Transport',
-            data: [300, 280, 350, 320, 340, 330],
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#f59e0b',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#f59e0b',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          },
-          {
-            label: 'Entertainment',
-            data: [120, 150, 200, 180, 220, 190],
-            borderColor: '#a855f7',
-            backgroundColor: 'rgba(168, 85, 247, 0.15)',
-            borderWidth: 3,
-            tension: 0.42,
-            pointRadius: 5,
-            pointBackgroundColor: '#a855f7',
-            pointBorderColor: 'rgba(15, 23, 42, 0.9)',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            pointHoverBackgroundColor: '#a855f7',
-            pointHoverBorderColor: '#ffffff',
-            pointHoverBorderWidth: 3,
-            fill: true
-          }
-        ]
+        labels: [],
+        datasets: []
       },
       options: {
         responsive: true,
@@ -589,9 +531,6 @@ function initializeReportsCharts() {
         }
       }
     });
-
-    // Create custom legend
-    createCategoryLegend();
   }
 }
 
@@ -615,16 +554,172 @@ function createCategoryLegend() {
 }
 
 function loadReportsData() {
+  const range = document.getElementById('reportsTimeRange')?.value || '6months';
+  let url;
 
-  const timeRange = document.getElementById('reportsTimeRange')?.value || '6months';
+  if (range === 'custom') {
+    const from = document.getElementById('reportsDateFrom')?.value;
+    const to   = document.getElementById('reportsDateTo')?.value;
+    if (!from || !to) return; // wait for Apply button
+    url = '/api/reports/data?range=custom&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to);
+  } else {
+    url = '/api/reports/data?range=' + encodeURIComponent(range);
+  }
 
-  // Update stats
-  document.getElementById('totalSaved').textContent = '$12,450';
-  document.getElementById('avgIncome').textContent = '$4,467';
-  document.getElementById('avgExpenses').textContent = '$3,183';
-  document.getElementById('savingsRate').textContent = '28.7%';
+  fetch(url)
+    .then(function (res) {
+      if (!res.ok) throw new Error('Failed to load report data');
+      return res.json();
+    })
+    .then(function (data) {
+      console.log('[Reports] API response:', data);
+      if (!data.hasData) {
+        console.log('[Reports] No data for this period — showing empty state');
+        showReportsEmptyState();
+        return;
+      }
+      hideReportsEmptyState();
+      updateReportsCharts(data);
+      updateReportsStats(data.stats);
+      console.log('[Reports] Stats applied:', data.stats);
+    })
+    .catch(function (err) {
+      console.error('[Reports] fetch error:', err);
+      showReportsEmptyState();
+    });
+}
 
+function showReportsEmptyState() {
+  // Show a message inside each chart container
+  ['incomeVsExpensesChart', 'savingsTrendChart', 'categoryTrendsChart'].forEach(function (id) {
+    var canvas = document.getElementById(id);
+    if (!canvas) return;
+    var container = canvas.parentElement;
+    if (!container) return;
+    canvas.style.display = 'none';
+    if (!container.querySelector('.reports-empty-msg')) {
+      var msg = document.createElement('div');
+      msg.className = 'reports-empty-msg';
+      msg.textContent = 'No financial data for this period.';
+      container.appendChild(msg);
+    }
+  });
+}
 
+function hideReportsEmptyState() {
+  ['incomeVsExpensesChart', 'savingsTrendChart', 'categoryTrendsChart'].forEach(function (id) {
+    var canvas = document.getElementById(id);
+    if (!canvas) return;
+    canvas.style.display = '';
+    var container = canvas.parentElement;
+    if (container) {
+      var msg = container.querySelector('.reports-empty-msg');
+      if (msg) msg.remove();
+    }
+  });
+}
+
+function updateReportsCharts(data) {
+  var labels = data.labels || [];
+
+  // ── Income vs Expenses ────────────────────────────────────────
+  if (incomeExpensesChartInstance) {
+    var ctx = incomeExpensesChartInstance.ctx;
+    var h = ctx.canvas.offsetHeight || 300;
+
+    var incomeGrad = ctx.createLinearGradient(0, 0, 0, h);
+    incomeGrad.addColorStop(0, 'rgba(34, 197, 94, 0.9)');
+    incomeGrad.addColorStop(1, 'rgba(16, 185, 129, 0.7)');
+
+    var expensesGrad = ctx.createLinearGradient(0, 0, 0, h);
+    expensesGrad.addColorStop(0, 'rgba(236, 72, 153, 0.9)');
+    expensesGrad.addColorStop(1, 'rgba(219, 39, 119, 0.7)');
+
+    incomeExpensesChartInstance.data.labels = labels;
+    incomeExpensesChartInstance.data.datasets[0].data = data.incomeVsExpenses.income;
+    incomeExpensesChartInstance.data.datasets[0].backgroundColor = incomeGrad;
+    incomeExpensesChartInstance.data.datasets[1].data = data.incomeVsExpenses.expenses;
+    incomeExpensesChartInstance.data.datasets[1].backgroundColor = expensesGrad;
+    incomeExpensesChartInstance.update();
+  }
+
+  // ── Savings Trend ─────────────────────────────────────────────
+  if (savingsTrendChartInstance) {
+    var sCtx = savingsTrendChartInstance.ctx;
+    var sH = sCtx.canvas.offsetHeight || 300;
+
+    var lineGrad = sCtx.createLinearGradient(0, 0, 0, sH);
+    lineGrad.addColorStop(0, 'rgba(34, 197, 94, 1)');
+    lineGrad.addColorStop(1, 'rgba(16, 185, 129, 0.8)');
+
+    var fillGrad = sCtx.createLinearGradient(0, 0, 0, sH);
+    fillGrad.addColorStop(0,   'rgba(34, 197, 94, 0.3)');
+    fillGrad.addColorStop(0.5, 'rgba(34, 197, 94, 0.15)');
+    fillGrad.addColorStop(1,   'rgba(34, 197, 94, 0.02)');
+
+    savingsTrendChartInstance.data.labels = labels;
+    savingsTrendChartInstance.data.datasets[0].data = data.savingsTrend;
+    savingsTrendChartInstance.data.datasets[0].borderColor = lineGrad;
+    savingsTrendChartInstance.data.datasets[0].backgroundColor = fillGrad;
+    savingsTrendChartInstance.update();
+  }
+
+  // ── Category Trends ───────────────────────────────────────────
+  if (categoryTrendsChartInstance && data.categoryTrends && data.categoryTrends.length > 0) {
+    categoryTrendsChartInstance.data.labels = labels;
+    categoryTrendsChartInstance.data.datasets = data.categoryTrends.map(function (series) {
+      return {
+        label:                  series.label,
+        data:                   series.data,
+        borderColor:            series.color,
+        backgroundColor:        hexToRgba(series.color, 0.15),
+        borderWidth:            3,
+        tension:                0.42,
+        fill:                   true,
+        pointRadius:            5,
+        pointBackgroundColor:   series.color,
+        pointBorderColor:       'rgba(15, 23, 42, 0.9)',
+        pointBorderWidth:       2,
+        pointHoverRadius:       8,
+        pointHoverBackgroundColor: series.color,
+        pointHoverBorderColor:  '#ffffff',
+        pointHoverBorderWidth:  3
+      };
+    });
+    categoryTrendsChartInstance.update();
+
+    // Rebuild legend
+    var legendContainer = document.getElementById('categoryLegend');
+    if (legendContainer) {
+      legendContainer.innerHTML = data.categoryTrends.map(function (s) {
+        return '<div class="legend-item">' +
+          '<span class="legend-dot" style="background-color:' + s.color + ';"></span>' +
+          '<span class="legend-label">' + s.label + '</span>' +
+          '</div>';
+      }).join('');
+    }
+  }
+}
+
+function updateReportsStats(stats) {
+  if (!stats) return;
+  var fmt = function (n) { return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); };
+  var el = function (id) { return document.getElementById(id); };
+
+  if (el('totalSaved'))   el('totalSaved').textContent   = fmt(stats.totalSaved);
+  if (el('avgIncome'))    el('avgIncome').textContent    = fmt(stats.avgIncome);
+  if (el('avgExpenses'))  el('avgExpenses').textContent  = fmt(stats.avgExpenses);
+  if (el('savingsRate'))  el('savingsRate').textContent  = Number(stats.savingsRate).toFixed(1) + '%';
+}
+
+function hexToRgba(hex, alpha) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return 'rgba(100,100,100,' + alpha + ')';
+  return 'rgba(' +
+    parseInt(result[1], 16) + ',' +
+    parseInt(result[2], 16) + ',' +
+    parseInt(result[3], 16) + ',' +
+    alpha + ')';
 }
 
 
