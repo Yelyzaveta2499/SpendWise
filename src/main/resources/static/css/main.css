@@ -3701,15 +3701,23 @@ body:not(.dark-mode) .notification-message {
   margin: 0;
 }
 
-/* Chart Containers */
+/* Chart Containers - auto-resizable */
 .report-chart-container {
   position: relative;
   height: 300px;
+  width: 100%;
+  min-width: 0;
   margin-top: 16px;
 }
 
 .report-chart-large {
   height: 400px;
+}
+
+.report-chart-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Category Legend */
@@ -3863,7 +3871,7 @@ body:not(.dark-mode) .notification-message {
   }
 }
 
-/* Dark Mode Specific Enhancements */
+/* Dark Mode */
 body.dark-mode .report-card {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
 }
@@ -3920,28 +3928,45 @@ body:not(.dark-mode) .reports-select:hover {
   border-color: #cbd5e1;
 }
 
-/* Animation */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ── Reports pop-in animations */
+.reports-animate .report-card,
+.reports-animate .stat-card,
+.reports-animate .reports-header-custom {
+  opacity: 0;
 }
 
-.report-card,
-.stat-card {
-  animation: slideInUp 0.5s ease-out backwards;
+/* Pop-in trigger */
+.reports-animate .reports-header-custom {
+  animation: fadeIn 0.35s ease-out forwards;
+  animation-delay: 0.0s;
 }
 
-.report-card:nth-child(1) { animation-delay: 0.1s; }
-.report-card:nth-child(2) { animation-delay: 0.2s; }
-.report-card:nth-child(3) { animation-delay: 0.3s; }
+.reports-animate .report-card {
+  animation: slideUp 0.45s ease-out forwards;
+}
 
-.stat-card:nth-child(1) { animation-delay: 0.4s; }
-.stat-card:nth-child(2) { animation-delay: 0.5s; }
-.stat-card:nth-child(3) { animation-delay: 0.6s; }
-.stat-card:nth-child(4) { animation-delay: 0.7s; }
+/* Top row: income vs expenses card */
+.reports-animate .reports-grid-top .report-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+/* Top row: savings trend card */
+.reports-animate .reports-grid-top .report-card:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+/* Full-width category trends card */
+.reports-animate .report-card-full {
+  animation: scaleIn 0.45s ease-out forwards;
+  animation-delay: 0.20s;
+}
+
+/* Stat cards at bottom  */
+.reports-animate .stat-card {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.reports-animate .stat-card:nth-child(1) { animation-delay: 0.30s; }
+.reports-animate .stat-card:nth-child(2) { animation-delay: 0.38s; }
+.reports-animate .stat-card:nth-child(3) { animation-delay: 0.46s; }
+.reports-animate .stat-card:nth-child(4) { animation-delay: 0.54s; }

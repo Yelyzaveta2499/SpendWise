@@ -104,17 +104,51 @@ function renderReportsSection() {
   initializeReportsCharts();
   loadReportsData();
 
+  // Trigger pop-in animations (same pattern as dash-animate)
+  const container = pageContent.querySelector('.reports-container');
+  if (container) {
+    requestAnimationFrame(function () {
+      container.classList.add('reports-animate');
+    });
+  }
+
   // Event listeners
   document.getElementById('reportsTimeRange')?.addEventListener('change', loadReportsData);
   document.getElementById('exportReportBtn')?.addEventListener('click', exportReportAsPDF);
+
+  // ResizeObserver – makes charts auto-adjust when the sidebar or window resizes
+  setupReportsResizeObserver();
 }
 
 let incomeExpensesChartInstance = null;
 let savingsTrendChartInstance = null;
 let categoryTrendsChartInstance = null;
+let reportsResizeObserver = null;
+
+function setupReportsResizeObserver() {
+  // Clean up any previous observer
+  if (reportsResizeObserver) {
+    reportsResizeObserver.disconnect();
+    reportsResizeObserver = null;
+  }
+
+  const containers = document.querySelectorAll('.report-chart-container');
+  if (!containers.length) return;
+
+  reportsResizeObserver = new ResizeObserver(function () {
+    if (incomeExpensesChartInstance) incomeExpensesChartInstance.resize();
+    if (savingsTrendChartInstance)   savingsTrendChartInstance.resize();
+    if (categoryTrendsChartInstance) categoryTrendsChartInstance.resize();
+  });
+
+  containers.forEach(function (el) {
+    reportsResizeObserver.observe(el);
+  });
+}
 
 function initializeReportsCharts() {
-  // Destroy existing charts if they exist
+  // Destroy existing charts and observer if they exist
+  if (reportsResizeObserver) { reportsResizeObserver.disconnect(); reportsResizeObserver = null; }
   if (incomeExpensesChartInstance) incomeExpensesChartInstance.destroy();
   if (savingsTrendChartInstance) savingsTrendChartInstance.destroy();
   if (categoryTrendsChartInstance) categoryTrendsChartInstance.destroy();
