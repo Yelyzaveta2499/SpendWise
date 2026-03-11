@@ -10,7 +10,7 @@ function renderReportsSection() {
     <div class="reports-wrap">
       <div class="reports-container">
 
-        <!-- Dropdown -->
+        <!-- Dropdown + custom date pickers -->
         <div class="reports-header-custom">
           <div class="reports-controls">
             <select id="reportsTimeRange" class="reports-select">
@@ -19,6 +19,12 @@ function renderReportsSection() {
               <option value="ytd">Year to Date</option>
               <option value="custom">Custom Range</option>
             </select>
+            <div class="reports-custom-range" id="reportsCustomRange" style="display:none;">
+              <input type="date" id="reportsDateFrom" class="reports-date-input" title="From" />
+              <span class="reports-date-sep">→</span>
+              <input type="date" id="reportsDateTo"   class="reports-date-input" title="To" />
+              <button id="reportsApplyCustom" class="reports-apply-btn">Apply</button>
+            </div>
           </div>
         </div>
 
@@ -112,7 +118,21 @@ function renderReportsSection() {
   }, 300);
 
   // Event listeners
-  document.getElementById('reportsTimeRange')?.addEventListener('change', loadReportsData);
+  document.getElementById('reportsTimeRange')?.addEventListener('change', function () {
+    const val = this.value;
+    const customRow = document.getElementById('reportsCustomRange');
+    if (customRow) customRow.style.display = (val === 'custom') ? 'flex' : 'none';
+    if (val !== 'custom') loadReportsData();
+  });
+
+  document.getElementById('reportsApplyCustom')?.addEventListener('click', function () {
+    const from = document.getElementById('reportsDateFrom')?.value;
+    const to   = document.getElementById('reportsDateTo')?.value;
+    if (!from || !to) { alert('Please select both a start and end date.'); return; }
+    if (from > to)    { alert('Start date must be before end date.'); return; }
+    loadReportsData();
+  });
+
   document.getElementById('exportReportBtn')?.addEventListener('click', exportReportAsPDF);
 }
 
@@ -535,8 +555,18 @@ function createCategoryLegend() {
 
 function loadReportsData() {
   const range = document.getElementById('reportsTimeRange')?.value || '6months';
+  let url;
 
-  fetch('/api/reports/data?range=' + encodeURIComponent(range))
+  if (range === 'custom') {
+    const from = document.getElementById('reportsDateFrom')?.value;
+    const to   = document.getElementById('reportsDateTo')?.value;
+    if (!from || !to) return; // wait for Apply button
+    url = '/api/reports/data?range=custom&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to);
+  } else {
+    url = '/api/reports/data?range=' + encodeURIComponent(range);
+  }
+
+  fetch(url)
     .then(function (res) {
       if (!res.ok) throw new Error('Failed to load report data');
       return res.json();

@@ -21,22 +21,16 @@ public class ReportsController {
 
     /**
      * GET /api/reports/data?range=6months|12months|ytd
-     *
-     * Returns:
-     *  - hasData: boolean
-     *  - labels: ["Jan","Feb",...]
-     *  - incomeVsExpenses: { income: [...], expenses: [...] }
-     *  - savingsTrend: [...]
-     *  - categoryTrends: [{ label, color, data: [...] }]
-     *  - stats: { totalSaved, avgIncome, avgExpenses, savingsRate }
      */
     @GetMapping("/data")
     public ResponseEntity<Map<String, Object>> getData(
             Authentication authentication,
-            @RequestParam(value = "range", required = false, defaultValue = "6months") String range) {
+            @RequestParam(value = "range", required = false, defaultValue = "6months") String range,
+            @RequestParam(value = "from",  required = false) String from,
+            @RequestParam(value = "to",    required = false) String to) {
 
         String username = authentication.getName();
-        Map<String, Object> result = reportsService.buildReport(username, range);
+        Map<String, Object> result = reportsService.buildReport(username, range, from, to);
         return ResponseEntity.ok(result);
     }
 

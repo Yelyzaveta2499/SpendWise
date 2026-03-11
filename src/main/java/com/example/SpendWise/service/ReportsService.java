@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.util.*;
 
@@ -26,40 +28,67 @@ public class ReportsService {
     }
 
     // ─────────────────────────────────────────────
-    //  Main entry point
+    //  Main entry points
     // ─────────────────────────────────────────────
 
-    public Map<String, Object> buildReport(String username, String range) {
+    /** Called by controller with optional from/to for custom range */
+    public Map<String, Object> buildReport(String username, String range, String from, String to) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
 
-        int months = parseMonths(range);
-        LocalDate today    = LocalDate.now();
-        YearMonth thisMonth = YearMonth.from(today);
+        LocalDate today = LocalDate.now();
+        LocalDate start;
+        LocalDate end;
+        List<YearMonth> period;
 
-        // Build ordered list of months to report on
-        List<YearMonth> period = new ArrayList<>();
-        for (int i = months - 1; i >= 0; i--) {
-            period.add(thisMonth.minusMonths(i));
+        if ("custom".equals(range) && from != null && to != null) {
+            try {
+                start = LocalDate.parse(from, DateTimeFormatter.ISO_LOCAL_DATE);
+                end   = LocalDate.parse(to,   DateTimeFormatter.ISO_LOCAL_DATE);
+            } catch (DateTimeParseException ex) {
+                throw new IllegalArgumentException("Invalid date format. Use yyyy-MM-dd.");
+            }
+            if (start.isAfter(end)) throw new IllegalArgumentException("Start date must be before end date.");
+            period = buildPeriodList(start, end);
+        } else {
+            int months = parseMonths(range);
+            YearMonth thisMonth = YearMonth.from(today);
+            period = new ArrayList<>();
+            for (int i = months - 1; i >= 0; i--) period.add(thisMonth.minusMonths(i));
+            start = period.get(0).atDay(1);
+            end   = period.get(period.size() - 1).atEndOfMonth();
         }
 
-        LocalDate start = period.get(0).atDay(1);
-        LocalDate end   = period.get(period.size() - 1).atEndOfMonth();
+        return executeReport(user, range, start, end, period);
+    }
+
+    /** Builds a list of YearMonths spanning start→end */
+    private List<YearMonth> buildPeriodList(LocalDate start, LocalDate end) {
+        List<YearMonth> list = new ArrayList<>();
+        YearMonth cursor = YearMonth.from(start);
+        YearMonth last   = YearMonth.from(end);
+        while (!cursor.isAfter(last)) {
+            list.add(cursor);
+            cursor = cursor.plusMonths(1);
+        }
+        return list;
+    }
+
+    /** Core query + aggregation logic shared by all range modes */
+    private Map<String, Object> executeReport(UserEntity user, String range,
+                                               LocalDate start, LocalDate end,
+                                               List<YearMonth> period) {
 
         List<ExpenseEntity> all = expenseRepository.findByUserAndExpenseDateBetween(user, start, end);
+        int months = period.size();
 
-        boolean hasData = all != null && !all.isEmpty();
-
-        if (!hasData) {
+        if (all == null || all.isEmpty()) {
             return emptyResponse(period);
         }
 
-        // ── per-month buckets ──────────────────────────────────────────────
         Map<String, BigDecimal> incomeByMonth   = new LinkedHashMap<>();
         Map<String, BigDecimal> expensesByMonth = new LinkedHashMap<>();
         Map<String, BigDecimal> savingsByMonth  = new LinkedHashMap<>();
-
-        // category trends: category → (month-key → total)
         Map<String, Map<String, BigDecimal>> categoryByMonth = new LinkedHashMap<>();
 
         // pre-populate every month key so gaps show as zero
@@ -261,5 +290,4 @@ public class ReportsService {
         return response;
     }
 }
-
 
