@@ -7,6 +7,7 @@
 4. [Business Section - Tag Your Expenses](#business-section)
 5. [Budgets](#budgets)
 6. [Savings Goals](#savings-goals)
+7. [Reports](#reports)
 
 ---
 
@@ -247,3 +248,42 @@ Track progress toward financial goals.
 4. Add contributions as you save
 5. Watch your progress bar fill up!
 
+---
+
+## Reports
+
+View financial trends and analyse how your finances change over time.
+
+### How to View Reports
+1. Click **Reports** in the sidebar
+2. Charts load automatically based on your recorded expenses
+
+### Selecting a Time Period
+Use the dropdown at the top to filter data:
+
+| Option | What it shows |
+|--------|--------------|
+| Last 6 Months | Previous 6 calendar months |
+| Last 12 Months | Previous 12 calendar months |
+| Year to Date | January 1st to today |
+| Custom Range | Pick your own start and end date |
+
+For **Custom Range**: select a From and To date, then click **Apply**.
+
+### Charts
+
+**Income vs Expenses** — Bar chart comparing your monthly income against spending.
+
+**Savings Trend** — Line chart showing how much you saved each month (income − expenses).
+
+**Category Spending Trends** — Multi-line chart showing your top spending categories over time. Hover over a point to see exact amounts.
+
+### Summary Stats
+Below the charts you'll see four stat boxes for the selected period:
+- **Total Saved** — income minus all expenses
+- **Avg Monthly Income** — average income per month
+- **Avg Monthly Expenses** — average spending per month
+- **Savings Rate** — percentage of income saved
+
+### No Data State
+If you have no expenses recorded for the selected period, each chart will show *"No financial data for this period."* — add expenses first, then come back to Reports.
