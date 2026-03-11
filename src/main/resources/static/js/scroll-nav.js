@@ -94,12 +94,16 @@
         }
         break;
       case 'reports':
-        contentDiv.innerHTML = `
-          <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
-            <h2 style="font-size: 32px; margin-bottom: 16px;">Reports</h2>
-            <p style="color: #6b7280;">Analyze financial trends.</p>
-          </div>
-        `;
+        if (typeof renderReportsSection === 'function') {
+          renderReportsSection();
+        } else {
+          contentDiv.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
+              <h2 style="font-size: 32px; margin-bottom: 16px;">Reports</h2>
+              <p style="color: #6b7280;">Analyze financial trends.</p>
+            </div>
+          `;
+        }
         break;
       case 'settings':
         contentDiv.innerHTML = `
