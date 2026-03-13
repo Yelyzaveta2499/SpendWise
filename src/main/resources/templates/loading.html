@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SpendWise - Loading</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        :root {
+            --bg0: #060b1a;
+            --bg1: #0b122c;
+            --c1: 56, 189, 248;   /* sky */
+            --c2: 34, 197, 94;    /* green */
+            --c3: 167, 139, 250;  /* violet */
+            --ink: #e5e7eb;
+            --muted: rgba(226, 232, 240, 0.80);
+        }
+
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            background: var(--bg1);
+            color: var(--ink);
+            overflow: hidden;
+        }
+
+        /* Fullscreen animated background */
+        .loading-wrapper {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            z-index: 9999;
+            background: var(--bg1);
+        }
+
+        .bg-noise {
+            position: absolute;
+            inset: -40px;
+            opacity: 0.08;
+            filter: contrast(120%) brightness(110%);
+            background-image:
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.55"/></svg>');
+            background-size: 160px 160px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Dotted wave background */
+        .dotwave {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.95;
+            z-index: 0;
+        }
+
+        .dotwave canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .blob {
+            position: absolute;
+            width: min(42vmax, 640px);
+            aspect-ratio: 1 / 1;
+            border-radius: 999px;
+            filter: blur(34px);
+            opacity: 0;
+            mix-blend-mode: screen;
+            transform: translate3d(0,0,0);
+            animation: blobFloat 40s ease-in-out infinite;
+            will-change: transform;
+            z-index: 0;
+            display: none;
+        }
+
+        .blob.b1 {
+            left: -10vmax;
+            top: -14vmax;
+            background: radial-gradient(circle at 30% 30%, rgba(var(--c1), 0.85), transparent 55%);
+            animation-duration: 48s;
+        }
+
+        .blob.b2 {
+            right: -12vmax;
+            top: -10vmax;
+            background: radial-gradient(circle at 35% 35%, rgba(var(--c3), 0.85), transparent 55%);
+            animation-duration: 56s;
+            animation-delay: -12s;
+        }
+
+        .blob.b3 {
+            left: 10vmax;
+            bottom: -18vmax;
+            background: radial-gradient(circle at 45% 45%, rgba(var(--c2), 0.85), transparent 55%);
+            animation-duration: 52s;
+            animation-delay: -20s;
+        }
+
+        @keyframes blobFloat {
+            0%   { transform: translate3d(0,0,0) scale(1); }
+            50%  { transform: translate3d(22px, 18px, 0) scale(1.08); }
+            100% { transform: translate3d(0,0,0) scale(1); }
+        }
+
+        /* Foreground content */
+        .stage {
+            position: relative;
+            width: min(480px, 96vw);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            align-items: center;
+            justify-items: center;
+            z-index: 2;
+            margin-top: -35vh;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 5px;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: fadeUp 2000ms cubic-bezier(.2,.85,.2,1) forwards;
+        }
+
+        /* Brand inside hero card */
+        .hero .brand {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(8px);
+            z-index: 10;
+            opacity: 0;
+            animation: fadeUpCentered 2000ms cubic-bezier(.2,.85,.2,1) forwards;
+            animation-delay: 1000ms;
+        }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUpCentered {
+            from { opacity: 0; transform: translate(-50%, -50%) translateY(8px); }
+            to { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+        }
+
+        .brand .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: rgba(2, 6, 23, 0.55);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+        }
+
+        .brand .logo img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+        }
+
+        .brand .title {
+            font-weight: 950;
+            font-size: 14px;
+            letter-spacing: 0.2px;
+            line-height: 1.05;
+        }
+
+        .brand .sub {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 1px;
+        }
+
+        /* The hero card animation (SVG) */
+        .hero {
+            width: min(480px, 96vw);
+            aspect-ratio: 16 / 9;
+            border-radius: 15px;
+            border: 1px solid transparent;
+            background: rgba(2, 6, 23, 0.52);
+            box-shadow: 0 18px 50px rgba(0,0,0,0.50);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+            opacity: 0;
+            transform: translateY(10px) scale(0.985);
+            animation: heroIn 2500ms cubic-bezier(.2,.9,.2,1) forwards;
+            animation-delay: 500ms;
+        }
+
+        @keyframes heroIn {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background:
+                radial-gradient(800px 260px at 50% 0%, rgba(var(--c1), 0.18), transparent 60%),
+                radial-gradient(560px 240px at 15% 110%, rgba(var(--c2), 0.10), transparent 62%),
+                radial-gradient(540px 230px at 90% 110%, rgba(var(--c3), 0.10), transparent 62%);
+            pointer-events: none;
+        }
+
+        .hero svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .card-outline {
+            fill: none;
+            stroke: rgba(226, 232, 240, 0.80);
+            stroke-width: 2;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+            filter: drop-shadow(0 8px 20px rgba(0,0,0,0.35));
+        }
+
+        .card-outline.glow {
+            stroke: rgba(56, 189, 248, 0.35);
+            stroke-width: 7;
+            opacity: 0.35;
+        }
+
+        /* animate stroke drawing and subtle pulse */
+        .draw {
+            stroke-dasharray: 3072;
+            stroke-dashoffset: 3072;
+            animation: drawLine 5000ms cubic-bezier(.2,.9,.2,1) forwards,
+                       pulse 4000ms ease-in-out infinite;
+            animation-delay: 600ms, 5600ms;
+        }
+
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-1px); opacity: 0.92; }
+        }
+
+        /* diagonal sweep highlight */
+        .sweep {
+            opacity: 0.0;
+            animation: sweep 5000ms ease-in-out infinite;
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes sweep {
+            0% { opacity: 0; transform: translateX(-40%) rotate(-10deg); }
+            15% { opacity: 0.25; }
+            45% { opacity: 0.0; }
+            100% { opacity: 0; transform: translateX(70%) rotate(-10deg); }
+        }
+
+        /* Progress bar */
+        .meter {
+            width: min(560px, 92vw);
+            padding: 0 10px;
+            display: grid;
+            gap: 10px;
+            justify-items: center;
+            margin-top: 4px;
+        }
+
+        /* Progress bar inside card */
+        .meter-inside {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            padding: 0 15px;
+            display: grid;
+            gap: 6px;
+            justify-items: center;
+            z-index: 10;
+        }
+
+        .meter-row {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .meter-tip {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(203, 213, 225, 0.92);
+        }
+
+        .meter-percent {
+            font-variant-numeric: tabular-nums;
+            font-weight: 900;
+            font-size: 13px;
+            color: rgba(226, 232, 240, 0.95);
+        }
+
+        .bar {
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.16);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(340px 18px at 18% 50%, rgba(255,255,255,0.08), transparent 60%);
+            pointer-events: none;
+        }
+
+        .fill {
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #22c55e, #38bdf8 40%, #a78bfa 72%, #22c55e);
+            background-size: 220% 100%;
+            animation: sheen 4000ms linear infinite;
+            will-change: width;
+        }
+
+        @keyframes sheen {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .hint {
+            font-size: 10px;
+            color: rgba(203, 213, 225, 0.72);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .blob { animation: none; }
+            .dotwave { display: none; }
+            .draw { animation: drawLine 900ms ease forwards; }
+            .sweep { display: none; }
+            .fill { animation: none; }
+            .brand, .hero { animation: none; opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="loading-wrapper" id="loading-wrapper" role="status" aria-label="Loading SpendWise">
+    <div class="dotwave" aria-hidden="true">
+        <canvas id="dotWaveCanvas"></canvas>
+    </div>
+    <div class="bg-noise" aria-hidden="true"></div>
+    <div class="blob b1" aria-hidden="true"></div>
+    <div class="blob b2" aria-hidden="true"></div>
+    <div class="blob b3" aria-hidden="true"></div>
+
+    <div class="stage">
+
+        <div class="hero" aria-hidden="true">
+            <svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <linearGradient id="sweepGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0" stop-color="rgba(255,255,255,0)" />
+                        <stop offset="0.45" stop-color="rgba(255,255,255,0.16)" />
+                        <stop offset="1" stop-color="rgba(255,255,255,0)" />
+                    </linearGradient>
+                </defs>
+
+                <!-- blurred glow behind the outline -->
+                <rect class="card-outline glow" x="6" y="6" rx="30" ry="30" width="988" height="548" />
+                <!-- main outline that draws in -->
+                <rect class="card-outline draw" x="6" y="6" rx="30" ry="30" width="988" height="548" />
+
+                <!-- sweep highlight -->
+                <g class="sweep">
+                    <rect x="-100" y="0" width="300" height="560" fill="url(#sweepGrad)" transform="skewX(-18)" />
+                </g>
+
+                <!-- little dots in corner (like sparkle) -->
+                <g opacity="0.55">
+                    <circle cx="100" cy="60" r="5" fill="rgba(56,189,248,0.65)"/>
+                    <circle cx="125" cy="60" r="5" fill="rgba(34,197,94,0.65)"/>
+                    <circle cx="150" cy="60" r="5" fill="rgba(167,139,250,0.65)"/>
+                </g>
+            </svg>
+
+            <!-- Logo inside the card -->
+            <div class="brand">
+                <div class="logo" aria-hidden="true">
+                    <img src="/images/piggie.png" alt="" />
+                </div>
+                <div>
+                    <div class="title">SpendWise</div>
+                    <div class="sub" id="swSub">Getting things ready…</div>
+                </div>
+            </div>
+
+            <!-- Progress bar inside the card -->
+            <div class="meter-inside" aria-live="polite">
+                <div class="meter-row">
+                    <div class="meter-tip" id="swTip">Loading</div>
+                    <div class="meter-percent" id="swPercent">0%</div>
+                </div>
+                <div class="bar" aria-hidden="true"><div class="fill" id="swFill"></div></div>
+                <div class="hint">Tip: click anywhere to skip.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        var redirected = false;
+        function goToApp() {
+            if (redirected) return;
+            redirected = true;
+            globalThis.location.href = '/';
+        }
+
+        var wrapper = document.getElementById('loading-wrapper');
+        wrapper.addEventListener('click', goToApp);
+
+        var fill = document.getElementById('swFill');
+        var percentEl = document.getElementById('swPercent');
+        var tipEl = document.getElementById('swTip');
+        var subEl = document.getElementById('swSub');
+
+        var p = 0;
+        var step = 0;
+        var steps = [4, 6, 7, 5, 9, 10, 8, 7, 12, 6, 9];
+        var tips = [
+            'Loading',
+            'Warming up charts…',
+            'Syncing budgets…',
+            'Polishing the dashboard…'
+        ];
+
+        function nextDelay(current) {
+            if (current < 55) return 400;
+            if (current < 85) return 600;
+            return 800;
+        }
+
+        function setCopy(current) {
+            if (current >= 85) {
+                tipEl.textContent = tips[3];
+                subEl.textContent = 'Almost there…';
+            } else if (current >= 60) {
+                tipEl.textContent = tips[2];
+                subEl.textContent = 'Loading budgets and categories…';
+            } else if (current >= 30) {
+                tipEl.textContent = tips[1];
+                subEl.textContent = 'Preparing charts and insights…';
+            } else {
+                tipEl.textContent = tips[0];
+                subEl.textContent = 'Getting things ready…';
+            }
+        }
+
+        function tick() {
+            if (p >= 100) {
+                setCopy(100);
+                setTimeout(goToApp, 600);
+                return;
+            }
+
+            var inc = steps[step % steps.length];
+            p = Math.min(100, p + inc);
+            fill.style.width = p + '%';
+            percentEl.textContent = p + '%';
+            setCopy(p);
+
+            step++;
+            setTimeout(tick, nextDelay(p));
+        }
+
+        setTimeout(tick, 800);
+        setTimeout(goToApp, 18000);
+
+        // --- DOTTED WAVE BACKDROP ---
+        var waveCanvas = document.getElementById('dotWaveCanvas');
+        if (!waveCanvas) return;
+
+        var mediaReduce = globalThis.matchMedia && globalThis.matchMedia('(prefers-reduced-motion: reduce)');
+        if (mediaReduce && mediaReduce.matches) return;
+
+        var wctx = waveCanvas.getContext('2d', { alpha: true });
+        var wdpr = Math.max(1, Math.min(2, globalThis.devicePixelRatio || 1));
+
+        var cols = 0;
+        var rows = 0;
+        var spacing = 18; // px between dots
+        var lastTs = 0;
+        var t = 0;
+
+        function wresize() {
+            var rect = waveCanvas.getBoundingClientRect();
+            waveCanvas.width = Math.floor(rect.width * wdpr);
+            waveCanvas.height = Math.floor(rect.height * wdpr);
+            wctx.setTransform(wdpr, 0, 0, wdpr, 0, 0);
+
+            // adapt spacing slightly to screen size
+            var base = Math.min(rect.width, rect.height);
+            spacing = Math.max(14, Math.min(22, Math.round(base / 52)));
+
+            cols = Math.ceil(rect.width / spacing) + 10;
+            rows = Math.ceil(rect.height / spacing) + 10;
+        }
+
+        function drawWave(dt) {
+            var rectW = waveCanvas.clientWidth;
+            var rectH = waveCanvas.clientHeight;
+            wctx.clearRect(0, 0, rectW, rectH);
+
+            // world rotation-ish perspective: scale Y a bit (shifted down)
+            var centerX = rectW * 0.52;
+            var centerY = rectH * 0.75;
+
+            // traveling waves
+            var speed = 0.0003; // time scale (slowed down 4x)
+            t += dt * speed;
+
+            var amp = Math.max(15, Math.min(35, rectH * 0.045));
+
+            // dot styling
+            var baseR = Math.max(1.0, Math.min(1.9, spacing * 0.085));
+
+            for (var iy = 0; iy < rows; iy++) {
+                var y0 = (iy - 4) * spacing + (rectH * 0.2);
+
+                // perspective: far rows are tighter and slightly lifted
+                var py = (y0 - centerY) / rectH;
+                var persp = 1 + py * 0.9;
+
+                for (var ix = 0; ix < cols; ix++) {
+                    var x0 = (ix - 4) * spacing;
+
+                    // wave field (two sine waves + diagonal) - slowed down frequencies
+                    var w1 = Math.sin((x0 * 0.018) + (y0 * 0.012) + t * 2.0);
+                    var w2 = Math.cos((x0 * 0.010) - (y0 * 0.020) + t * 1.5);
+                    var w3 = Math.sin((x0 + y0) * 0.012 - t * 1.8);
+
+                    var z = (w1 * 0.55 + w2 * 0.35 + w3 * 0.45); // -1..1-ish
+                    var dy = z * amp * (0.55 + (iy / rows) * 0.65);
+
+                    // slight drift to make the net feel alive (slowed down)
+                    var driftX = Math.sin(t * 0.4 + iy * 0.12) * 6;
+
+                    // perspective transform around center
+                    var xx = centerX + ((x0 + driftX) - centerX) * persp;
+                    var yy = centerY + ((y0 + dy) - centerY) * persp;
+
+                    // fade near edges + depth fade (reduced edge fade for full coverage)
+                    var edgeFade = Math.min(
+                        1,
+                        Math.min(xx / (rectW * 0.05), (rectW - xx) / (rectW * 0.05), yy / (rectH * 0.05), (rectH - yy) / (rectH * 0.05))
+                    );
+
+                    // depth-ish: far back (top) gets dimmer and smaller
+                    var depth = 1 - Math.max(0, (centerY - yy) / rectH);
+                    var a = (0.18 + (z + 1) * 0.18) * edgeFade * (0.35 + depth * 0.65);
+                    if (a <= 0.01) continue;
+
+                    var r = baseR * (0.9 + depth * 0.65) * (0.85 + (z + 1) * 0.10);
+
+                    // cyan glow
+                    wctx.beginPath();
+                    wctx.fillStyle = 'rgba(56, 189, 248, ' + a.toFixed(3) + ')';
+                    wctx.arc(xx, yy, r, 0, Math.PI * 2);
+                    wctx.fill();
+                }
+            }
+        }
+
+        function wframe(ts) {
+            if (!lastTs) lastTs = ts;
+            var dt = Math.min(42, ts - lastTs);
+            lastTs = ts;
+
+            drawWave(dt);
+            globalThis.requestAnimationFrame(wframe);
+        }
+
+        globalThis.addEventListener('resize', wresize);
+        wresize();
+        globalThis.requestAnimationFrame(wframe);
+
+    })();
+</script>
+</body>
+</html>

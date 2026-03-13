@@ -21,10 +21,14 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				.requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
+				.requestMatchers("/api/expenses/**").authenticated()
+				.requestMatchers("/api/goals/**").authenticated()
+				.requestMatchers("/api/chat").authenticated()
 				.anyRequest().authenticated()
 			)
 			.formLogin(formLogin -> formLogin
-				.defaultSuccessUrl("/", true)
+				.loginPage("/login")
+				.defaultSuccessUrl("/post-login", true)
 				.permitAll()
 			)
 			.logout(logout -> logout
@@ -51,13 +55,13 @@ public class SecurityConfig {
 			.roles("BUSINESS")
 			.build();
 
-		UserDetails kids = User.builder()
-				.username("kid")
-				.password(passwordEncoder().encode("password"))
-				.roles("KIDS")
-				.build();
+		//UserDetails kids = User.builder()
+				//.username("kid")
+				//.password(passwordEncoder().encode("password"))
+				//.roles("KIDS")
+				//.build();
 
-		return new InMemoryUserDetailsManager(user, business, kids);
+		return new InMemoryUserDetailsManager(user, business);
 	}
 
 	@Bean
