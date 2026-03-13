@@ -23,6 +23,7 @@ public class SecurityConfig {
 				.requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
 				.requestMatchers("/api/expenses/**").authenticated()
 				.requestMatchers("/api/goals/**").authenticated()
+				.requestMatchers("/api/chat").authenticated()
 				.anyRequest().authenticated()
 			)
 			.formLogin(formLogin -> formLogin

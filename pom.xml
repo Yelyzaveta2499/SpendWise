@@ -30,6 +30,25 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+		<!-- Azure OpenAI SDK (Netty HTTP client excluded to avoid conflict with Spring Boot 4 / Netty 4.2.x) -->
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-ai-openai</artifactId>
+			<version>1.0.0-beta.12</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.azure</groupId>
+					<artifactId>azure-core-http-netty</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- OkHttp-based Azure HTTP transport (no Netty dependency) -->
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-core-http-okhttp</artifactId>
+			<version>1.12.6</version>
+		</dependency>
+
 		<!-- Spring Boot Starter Web for web application support -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/guide-character.css">
+    <link rel="stylesheet" href="/css/chat.css">
 
     <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -919,6 +920,14 @@
             </div>
 
             <div class="header-right">
+                <!-- AI Chat Button -->
+                <button id="chatOpenBtn" class="chat-open-btn" title="Ask SpendWise AI">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>SpendWise AI</span>
+                </button>
+
                 <!-- Dark Mode Toggle -->
                 <div class="theme-toggle">
                     <input type="checkbox" id="dark-mode-toggle" class="theme-toggle-checkbox">
@@ -1157,6 +1166,66 @@
         </form>
     </div>
 </div>
+
+<!-- ==================== AI CHAT PANEL ==================== -->
+
+<!-- Backdrop -->
+<div id="chatOverlay" class="chat-overlay"></div>
+
+<!-- Floating chat panel -->
+<div id="chatPanel" class="chat-panel" role="dialog" aria-label="SpendWise AI Chat">
+
+    <!-- Header -->
+    <div class="chat-panel-header">
+        <div class="chat-panel-title">
+            <div class="chat-panel-avatar">🐷</div>
+            <div class="chat-panel-info">
+                <h4>SpendWise AI</h4>
+                <span><span class="chat-status-dot"></span>Online &amp; ready to help</span>
+            </div>
+        </div>
+        <div class="chat-panel-actions">
+            <button id="chatClearBtn" class="chat-clear-btn" title="Clear conversation">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+                </svg>
+            </button>
+            <button id="chatCloseBtn" class="chat-close-btn" title="Close">✕</button>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="chatMessages" class="chat-messages">
+        <!-- Welcome / suggestions -->
+        <div id="chatWelcome" class="chat-welcome">
+            <span class="chat-welcome-icon">💬</span>
+            <h5>Hi! I'm SpendWise AI</h5>
+            <p>Ask me anything about your finances — budgets, expenses, saving tips, and more.</p>
+            <div class="chat-suggestions">
+                <button class="chat-suggestion-chip">How can I reduce my spending?</button>
+                <button class="chat-suggestion-chip">Help me plan a monthly budget</button>
+                <button class="chat-suggestion-chip">What's a good savings goal?</button>
+                <button class="chat-suggestion-chip">Tips to track expenses</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+        <div class="chat-input-wrap">
+            <textarea id="chatInput" class="chat-input" rows="1"
+                      placeholder="Ask SpendWise AI…" maxlength="1000"></textarea>
+        </div>
+        <button id="chatSendBtn" class="chat-send-btn" title="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- AI Chat JS -->
+<script src="/js/chat.js"></script>
 
 </body>
 </html>
