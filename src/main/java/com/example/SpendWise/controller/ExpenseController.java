@@ -24,21 +24,31 @@ public class ExpenseController {
 
     // Listing expenses for authenticated user
     @GetMapping
-    public List<ExpenseEntity> listExpenses(
+    public List<Map<String, Object>> listExpenses(
             @RequestParam(value = "tagId", required = false) Long tagId,
             @RequestParam(value = "tagName", required = false) String tagName,
             Authentication authentication) {
         String username = authentication.getName();
 
-        // Filter by tag if provided
         if (tagId != null) {
-            return expenseService.getExpensesByTagId(username, tagId);
+            return expenseService.getExpenseDtosForUser(username).stream()
+                    .filter(dto -> {
+                        @SuppressWarnings("unchecked")
+                        List<String> tags = (List<String>) dto.get("tags");
+                        return tags != null && !tags.isEmpty();
+                    })
+                    .toList();
         } else if (tagName != null && !tagName.isBlank()) {
-            return expenseService.getExpensesByTag(username, tagName);
+            return expenseService.getExpenseDtosForUser(username).stream()
+                    .filter(dto -> {
+                        @SuppressWarnings("unchecked")
+                        List<String> tags = (List<String>) dto.get("tags");
+                        return tags != null && tags.contains(tagName);
+                    })
+                    .toList();
         }
 
-        // Otherwise return all expenses
-        return expenseService.getExpensesForUser(username);
+        return expenseService.getExpenseDtosForUser(username);
     }
 
     // Get tags for a specific expense

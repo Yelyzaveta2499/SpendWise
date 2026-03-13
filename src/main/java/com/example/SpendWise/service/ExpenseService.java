@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -44,6 +46,36 @@ public class ExpenseService {
         return expenseRepository.findTop20ByUserOrderByExpenseDateDesc(user);
     }
 
+    // Helper to map an ExpenseEntity to a lightweight DTO for API responses
+    public Map<String, Object> toExpenseDto(ExpenseEntity expense) {
+        Map<String, Object> dto = new java.util.HashMap<>();
+        dto.put("id", expense.getId());
+        dto.put("name", expense.getName());
+        dto.put("category", expense.getCategory());
+        dto.put("amount", expense.getAmount());
+        dto.put("expenseDate", expense.getExpenseDate());
+
+        // Flatten tag names only to avoid deep nesting / recursion
+        List<String> tagNames = new ArrayList<>();
+        if (expense.getExpenseTags() != null) {
+            for (ExpenseTagEntity et : expense.getExpenseTags()) {
+                if (et.getTag() != null && et.getTag().getName() != null) {
+                    tagNames.add(et.getTag().getName());
+                }
+            }
+        }
+        dto.put("tags", tagNames);
+        return dto;
+    }
+
+    public List<Map<String, Object>> getExpenseDtosForUser(String username) {
+        List<ExpenseEntity> entities = getExpensesForUser(username);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (ExpenseEntity e : entities) {
+            result.add(toExpenseDto(e));
+        }
+        return result;
+    }
 
     @SuppressWarnings("unchecked")
     public ExpenseEntity createExpenseForUser(String username, Object expenseCreateRequest) {
