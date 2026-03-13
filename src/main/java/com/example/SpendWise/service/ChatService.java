@@ -22,20 +22,16 @@ public class ChatService {
 
     private final OpenAIClient client;
     private final String deploymentName;
-
-    private static final String SYSTEM_PROMPT =
-            "You are SpendWise AI, a friendly and knowledgeable personal finance assistant built into the SpendWise app. " +
-            "You help users track expenses, manage budgets, set financial goals, and understand their spending patterns. " +
-            "You can give advice on saving money, reducing unnecessary expenses, planning budgets, and reaching financial goals. " +
-            "Keep your responses concise, clear, and actionable. Use bullet points when listing multiple items. " +
-            "If a user asks about something unrelated to personal finance, gently redirect them back to financial topics.";
+    private final String systemPrompt;
 
     public ChatService(
             @Value("${azure.openai.endpoint}") String endpoint,
             @Value("${azure.openai.api-key}") String apiKey,
-            @Value("${azure.openai.deployment-name}") String deploymentName) {
+            @Value("${azure.openai.deployment-name}") String deploymentName,
+            @Value("${azure.openai.system-prompt}") String systemPrompt) {
 
         this.deploymentName = deploymentName;
+        this.systemPrompt = systemPrompt;
         this.client = new OpenAIClientBuilder()
                 .credential(new AzureKeyCredential(apiKey))
                 .endpoint(endpoint)
@@ -51,7 +47,7 @@ public class ChatService {
      */
     public String chat(String userMessage, List<Map<String, String>> history) {
         List<ChatRequestMessage> messages = new ArrayList<>();
-        messages.add(new ChatRequestSystemMessage(SYSTEM_PROMPT));
+        messages.add(new ChatRequestSystemMessage(systemPrompt));
 
         // Replay conversation history for multi-turn context
         if (history != null) {
