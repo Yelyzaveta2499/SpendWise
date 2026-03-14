@@ -1,31 +1,44 @@
 package com.example.SpendWise.config;
 
+import com.example.SpendWise.security.JwtAuthenticationFilter;
+import com.example.SpendWise.security.JwtUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtUserDetailsService jwtUserDetailsService;
+
+	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+						  JwtUserDetailsService jwtUserDetailsService) {
+		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+		this.jwtUserDetailsService = jwtUserDetailsService;
+	}
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
+				// Public: login pages + static assets + JWT login endpoint
+				.requestMatchers("/login", "/api/auth/login", "/auth/login", "/css/**", "/js/**", "/images/**").permitAll()
 				.requestMatchers("/api/expenses/**").authenticated()
 				.requestMatchers("/api/goals/**").authenticated()
 				.requestMatchers("/api/chat").authenticated()
 				.anyRequest().authenticated()
 			)
+			// Form login stays exactly the same → browser UI unchanged
 			.formLogin(formLogin -> formLogin
 				.loginPage("/login")
 				.defaultSuccessUrl("/post-login", true)
@@ -36,32 +49,30 @@ public class SecurityConfig {
 				.logoutSuccessUrl("/login?logout=true")
 				.permitAll()
 			)
-			.csrf(csrf -> csrf.disable());
+			.csrf(csrf -> csrf.disable())
+			// JWT filter runs before Spring Security's username/password filter
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
 
+	/**
+	 * DaoAuthenticationProvider wires JwtUserDetailsService + BCrypt together.
+	 * Used by AuthenticationManager for both form login and /auth/login.
+	 */
 	@Bean
-	public UserDetailsService userDetailsService() {
-		UserDetails user = User.builder()
-			.username("indiv")
-			.password(passwordEncoder().encode("password"))
-			.roles("INDIVIDUAL")
-			.build();
+	public DaoAuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(jwtUserDetailsService);
+		provider.setPasswordEncoder(passwordEncoder());
+		return provider;
+	}
 
-		UserDetails business = User.builder()
-			.username("business")
-			.password(passwordEncoder().encode("password"))
-			.roles("BUSINESS")
-			.build();
-
-		//UserDetails kids = User.builder()
-				//.username("kid")
-				//.password(passwordEncoder().encode("password"))
-				//.roles("KIDS")
-				//.build();
-
-		return new InMemoryUserDetailsManager(user, business);
+	/**
+	 * Exposes AuthenticationManager so AuthController can inject it.
+	 */
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		return config.getAuthenticationManager();
 	}
 
 	@Bean
@@ -69,3 +80,4 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 }
+

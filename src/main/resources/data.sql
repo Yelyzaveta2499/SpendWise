@@ -3,10 +3,31 @@ INSERT IGNORE INTO roles (name) VALUES ('INDIVIDUAL');
 INSERT IGNORE INTO roles (name) VALUES ('BUSINESS');
 INSERT IGNORE INTO roles (name) VALUES ('KIDS');
 
--- Seed users matching in-memory security users. Assumes role IDs 1,2,3 in insertion order.
-INSERT IGNORE INTO users (username, password, role_id) VALUES ('indiv', 'dummy', 1);
-INSERT IGNORE INTO users (username, password, role_id) VALUES ('business', 'dummy', 2);
-INSERT IGNORE INTO users (username, password, role_id) VALUES ('kid', 'dummy', 3);
+-- Seed default users with BCrypt-hashed password "password".
+-- This keeps existing login credentials the same while storing encrypted passwords in DB.
+INSERT IGNORE INTO users (id, username, password, role_id)
+VALUES (
+    1,
+    'indiv',
+    '$2a$10$pb63mjbSxcq3N0YUubEA0uknwMSIXi8FGYzCBDpTnccvaYZNMrPGS',
+    (SELECT id FROM roles WHERE name = 'INDIVIDUAL' LIMIT 1)
+);
+
+INSERT IGNORE INTO users (id, username, password, role_id)
+VALUES (
+    2,
+    'business',
+    '$2a$10$pb63mjbSxcq3N0YUubEA0uknwMSIXi8FGYzCBDpTnccvaYZNMrPGS',
+    (SELECT id FROM roles WHERE name = 'BUSINESS' LIMIT 1)
+);
+
+-- One-time migration: if old rows contain plain text passwords, convert them to BCrypt.
+UPDATE users
+SET password = '$2a$10$pb63mjbSxcq3N0YUubEA0uknwMSIXi8FGYzCBDpTnccvaYZNMrPGS'
+WHERE username IN ('indiv', 'business')
+  AND password NOT LIKE '$2a$%'
+  AND password NOT LIKE '$2b$%'
+  AND password NOT LIKE '$2y$%';
 
 -- Zero-amount placeholder expenses for 'indiv' so they are visible in the UI.
 -- Assumes the 'indiv' user has id = 1. INSERT IGNORE prevents duplicates on restart.
