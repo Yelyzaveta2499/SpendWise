@@ -3,11 +3,6 @@ INSERT IGNORE INTO roles (name) VALUES ('INDIVIDUAL');
 INSERT IGNORE INTO roles (name) VALUES ('BUSINESS');
 INSERT IGNORE INTO roles (name) VALUES ('KIDS');
 
--- Seed users matching in-memory security users. Assumes role IDs 1,2,3 in insertion order.
-INSERT IGNORE INTO users (username, password, role_id) VALUES ('indiv', 'dummy', 1);
-INSERT IGNORE INTO users (username, password, role_id) VALUES ('business', 'dummy', 2);
-INSERT IGNORE INTO users (username, password, role_id) VALUES ('kid', 'dummy', 3);
-
 -- Zero-amount placeholder expenses for 'indiv' so they are visible in the UI.
 -- Assumes the 'indiv' user has id = 1. INSERT IGNORE prevents duplicates on restart.
 -- INSERT IGNORE INTO expenses (user_id, name, category, amount, expense_date, created_at, updated_at) VALUES
