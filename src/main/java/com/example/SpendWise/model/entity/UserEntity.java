@@ -35,6 +35,9 @@ public class UserEntity {
     // "PERSONAL" or "BUSINESS"
     private String accountType;
 
+    // Soft delete flag to disable accounts without losing data
+    private boolean deleted = false;
+
     public UserEntity() {}
 
     public UserEntity(Integer id, String username, String password, RoleEntity role) {
@@ -70,5 +73,8 @@ public class UserEntity {
 
     public String getAccountType() { return accountType; }
     public void setAccountType(String accountType) { this.accountType = accountType; }
+
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }
 

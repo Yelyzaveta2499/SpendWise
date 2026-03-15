@@ -64,7 +64,7 @@ public class UserService {
     }
 
     /**
-     * Updates basic settings for the given username.
+     * Updates settings for the given username.
 
      */
     public Optional<UserSettingsDto> updateSettingsForUser(String username, UserSettingsDto updated) {
@@ -98,12 +98,14 @@ public class UserService {
     }
 
     /**
-     * Deletes the user account for the given username
+     * Soft-deletes the user account for the given username by setting
+     * a  boolean flag. Data stays in the database.
      */
     public boolean deleteAccountForUser(String username) {
         return userRepository.findByUsername(username)
                 .map(user -> {
-                    userRepository.delete(user);
+                    user.setDeleted(true);
+                    userRepository.save(user);
                     return true;
                 })
                 .orElse(false);
