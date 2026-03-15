@@ -64,25 +64,39 @@ public class UserService {
     }
 
     /**
-     * Updates settings for the given username.
-
+     * Updates settings for the given username
      */
     public Optional<UserSettingsDto> updateSettingsForUser(String username, UserSettingsDto updated) {
         return userRepository.findByUsername(username).map(user -> {
-            if (updated.getFirstName() != null) {
-                user.setFirstName(updated.getFirstName());
+            String firstName = updated.getFirstName();
+            String lastName  = updated.getLastName();
+            String email     = updated.getEmail();
+            String currency  = updated.getCurrency();
+            String accountType = updated.getAccountType();
+
+            if (firstName != null) {
+                user.setFirstName(firstName.trim());
             }
-            if (updated.getLastName() != null) {
-                user.setLastName(updated.getLastName());
+            if (lastName != null) {
+                user.setLastName(lastName.trim());
             }
-            if (updated.getEmail() != null) {
-                user.setEmail(updated.getEmail());
+
+            if (email != null) {
+                email = email.trim();
+                if (!email.isEmpty() && email.contains("@")) {
+                    user.setEmail(email);
+                }
             }
-            if (updated.getCurrency() != null) {
-                user.setCurrency(updated.getCurrency());
+
+            if (currency != null) {
+                user.setCurrency(currency.trim());
             }
-            if (updated.getAccountType() != null) {
-                user.setAccountType(updated.getAccountType());
+
+            if (accountType != null) {
+                String at = accountType.trim().toUpperCase();
+                if ("BUSINESS".equals(at) || "PERSONAL".equals(at)) {
+                    user.setAccountType(at);
+                }
             }
 
             UserEntity saved = userRepository.save(user);

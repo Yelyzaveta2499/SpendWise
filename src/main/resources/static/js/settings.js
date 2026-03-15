@@ -168,8 +168,11 @@ function renderSettings() {
           }
           return response.json();
         })
-        .then(function () {
+        .then(function (data) {
           alert('Settings saved successfully.');
+          if (window.updateSidebarFromSettings && data) {
+            window.updateSidebarFromSettings(data);
+          }
         })
         .catch(function (err) {
           console.error(err);
