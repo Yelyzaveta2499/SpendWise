@@ -527,6 +527,248 @@
   border-color: #1e3a8a;
 }
 
+/* ----------------------
+   Settings Page
+   ---------------------- */
+
+.settings-page {
+  max-width: 1200px;
+  margin: 16px auto 24px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-page .settings-card {
+  background: #020617;
+  border-radius: 16px;
+  border: 1px solid #1e293b;
+  padding: 24px 28px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.75);
+}
+
+.settings-page .settings-card--danger {
+  border-color: #b91c1c;
+}
+
+.settings-page .settings-card-header {
+  margin-bottom: 20px;
+}
+
+.settings-page .settings-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.settings-page .settings-card-title--danger {
+  color: #f97373;
+}
+
+.settings-page .settings-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.settings-page .settings-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-page .settings-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+}
+
+.settings-page .settings-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-page .settings-form-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+.settings-page .settings-form-field input,
+.settings-page .settings-form-field select {
+  background: #020617;
+  border-radius: 10px;
+  border: 1px solid #111827;
+  padding: 10px 12px;
+  color: #e5e7eb;
+  font-size: 14px;
+}
+
+.settings-page .settings-form-field input:focus,
+.settings-page .settings-form-field select:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3);
+}
+
+.settings-page .settings-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.settings-page .settings-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.settings-page .settings-btn-primary {
+  background: #06b6d4;
+  color: #0b1120;
+  box-shadow: 0 0 0 1px rgba(8, 145, 178, 0.4), 0 14px 30px rgba(8, 145, 178, 0.45);
+}
+
+.settings-page .settings-btn-primary:hover {
+  background: #0ea5e9;
+}
+
+.settings-page .settings-btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 10px 22px rgba(8, 145, 178, 0.5);
+}
+
+.settings-page .settings-account-types {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.settings-page .settings-account-tile {
+  background: #020617;
+  border-radius: 14px;
+  border: 1px solid #1f2937;
+  padding: 18px 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease, background-color 0.15s ease;
+}
+
+.settings-page .settings-account-tile:hover {
+  border-color: #22c55e;
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.35);
+}
+
+.settings-page .settings-account-tile--current {
+  border-color: #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.45), 0 0 50px rgba(34, 197, 94, 0.55);
+}
+
+.settings-page .settings-account-tile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.settings-page .settings-account-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.settings-page .settings-account-description {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.settings-page .settings-account-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #022c22;
+}
+
+.settings-page .settings-card--danger .settings-danger-content {
+  border-radius: 12px;
+  border: 1px solid rgba(248, 113, 113, 0.75);
+  background: rgba(127, 29, 29, 0.4);
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.settings-page .settings-danger-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fecaca;
+}
+
+.settings-page .settings-danger-text p {
+  margin: 0;
+  font-size: 13px;
+  color: #fecaca;
+  opacity: 0.85;
+}
+
+.settings-page .settings-btn-danger {
+  background: #ef4444;
+  color: #fee2e2;
+  box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.55), 0 14px 30px rgba(248, 113, 113, 0.6);
+}
+
+.settings-page .settings-btn-danger:hover {
+  background: #dc2626;
+}
+
+.settings-page .settings-btn-danger:active {
+  transform: translateY(1px);
+  box-shadow: 0 10px 22px rgba(248, 113, 113, 0.7);
+}
+
+@media (max-width: 900px) {
+  .settings-page .settings-form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-page {
+    padding-inline: 8px;
+  }
+
+  .settings-page .settings-top-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-page .settings-account-types {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-page .settings-card {
+    padding: 20px 18px;
+  }
+
+  .settings-page .settings-card--danger .settings-danger-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .settings-page .settings-danger-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
 .expense-list-card {
   background: white;
   border-radius: 12px;

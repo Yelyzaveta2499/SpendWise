@@ -890,10 +890,10 @@
 
         <div class="sidebar-footer">
             <div class="user-badge">
-                <div class="avatar">JD</div>
+                <div class="avatar" id="sidebar-avatar">LH</div>
                 <div class="user-info">
-                    <div class="user-name">John Doe</div>
-                    <div class="user-type">Personal Account</div>
+                    <div class="user-name" id="sidebar-user-name">Liza Hlushych</div>
+                    <div class="user-type" id="sidebar-user-type">Personal Account</div>
                 </div>
                 <form th:action="@{/logout}" method="post" class="logout-form">
                     <button type="submit" class="logout-btn" title="Logout">
@@ -1026,6 +1026,7 @@
 <script src="/js/goals.js" defer></script>
 <script src="/js/business.js" defer></script>
 <script src="/js/reports.js" defer></script>
+<script src="/js/settings.js" defer></script>
 <script>
 // Arrow-controlled, looped 4-card carousel (call fit after render)
 (function(){
