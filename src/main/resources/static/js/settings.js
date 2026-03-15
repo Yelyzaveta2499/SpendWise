@@ -182,9 +182,27 @@ function renderSettings() {
   if (deleteBtn) {
     deleteBtn.addEventListener('click', function () {
       const confirmed = confirm('This will permanently delete your account and all data. Continue?');
-      if (confirmed) {
-        alert('Account deletion would be handled here.');
+      if (!confirmed) {
+        return;
       }
+
+      fetch('/api/settings/account', {
+        method: 'DELETE',
+        credentials: 'same-origin'
+      })
+        .then(function (response) {
+          if (response.status === 204) {
+            alert('Your account has been deleted. You will be logged out.');
+            // after delete, send user to login page (or home)
+            window.location.href = '/login';
+            return;
+          }
+          throw new Error('Failed to delete account');
+        })
+        .catch(function (err) {
+          console.error(err);
+          alert('Could not delete account. Please try again later.');
+        });
     });
   }
 }

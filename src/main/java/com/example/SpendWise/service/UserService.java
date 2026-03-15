@@ -96,5 +96,17 @@ public class UserService {
             return result;
         });
     }
+
+    /**
+     * Deletes the user account for the given username
+     */
+    public boolean deleteAccountForUser(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> {
+                    userRepository.delete(user);
+                    return true;
+                })
+                .orElse(false);
+    }
 }
 
