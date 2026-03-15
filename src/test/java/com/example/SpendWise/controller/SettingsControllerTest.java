@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -23,12 +24,17 @@ class SettingsControllerTest {
 
     private MockMvc mockMvc;
     private UserService userService;
+    private TestingAuthenticationToken auth;
 
     @BeforeEach
     void setup() {
         userService = Mockito.mock(UserService.class);
         SettingsController controller = new SettingsController(userService);
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+
+
+        auth = new TestingAuthenticationToken("liza", "password");
+        auth.setAuthenticated(true);
     }
 
     @Test
@@ -41,10 +47,8 @@ class SettingsControllerTest {
         when(userService.getSettingsForUser("liza"))
                 .thenReturn(Optional.of(dto));
 
-        // can't inject Authentication here without Spring Security
-        // so this test is a sanity check that the endpoint is wired
         mockMvc.perform(get("/api/settings")
-                        .principal(() -> "liza"))
+                        .principal(auth))
                 .andExpect(status().isOk());
     }
 
@@ -64,7 +68,7 @@ class SettingsControllerTest {
                 "}";
 
         mockMvc.perform(put("/api/settings")
-                        .principal(() -> "liza")
+                        .principal(auth)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk());
@@ -75,7 +79,7 @@ class SettingsControllerTest {
         when(userService.deleteAccountForUser("liza")).thenReturn(true);
 
         mockMvc.perform(delete("/api/settings/account")
-                        .principal(() -> "liza"))
+                        .principal(auth))
                 .andExpect(status().isNoContent());
     }
 }
