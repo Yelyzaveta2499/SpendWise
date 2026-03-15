@@ -28,6 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<!-- Karate version for API / integration tests -->
+		<karate.version>1.4.0</karate.version>
 	</properties>
 	<dependencies>
 		<!-- Azure OpenAI SDK (Netty HTTP client excluded to avoid conflict with Spring Boot 4 / Netty 4.2.x) -->
@@ -115,6 +117,14 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-test-autoconfigure</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Karate for API / integration / E2E tests -->
+		<dependency>
+			<groupId>com.intuit.karate</groupId>
+			<artifactId>karate-junit5</artifactId>
+			<version>${karate.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
