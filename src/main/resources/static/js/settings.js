@@ -82,11 +82,99 @@ function renderSettings() {
     </div>
   `;
 
+  const firstNameInput = document.getElementById('settings-first-name');
+  const lastNameInput = document.getElementById('settings-last-name');
+  const emailInput = document.getElementById('settings-email');
+  const currencySelect = document.getElementById('settings-currency');
+  const accountTiles = contentDiv.querySelectorAll('.settings-account-tile');
+
+  function getSelectedAccountType() {
+    let type = 'PERSONAL';
+    accountTiles.forEach(function (tile) {
+      if (tile.classList.contains('settings-account-tile--current')) {
+        type = tile.getAttribute('data-type') === 'business' ? 'BUSINESS' : 'PERSONAL';
+      }
+    });
+    return type;
+  }
+
+  function selectAccountType(type) {
+    accountTiles.forEach(function (tile) {
+      const isBusiness = tile.getAttribute('data-type') === 'business';
+      const tileType = isBusiness ? 'BUSINESS' : 'PERSONAL';
+      if (tileType === type) {
+        tile.classList.add('settings-account-tile--current');
+        tile.setAttribute('aria-pressed', 'true');
+      } else {
+        tile.classList.remove('settings-account-tile--current');
+        tile.setAttribute('aria-pressed', 'false');
+      }
+    });
+  }
+
+  accountTiles.forEach(function (tile) {
+    tile.addEventListener('click', function () {
+      const isBusiness = tile.getAttribute('data-type') === 'business';
+      selectAccountType(isBusiness ? 'BUSINESS' : 'PERSONAL');
+    });
+  });
+
+  // Load existing settings from backend
+  fetch('/api/settings', { credentials: 'same-origin' })
+    .then(function (response) {
+      if (!response.ok) {
+        return null;
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      if (!data) {
+        return;
+      }
+      if (data.firstName && firstNameInput) firstNameInput.value = data.firstName;
+      if (data.lastName && lastNameInput) lastNameInput.value = data.lastName;
+      if (data.email && emailInput) emailInput.value = data.email;
+      if (data.currency && currencySelect) currencySelect.value = data.currency;
+      if (data.accountType) {
+        selectAccountType(data.accountType);
+      }
+    })
+    .catch(function (err) {
+      console.error('Failed to load settings', err);
+    });
+
   const saveBtn = document.getElementById('settings-save-btn');
   if (saveBtn) {
     saveBtn.addEventListener('click', function () {
-      // Placeholder behavior - backend integration will add later
-      alert('Profile changes would be saved here.');
+      const payload = {
+        firstName: firstNameInput ? firstNameInput.value : null,
+        lastName: lastNameInput ? lastNameInput.value : null,
+        email: emailInput ? emailInput.value : null,
+        currency: currencySelect ? currencySelect.value : null,
+        accountType: getSelectedAccountType()
+      };
+
+      fetch('/api/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error('Failed to save settings');
+          }
+          return response.json();
+        })
+        .then(function () {
+          alert('Settings saved successfully.');
+        })
+        .catch(function (err) {
+          console.error(err);
+          alert('Could not save settings. Please try again.');
+        });
     });
   }
 
@@ -99,17 +187,4 @@ function renderSettings() {
       }
     });
   }
-
-  const accountTiles = contentDiv.querySelectorAll('.settings-account-tile');
-  accountTiles.forEach(function(tile) {
-    tile.addEventListener('click', function () {
-      accountTiles.forEach(function(t) {
-        t.classList.remove('settings-account-tile--current');
-        t.setAttribute('aria-pressed', 'false');
-      });
-      tile.classList.add('settings-account-tile--current');
-      tile.setAttribute('aria-pressed', 'true');
-    });
-  });
 }
-

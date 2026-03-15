@@ -20,6 +20,21 @@ public class UserEntity {
     @JoinColumn(name = "role_id")
     private RoleEntity role;
 
+    // --- Settings / profile fields ---
+
+    private String firstName;
+
+    private String lastName;
+
+    @Column(unique = true)
+    private String email;
+
+    //  "USD", "EUR"
+    private String currency;
+
+    // "PERSONAL" or "BUSINESS"
+    private String accountType;
+
     public UserEntity() {}
 
     public UserEntity(Integer id, String username, String password, RoleEntity role) {
@@ -40,5 +55,20 @@ public class UserEntity {
 
     public RoleEntity getRole() { return role; }
     public void setRole(RoleEntity role) { this.role = role; }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getCurrency() { return currency; }
+    public void setCurrency(String currency) { this.currency = currency; }
+
+    public String getAccountType() { return accountType; }
+    public void setAccountType(String accountType) { this.accountType = accountType; }
 }
 
