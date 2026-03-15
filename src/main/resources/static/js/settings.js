@@ -7,7 +7,8 @@ function renderSettings() {
 
   contentDiv.innerHTML = `
     <div class="settings-page">
-      <div class="settings-card settings-card--profile">
+      <div class="settings-top-row">
+        <div class="settings-card settings-card--profile">
         <div class="settings-card-header">
           <h2 class="settings-card-title">Profile Information</h2>
         </div>
@@ -61,6 +62,7 @@ function renderSettings() {
             <p class="settings-account-description">Advanced features for small business expense tracking.</p>
           </button>
         </div>
+      </div>
       </div>
 
       <div class="settings-card settings-card--danger">

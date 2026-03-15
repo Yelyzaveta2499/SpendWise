@@ -532,11 +532,11 @@
    ---------------------- */
 
 .settings-page {
-  max-width: 1040px;
-  margin: 24px auto 40px auto;
+  max-width: 1200px;
+  margin: 16px auto 24px auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .settings-page .settings-card {
@@ -565,10 +565,16 @@
   color: #f97373;
 }
 
+.settings-page .settings-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
 .settings-page .settings-profile-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .settings-page .settings-form-row {
@@ -737,6 +743,10 @@
 
   .settings-page {
     padding-inline: 8px;
+  }
+
+  .settings-page .settings-top-row {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .settings-page .settings-account-types {
