@@ -106,12 +106,16 @@
         }
         break;
       case 'settings':
-        contentDiv.innerHTML = `
-          <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
-            <h2 style="font-size: 32px; margin-bottom: 16px;">Settings</h2>
-            <p style="color: #6b7280;">Manage account preferences.</p>
-          </div>
-        `;
+        if (typeof renderSettings === 'function') {
+          renderSettings();
+        } else {
+          contentDiv.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
+              <h2 style="font-size: 32px; margin-bottom: 16px;">Settings</h2>
+              <p style="color: #6b7280;">Manage account preferences.</p>
+            </div>
+          `;
+        }
         break;
     }
   }
