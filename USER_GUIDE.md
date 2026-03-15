@@ -8,6 +8,7 @@
 5. [Budgets](#budgets)
 6. [Savings Goals](#savings-goals)
 7. [Reports](#reports)
+8. [Settings](#settings)
 
 ---
 
@@ -287,3 +288,18 @@ Below the charts you'll see four stat boxes for the selected period:
 
 ### No Data State
 If you have no expenses recorded for the selected period, each chart will show *"No financial data for this period."* — add expenses first, then come back to Reports.
+
+---
+
+## Settings
+
+Use the **Settings** section to manage your personal profile and account.
+
+### Profile & Preferences
+- **View current details** — your name, email, currency and account type are loaded from the backend using `/api/settings`.
+- **Update settings** — changes you make on the Settings screen are sent to `/api/settings` (PUT) and saved as your new defaults.
+
+### Account Deletion
+- You can request account deletion from the Settings page.
+- This calls `/api/settings/account` (DELETE) and marks your account as deleted in the system.
+- Once deleted, you won't be able to log in with this account again.
