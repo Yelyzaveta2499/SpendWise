@@ -127,11 +127,10 @@
 			<version>${karate.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- Spring AOP required at runtime for proxies / event multicaster -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>6.2.0</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
