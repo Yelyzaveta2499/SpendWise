@@ -117,6 +117,15 @@
     box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
 }
 
+/* image logo is used inside the avatar, size it to fit */
+.chat-panel-avatar img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    border-radius: 50%;
+    display: block;
+}
+
 .chat-panel-info h4 {
     margin: 0;
     font-size: 14px;
