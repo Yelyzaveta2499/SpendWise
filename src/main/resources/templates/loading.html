@@ -536,8 +536,8 @@
             var centerX = rectW * 0.52;
             var centerY = rectH * 0.75;
 
-            // traveling waves
-            var speed = 0.0003; // time scale (slowed down 4x)
+            // traveling waves (slowed down a bit)
+            var speed = 0.00018;
             t += dt * speed;
 
             var amp = Math.max(15, Math.min(35, rectH * 0.045));
@@ -583,9 +583,9 @@
 
                     var r = baseR * (0.9 + depth * 0.65) * (0.85 + (z + 1) * 0.10);
 
-                    // soft green glow
+                    // pastel green glow (less bright)
                     wctx.beginPath();
-                    wctx.fillStyle = 'rgba(34, 197, 94, ' + a.toFixed(3) + ')';
+                    wctx.fillStyle = 'rgba(34, 197, 94, ' + (a * 0.55).toFixed(3) + ')';
                     wctx.arc(xx, yy, r, 0, Math.PI * 2);
                     wctx.fill();
                 }
