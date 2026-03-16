@@ -9,12 +9,13 @@
     <style>
         :root {
 
-            --bg0: #02130a;
-            --bg1: #031a0e;
+            --bg0: #020617;
+            --bg1: #020617;
 
-            --c1: 22, 101, 52;    /* dark emerald */
-            --c2: 21, 128, 61;    /* emerald */
-            --c3: 34, 197, 94;    /* lighter accent green */
+
+            --c1: 30, 64, 175;    /* deep indigo/blue accent */
+            --c2: 22, 101, 52;    /* dark emerald */
+            --c3: 34, 197, 94;    /* softer green accent */
             --ink: #e5e7eb;
             --muted: rgba(226, 232, 240, 0.80);
         }
@@ -583,9 +584,9 @@
 
                     var r = baseR * (0.9 + depth * 0.65) * (0.85 + (z + 1) * 0.10);
 
-                    // pastel green glow (less bright)
+
                     wctx.beginPath();
-                    wctx.fillStyle = 'rgba(34, 197, 94, ' + (a * 0.55).toFixed(3) + ')';
+                    wctx.fillStyle = 'rgba(56, 189, 248, ' + (a * 0.45).toFixed(3) + ')';
                     wctx.arc(xx, yy, r, 0, Math.PI * 2);
                     wctx.fill();
                 }
