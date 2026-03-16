@@ -1,5 +1,7 @@
 package com.example.SpendWise.model;
 
+import com.example.SpendWise.model.entity.Contribution;
+import com.example.SpendWise.model.entity.Goal;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
