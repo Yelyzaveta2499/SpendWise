@@ -24,7 +24,7 @@ function renderDashboardOverview() {
         <div class="dash-card">
           <div class="dash-card-top">
             <div class="dash-card-label">Total Balance</div>
-            <div class="dash-card-icon" style="background:#eef2ff;color:#1e3a8a;">💳</div>
+            <div class="dash-card-icon dash-card-icon-dark">TB</div>
           </div>
           <div class="dash-card-value" id="dashTotalBalance">—</div>
           <div class="dash-card-foot" id="dashBalanceHint">Net (income - expenses)</div>
@@ -33,7 +33,7 @@ function renderDashboardOverview() {
         <div class="dash-card">
           <div class="dash-card-top">
             <div class="dash-card-label">Income</div>
-            <div class="dash-card-icon" style="background:#e7f7ef;color:#198754;">📈</div>
+            <div class="dash-card-icon dash-card-icon-dark dash-card-icon-pos">IN</div>
           </div>
           <div class="dash-card-value" id="dashIncome">—</div>
           <div class="dash-card-foot" id="dashIncomeHint">For selected period</div>
@@ -42,7 +42,7 @@ function renderDashboardOverview() {
         <div class="dash-card">
           <div class="dash-card-top">
             <div class="dash-card-label">Expenses</div>
-            <div class="dash-card-icon" style="background:#fde8e8;color:#dc3545;">📉</div>
+            <div class="dash-card-icon dash-card-icon-dark dash-card-icon-neg">EX</div>
           </div>
           <div class="dash-card-value" id="dashExpenses">—</div>
           <div class="dash-card-foot" id="dashExpensesHint">For selected period</div>
@@ -51,7 +51,7 @@ function renderDashboardOverview() {
         <div class="dash-card">
           <div class="dash-card-top">
             <div class="dash-card-label">Savings Rate</div>
-            <div class="dash-card-icon" style="background:#f3e8ff;color:#6f42c1;">🐷</div>
+            <div class="dash-card-icon dash-card-icon-dark dash-card-icon-accent">SR</div>
           </div>
           <div class="dash-card-value" id="dashSavingsRate">—</div>
           <div class="dash-card-foot" id="dashSavingsHint">Income vs expenses</div>
@@ -136,28 +136,28 @@ function renderDashboardOverview() {
 
   function iconForCategory(category) {
     const icons = {
-      'Food & Dining': '🍴',
-      'Income': '💼',
-      'Coffee': '☕',
-      'Housing': '🏠',
-      'Transportation': '🚗',
-      'Utilities': '📱',
-      'Shopping': '🛍️',
-      'Grocery': '🛒'
+      'Food & Dining': 'FD',
+      'Income': 'IN',
+      'Coffee': 'CF',
+      'Housing': 'HO',
+      'Transportation': 'TR',
+      'Utilities': 'UT',
+      'Shopping': 'SH',
+      'Grocery': 'GR'
     };
-    return icons[category] || '💸';
+    return icons[category] || '$$';
   }
 
   function iconBgForCategory(category) {
     const colors = {
-      'Food & Dining': '#e0f2e9',
-      'Income': '#d4f4dd',
-      'Coffee': '#fff4e6',
-      'Housing': '#e8e8f0',
-      'Transportation': '#ede9fe',
-      'Utilities': '#e3f2fd',
-      'Shopping': '#fce4ec',
-      'Grocery': '#e0f2e9'
+      'Food & Dining': '#021009',
+      'Income': '#021b09',
+      'Coffee': '#022201',
+      'Housing': '#012501',
+      'Transportation': '#031e04',
+      'Utilities': '#031e04',
+      'Shopping': '#031e04',
+      'Grocery': '#031e04'
     };
     return colors[category] || '#f0f0f0';
   }
@@ -379,7 +379,9 @@ function renderDashboardOverview() {
       return `
         <div class="dash-tx-item">
           <div class="dash-tx-left">
-            <div class="dash-tx-icon" style="background:${iconBg};">${icon}</div>
+            <div class="category-icon" style="background-color: ${iconBg};">
+              ${icon}
+            </div>
             <div>
               <div class="dash-tx-name">${t.name || 'Transaction'}</div>
               <div class="dash-tx-cat">${t.category || 'Other'}</div>
