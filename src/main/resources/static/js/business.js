@@ -110,251 +110,190 @@ function transformAnalyticsData(apiData) {
 }
 
 function renderBusinessContent(contentDiv, data) {
-    const { stats, expenseTags, spendingByTag, categoryData, recentExpenses } = data;
-
+    const { stats, expenseTags, spendingByTag, categoryData } = data;
     const maxSpending = Math.max(...spendingByTag.map(t => t.amount));
 
     const html = `
         <div class="business-wrap">
             <div class="business-page">
-            <!-- Stats Cards Row -->
-            <div class="business-stats-row">
-                <div class="business-stat-card">
-                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="1" x2="12" y2="23"></line>
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">${stats.totalRevenue.amount}</div>
-                        <div class="stat-label">${stats.totalRevenue.label}</div>
-                    </div>
-                    <div class="stat-change positive">${stats.totalRevenue.change}</div>
-                </div>
-
-                <div class="business-stat-card">
-                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">${stats.totalExpenses.amount}</div>
-                        <div class="stat-label">${stats.totalExpenses.label}</div>
-                    </div>
-                    <div class="stat-change negative">${stats.totalExpenses.change}</div>
-                </div>
-
-                <div class="business-stat-card">
-                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">${stats.activeClients.amount}</div>
-                        <div class="stat-label">${stats.activeClients.label}</div>
-                    </div>
-                    <div class="stat-change positive">${stats.activeClients.change}</div>
-                </div>
-
-                <div class="business-stat-card">
-                    <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">${stats.activeTags.amount}</div>
-                        <div class="stat-label">${stats.activeTags.label}</div>
-                    </div>
-                    <div class="stat-change positive">${stats.activeTags.change}</div>
-                </div>
-            </div>
-
-            <!-- Main Content Grid -->
-            <div class="business-main-grid">
-                <!-- Left Column -->
-                <div class="business-left-col">
-                    <!-- Expense Tags Section -->
-                    <div class="business-card">
-                        <div class="business-card-header">
-                            <div class="card-header-left">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                                </svg>
-                                <h3>Expense Tags</h3>
-                            </div>
-                            <button class="btn-new-tag">+ New Tag</button>
-                        </div>
-                        <div class="expense-tags-list">
-                            ${expenseTags.map(tag => `
-                                <span class="expense-tag-badge" style="background: ${tag.color}20; color: ${tag.color}; border-color: ${tag.color}40;">
-                                    ${tag.name} <span class="tag-count">${tag.count}</span>
-                                </span>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <!-- Monthly Tag Report -->
-                    <div class="business-card">
-                        <div class="business-card-header">
-                            <div class="card-header-left">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M9 2v4M15 2v4M3 8h18M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
-                                </svg>
-                                <div>
-                                    <h3>Monthly Tag Report</h3>
-                                    <p class="card-subtitle">Expenses by tag over time</p>
-                                </div>
-                            </div>
-                            <button class="btn-export">Export</button>
-                        </div>
-                        <div class="business-chart" id="monthlyTagChart">
-                            <div class="business-chart-empty">Loading chart...</div>
-                        </div>
-                    </div>
-
-                    <!-- Category × Tag Matrix -->
-                    <div class="business-card">
-                        <div class="business-card-header">
-                            <div class="card-header-left">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="3" width="7" height="7"></rect>
-                                    <rect x="14" y="14" width="7" height="7"></rect>
-                                    <rect x="3" y="14" width="7" height="7"></rect>
-                                </svg>
-                                <div>
-                                    <h3>Category × Tag Matrix</h3>
-                                    <p class="card-subtitle">Multi-purpose category view</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="category-matrix-list">
-                            ${categoryData.map(cat => `
-                                <div class="category-matrix-row">
-                                    <div class="category-info">
-                                        <div class="category-name">${cat.name}</div>
-                                        <div class="category-tags">
-                                            ${cat.tags.map((tag, i) => `
-                                                <span class="mini-tag" style="background: ${cat.tagColors[i]}; color: white;">${tag}</span>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                    <div class="category-amount-section">
-                                        <div class="category-amount">${cat.amount}</div>
-                                        <div class="category-change ${cat.change.startsWith('-') ? 'negative' : 'positive'}">${cat.change}</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <!-- Recent Tagged Expenses -->
-                    <div class="business-card">
-                        <div class="business-card-header">
-                            <h3>Recent Tagged Expenses</h3>
-                            <a href="#" class="view-all-link">View All →</a>
-                        </div>
-                        <div class="recent-expenses-grid">
-                            ${recentExpenses.map(exp => `
-                                <div class="recent-expense-item" style="--item-color: ${exp.iconColor}">
-                                    <div class="expense-item-header">
-                                        <div class="expense-icon-box" style="background: ${exp.iconColor}20; color: ${exp.iconColor};">
-                                            ${exp.icon}
-                                        </div>
-                                        <div class="expense-info">
-                                            <div class="expense-name">${exp.name}</div>
-                                            <div class="expense-meta">
-                                                ${exp.category} • ${exp.tags.map((tag, i) => `<span style="color: ${exp.tagColors[i]}">${tag}</span>`).join(' • ')}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="expense-amount">${exp.amount}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column -->
-                <div class="business-right-col">
-                    <!-- Spending by Tag -->
-                    <div class="business-card">
-                        <div class="business-card-header">
-                            <div class="card-header-left">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M12 6v6l4 2"></path>
-                                </svg>
-                                <div>
-                                    <h3>Spending by Tag</h3>
-                                    <p class="card-subtitle">Monthly tag breakdown</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="spending-bars">
-                            ${spendingByTag.map(tag => `
-                                <div class="spending-bar-row">
-                                    <div class="bar-label">${tag.name}</div>
-                                    <div class="bar-track">
-                                        <div class="bar-fill" style="width: ${(tag.amount / maxSpending) * 100}%; background: ${tag.color};"></div>
-                                    </div>
-                                    <div class="bar-values">
-                                        <span class="bar-amount">$${(tag.amount / 1000).toFixed(1)}k</span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                            <div class="bar-axis">
-                                <span>$0k</span>
-                                <span>$4k</span>
-                                <span>$7k</span>
-                                <span>$11k</span>
-                                <span>$14k</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Income & Expenses Chart -->
-                    <div class="business-card">
-                        <div class="business-card-header">
-                            <h3>Income & Expenses</h3>
-                            <div class="chart-stats">
-                                <div class="chart-stat">
-                                    <span class="stat-label-small">Max. Expenses</span>
-                                    <span class="stat-value-small" style="color: #ef4444;">$18,853</span>
-                                </div>
-                                <div class="chart-stat">
-                                    <span class="stat-label-small">Max. Income</span>
-                                    <span class="stat-value-small" style="color: #10b981;">$23,240</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="business-chart" id="incomeExpensesChart">
-                            <div class="business-chart-empty">Loading chart...</div>
-                        </div>
-                    </div>
-
-                    <!-- Notification -->
-                    <div class="notification-card">
-                        <div class="notification-icon">
+                <!-- Stats Cards Row -->
+                <div class="business-stats-row">
+                    <div class="business-stat-card">
+                        <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                             </svg>
                         </div>
-                        <div class="notification-content">
-                            <div class="notification-title">Notification</div>
-                            <div class="notification-message">3 Bills are past Due. Pay soon to avoid late fees.</div>
+                        <div class="stat-content">
+                            <div class="stat-value">${stats.totalRevenue.amount}</div>
+                            <div class="stat-label">${stats.totalRevenue.label}</div>
+                        </div>
+                        <div class="stat-change positive">${stats.totalRevenue.change}</div>
+                    </div>
+
+                    <div class="business-stat-card">
+                        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">${stats.totalExpenses.amount}</div>
+                            <div class="stat-label">${stats.totalExpenses.label}</div>
+                        </div>
+                        <div class="stat-change negative">${stats.totalExpenses.change}</div>
+                    </div>
+
+                    <div class="business-stat-card">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">${stats.activeClients.amount}</div>
+                            <div class="stat-label">${stats.activeClients.label}</div>
+                        </div>
+                        <div class="stat-change positive">${stats.activeClients.change}</div>
+                    </div>
+
+                    <div class="business-stat-card">
+                        <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">${stats.activeTags.amount}</div>
+                            <div class="stat-label">${stats.activeTags.label}</div>
+                        </div>
+                        <div class="stat-change positive">${stats.activeTags.change}</div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="business-main-grid">
+                    <!-- Left Column -->
+                    <div class="business-left-col">
+                        <!-- Expense Tags Section -->
+                        <div class="business-card">
+                            <div class="business-card-header">
+                                <div class="card-header-left">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                                    </svg>
+                                    <h3>Expense Tags</h3>
+                                </div>
+                                <button class="btn-new-tag">+ New Tag</button>
+                            </div>
+                            <div class="expense-tags-list">
+                                ${expenseTags.map(tag => `
+                                    <span class="expense-tag-badge" style="background: ${tag.color}20; color: ${tag.color}; border-color: ${tag.color}40;">
+                                        ${tag.name} <span class="tag-count">${tag.count}</span>
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Monthly Tag Report -->
+                        <div class="business-card">
+                            <div class="business-card-header">
+                                <div class="card-header-left">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 2v4M15 2v4M3 8h18M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
+                                    </svg>
+                                    <div>
+                                        <h3>Monthly Tag Report</h3>
+                                        <p class="card-subtitle">Expenses by tag over time</p>
+                                    </div>
+                                </div>
+                                <button class="btn-export">Export</button>
+                            </div>
+                            <div class="business-chart" id="monthlyTagChart">
+                                <div class="business-chart-empty">Loading chart...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="business-right-col">
+                        <!-- Spending by Tag -->
+                        <div class="business-card">
+                            <div class="business-card-header">
+                                <div class="card-header-left">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M12 6v6l4 2"></path>
+                                    </svg>
+                                    <div>
+                                        <h3>Spending by Tag</h3>
+                                        <p class="card-subtitle">Monthly tag breakdown</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="spending-bars">
+                                ${spendingByTag.map(tag => `
+                                    <div class="spending-bar-row">
+                                        <div class="bar-label">${tag.name}</div>
+                                        <div class="bar-track">
+                                            <div class="bar-fill" style="width: ${(tag.amount / maxSpending) * 100}%; background: ${tag.color};"></div>
+                                        </div>
+                                        <div class="bar-values">
+                                            <span class="bar-amount">$${(tag.amount / 1000).toFixed(1)}k</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                <div class="bar-axis">
+                                    <span>$0k</span>
+                                    <span>$4k</span>
+                                    <span>$7k</span>
+                                    <span>$11k</span>
+                                    <span>$14k</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category × Tag Matrix -->
+                        <div class="business-card">
+                            <div class="business-card-header">
+                                <div class="card-header-left">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="14" width="7" height="7"></rect>
+                                        <rect x="3" y="14" width="7" height="7"></rect>
+                                    </svg>
+                                    <div>
+                                        <h3>Category × Tag Matrix</h3>
+                                        <p class="card-subtitle">Multi-purpose category view</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="category-matrix-list">
+                                ${categoryData.map(cat => `
+                                    <div class="category-matrix-row">
+                                        <div class="category-info">
+                                            <div class="category-name">${cat.name}</div>
+                                            <div class="category-tags">
+                                                ${cat.tags.map((tag, i) => `
+                                                    <span class="mini-tag" style="background: ${cat.tagColors[i]}; color: white;">${tag}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="category-amount-section">
+                                            <div class="category-amount">${cat.amount}</div>
+                                            <div class="category-change ${cat.change.startsWith('-') ? 'negative' : 'positive'}">${cat.change}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1031,4 +970,3 @@ if (document.readyState === 'loading') {
         observer.observe(businessSection);
     }
 }
-
