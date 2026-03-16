@@ -104,29 +104,29 @@ function renderExpenses() {
 
   function getCategoryIcon(category) {
     const icons = {
-      'Food & Dining': '🍴',
-      'Income': '💼',
-      'Coffee': '☕',
-      'Housing': '🏠',
-      'Transportation': '🚗',
-      'Utilities': '📱',
-      'Shopping': '🛍️',
-      'Grocery': '🛒'
+      'Food & Dining': 'FD',
+      'Income': 'IN',
+      'Coffee': 'CF',
+      'Housing': 'HO',
+      'Transportation': 'TR',
+      'Utilities': 'UT',
+      'Shopping': 'SH',
+      'Grocery': 'GR'
     };
-    return icons[category] || '💰';
+    return icons[category] || '$$';
   }
 
 
   function getIconBg(category) {
     const colors = {
-      'Food & Dining': '#e0f2e9',
-      'Income': '#d4f4dd',
-      'Coffee': '#fff4e6',
-      'Housing': '#e8e8f0',
-      'Transportation': '#fff4e0',
-      'Utilities': '#e3f2fd',
-      'Shopping': '#fce4ec',
-      'Grocery': '#e0f2e9'
+      'Food & Dining': '#021009',
+      'Income': '#021b09',
+      'Coffee': '#022201',
+      'Housing': '#012501',
+      'Transportation': '#031e04',
+      'Utilities': '#031e04',
+      'Shopping': '#031e04',
+      'Grocery': '#031e04'
     };
     return colors[category] || '#f0f0f0';
   }

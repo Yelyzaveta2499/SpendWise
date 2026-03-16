@@ -1,7 +1,3 @@
-/**
- * SpendWise AI Chat – chat.js
- * Handles open/close of the floating chat panel and communication with /api/chat
- */
 (function () {
     'use strict';
 
@@ -144,7 +140,7 @@
 
         const avatar = document.createElement('div');
         avatar.className = 'chat-msg-avatar';
-        avatar.textContent = isBot ? '🐷' : 'U';
+        avatar.textContent = isBot ? 'SW' : 'U';
 
         const bubble = document.createElement('div');
         bubble.className = 'chat-msg-bubble';
@@ -166,7 +162,7 @@
         const avatar = document.createElement('div');
         avatar.className = 'chat-msg-avatar';
         avatar.style.background = 'linear-gradient(135deg,#0ea5e9,#6366f1)';
-        avatar.textContent = '🐷';
+        avatar.textContent = 'SW';
 
         const bubble = document.createElement('div');
         bubble.className = 'chat-typing-bubble';
@@ -197,12 +193,7 @@
         messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
     }
 
-    /**
-     * Very light markdown-like formatter:
-     * - **bold**
-     * - newlines → <br>
-     * - lines starting with - or * → bullet list
-     */
+
     function formatText(raw) {
         if (!raw) return '';
 

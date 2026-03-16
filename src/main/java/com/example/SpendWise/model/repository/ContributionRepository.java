@@ -1,6 +1,6 @@
-package com.example.SpendWise.repository;
+package com.example.SpendWise.model.repository;
 
-import com.example.SpendWise.model.Contribution;
+import com.example.SpendWise.model.entity.Contribution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

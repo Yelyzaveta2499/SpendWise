@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="SpendWise logo">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0%" stop-color="#16a34a" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+  </defs>
+  <rect width="150" height="150" rx="20" fill="#021018" />
+  <g transform="translate(60,66)" fill="url(#g)" font-family="Inter, system-ui, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="-25" y="46" font-size="100">S</text>
+    <text x="31" y="46" font-size="100">W</text>
+  </g>
+</svg>
+

@@ -12,6 +12,8 @@ import com.azure.ai.openai.models.ChatRequestUserMessage;
 import com.azure.core.credential.AzureKeyCredential;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.Map;
 
 @Service
 public class ChatService {
+
+    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
 
     private final OpenAIClient client;
     private final String deploymentName;
@@ -32,10 +36,19 @@ public class ChatService {
 
         this.deploymentName = deploymentName;
         this.systemPrompt = systemPrompt;
-        this.client = new OpenAIClientBuilder()
-                .credential(new AzureKeyCredential(apiKey))
-                .endpoint(endpoint)
-                .buildClient();
+
+        // If running in developer mode without a real Azure API key (the property
+        // defaults to 'test-api-key' in application.properties), do not build the
+        // remote OpenAI client. We'll return a safe local stub reply instead.
+        if (apiKey == null || apiKey.isBlank() || "test-api-key".equals(apiKey)) {
+            this.client = null;
+            log.info("Azure OpenAI API key not configured - ChatService will use local stub responses.");
+        } else {
+            this.client = new OpenAIClientBuilder()
+                    .credential(new AzureKeyCredential(apiKey))
+                    .endpoint(endpoint)
+                    .buildClient();
+        }
     }
 
     /**
@@ -46,6 +59,15 @@ public class ChatService {
      * @return the assistant's reply text
      */
     public String chat(String userMessage, List<Map<String, String>> history) {
+        // If client is null, we are running in a dev environment without
+        // a configured Azure OpenAI key — return a helpful canned reply so
+        // the frontend chat UI remains usable for local development.
+        if (client == null) {
+            String shortMsg = userMessage == null ? "" : userMessage.trim();
+            if (shortMsg.length() > 200) shortMsg = shortMsg.substring(0, 197) + "...";
+            return "[SpendWise AI (local demo)] I received your message: '" + shortMsg + "'. " +
+                    "Set the AZURE_OPENAI_API_KEY environment variable to enable the real AI.";
+        }
         List<ChatRequestMessage> messages = new ArrayList<>();
         messages.add(new ChatRequestSystemMessage(systemPrompt));
 
