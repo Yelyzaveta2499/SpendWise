@@ -113,5 +113,20 @@ class DashboardControllerTest {
                 new IllegalArgumentException("Unsupported period"));
         assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
     }
+
+    @Test
+    void totalWealth_returnsServicePayload() {
+        Authentication auth = Mockito.mock(Authentication.class);
+        when(auth.getName()).thenReturn("indiv");
+
+        Map<String, Object> payload = Map.of("totalWealth", new BigDecimal("123.45"));
+        when(dashboardService.computeTotalWealth("indiv")).thenReturn(payload);
+
+        Map<String, Object> out = dashboardController.totalWealth(auth);
+
+        assertSame(payload, out);
+        assertEquals(new BigDecimal("123.45"), out.get("totalWealth"));
+        verify(dashboardService, times(1)).computeTotalWealth("indiv");
+    }
 }
 

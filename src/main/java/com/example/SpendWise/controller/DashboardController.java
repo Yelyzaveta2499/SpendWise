@@ -30,6 +30,15 @@ public class DashboardController {
         return dashboardService.buildOverview(username, period);
     }
 
+    /**
+     * All-time total wealth for the authenticated user.
+     */
+    @GetMapping("/total-wealth")
+    public Map<String, Object> totalWealth(Authentication authentication) {
+        String username = authentication.getName();
+        return dashboardService.computeTotalWealth(username);
+    }
+
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<Map<String, String>> handleBadRequest(IllegalArgumentException ex) {
         Map<String, String> error = new HashMap<>();

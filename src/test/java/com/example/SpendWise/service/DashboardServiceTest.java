@@ -144,6 +144,60 @@ class DashboardServiceTest {
                 dashboardService.buildOverview("u1", "not_supported"));
     }
 
+    @Test
+    void computeTotalWealth_whenUserNotFound_throwsIllegalArgumentException() {
+        when(userRepository.findByUsername("missing"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                dashboardService.computeTotalWealth("missing"));
+    }
+
+    @Test
+    void computeTotalWealth_noData_returnsZerosAndHasDataFalse() {
+        UserEntity user = new UserEntity();
+        user.setId(1);
+        user.setUsername("u1");
+
+        when(userRepository.findByUsername("u1")).thenReturn(Optional.of(user));
+        when(expenseRepository.findByUser(user)).thenReturn(List.of());
+
+        Map<String, Object> out = dashboardService.computeTotalWealth("u1");
+
+        assertEquals(new BigDecimal("0"), out.get("totalIncome"));
+        assertEquals(new BigDecimal("0"), out.get("totalExpenses"));
+        assertEquals(new BigDecimal("0"), out.get("totalWealth"));
+        assertEquals(false, out.get("hasData"));
+    }
+
+    @Test
+    void computeTotalWealth_aggregatesIncomeAndExpensesAllTime() {
+        UserEntity user = new UserEntity();
+        user.setId(1);
+        user.setUsername("u1");
+
+        LocalDate d1 = LocalDate.now().minusYears(2);
+        LocalDate d2 = LocalDate.now().minusMonths(3);
+        LocalDate d3 = LocalDate.now();
+
+        List<ExpenseEntity> all = List.of(
+                exp("Old Salary", "Income", "4000.00", d1),
+                exp("Recent Salary", "Income", "5000.00", d3),
+                exp("Rent", "Housing", "1200.00", d2),
+                exp("Groceries", "Food", "300.00", d3)
+        );
+
+        when(userRepository.findByUsername("u1")).thenReturn(Optional.of(user));
+        when(expenseRepository.findByUser(user)).thenReturn(all);
+
+        Map<String, Object> out = dashboardService.computeTotalWealth("u1");
+
+        assertEquals(new BigDecimal("9000.00"), out.get("totalIncome"));
+        assertEquals(new BigDecimal("1500.00"), out.get("totalExpenses"));
+        assertEquals(new BigDecimal("7500.00"), out.get("totalWealth"));
+        assertEquals(true, out.get("hasData"));
+    }
+
     private static ExpenseEntity exp(String name, String category, String amount, LocalDate date) {
         ExpenseEntity e = new ExpenseEntity();
         e.setName(name);

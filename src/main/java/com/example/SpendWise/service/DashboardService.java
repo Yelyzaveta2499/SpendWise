@@ -75,6 +75,41 @@ public class DashboardService {
         return out;
     }
 
+    /**
+     * Computes all-time total wealth for the given user.
+
+     * Definition: lifetime net balance = sum(all income) - sum(all non-income expenses)
+
+     */
+    public Map<String, Object> computeTotalWealth(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
+
+        List<ExpenseEntity> all = expenseRepository.findByUser(user);
+
+        BigDecimal totalIncome = BigDecimal.ZERO;
+        BigDecimal totalExpenses = BigDecimal.ZERO;
+
+        for (ExpenseEntity e : (all == null ? List.<ExpenseEntity>of() : all)) {
+            if (e == null || e.getAmount() == null) continue;
+            BigDecimal amt = e.getAmount().abs();
+            if (isIncome(e)) {
+                totalIncome = totalIncome.add(amt);
+            } else {
+                totalExpenses = totalExpenses.add(amt);
+            }
+        }
+
+        BigDecimal totalWealth = totalIncome.subtract(totalExpenses);
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("totalIncome", totalIncome);
+        out.put("totalExpenses", totalExpenses);
+        out.put("totalWealth", totalWealth);
+        out.put("hasData", all != null && !all.isEmpty());
+        return out;
+    }
+
     private LocalDate getStartDate(LocalDate today, String period) {
         switch (period) {
             case "this_month": {
