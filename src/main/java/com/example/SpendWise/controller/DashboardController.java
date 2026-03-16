@@ -21,7 +21,7 @@ public class DashboardController {
 
     /**
      * Dashboard overview endpoint.
-     * period: this_month | last_month | last_30 | this_year
+     * period: this_month | last_month | last_6_months | this_year
      */
     @GetMapping("/overview")
     public Map<String, Object> overview(Authentication authentication,
@@ -53,4 +53,3 @@ public class DashboardController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 }
-

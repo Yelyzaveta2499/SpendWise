@@ -56,7 +56,7 @@ Behaviour:
 - Empty state: if no financial data exists for the user/period, an empty state message is shown.
 
 Backend API:
-- `GET /api/dashboard/overview?period=this_month|last_month|last_30|this_year`
+- `GET /api/dashboard/overview?period=this_month|last_month|last_6_months|this_year`
 
 Tests:
 - `DashboardServiceTest` (calculation logic)

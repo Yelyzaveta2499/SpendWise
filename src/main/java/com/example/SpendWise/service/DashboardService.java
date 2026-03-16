@@ -120,8 +120,10 @@ public class DashboardService {
                 YearMonth ym = YearMonth.from(today).minusMonths(1);
                 return ym.atDay(1);
             }
-            case "last_30": {
-                return today.minusDays(30);
+            case "last_6_months": { // renamed from last_30
+                // Start 6 full calendar months ago from the beginning of that month
+                YearMonth sixMonthsAgo = YearMonth.from(today).minusMonths(5);
+                return sixMonthsAgo.atDay(1);
             }
             case "this_year": {
                 return LocalDate.of(today.getYear(), 1, 1);
@@ -134,7 +136,7 @@ public class DashboardService {
     private LocalDate getEndDate(LocalDate today, String period) {
         switch (period) {
             case "this_month":
-            case "last_30":
+            case "last_6_months": // previously last_30
             case "this_year":
                 return today;
             case "last_month": {

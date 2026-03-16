@@ -14,7 +14,7 @@ function renderDashboardOverview() {
           <select id="dashPeriod" class="dash-period-select">
             <option value="this_month">This month</option>
             <option value="last_month">Last month</option>
-            <option value="last_30">Last 30 days</option>
+            <option value="last_6_months">Last 6 months</option>
             <option value="this_year">This year</option>
           </select>
         </div>
@@ -199,11 +199,17 @@ function renderDashboardOverview() {
       return;
     }
 
-    const w = 760;
-    const h = 260;
-    const padT = 28;
-    const padB = 24;
-    const padL = 40;
+
+    const rect = chartHost.getBoundingClientRect();
+    const w = Math.max(320, rect.width || 760);
+
+    const containerHeight = rect.height && rect.height > 0 ? rect.height : 720;
+    const h = Math.max(580, containerHeight);
+
+
+    const padT = 10;   // smaller top padding
+    const padB = 26;   // just enough for x-axis labels + legend
+    const padL = 50;   // room for y-axis labels with more steps
     const padR = 20;
 
     function x(i) {
@@ -217,12 +223,12 @@ function renderDashboardOverview() {
 
     const rawMax = Math.max(1, ...incomes, ...expenses);
 
-    // max with 4 intervals (0, 1.5k, 3k, 4.5k, 6k)
+    // max with base step
     let chartMax = rawMax;
     if (rawMax >= 1000) {
       const step = 1500;
       chartMax = Math.ceil(rawMax / step) * step;
-      if (chartMax < step * 4) chartMax = step * 4;
+      if (chartMax < step * 8) chartMax = step * 8;
     }
 
     function y(v) {
@@ -231,9 +237,9 @@ function renderDashboardOverview() {
       return (h - padB) - (innerH * t);
     }
 
-    // Smooth path builder (simple cubic curves between points)
+    // Smooth path builder (cubic curves between points)
     function smoothPath(values) {
-      const pts = values.map(function(v, i) {
+      const pts = values.map(function (v, i) {
         return { x: x(i), y: y(v) };
       });
 
@@ -264,18 +270,21 @@ function renderDashboardOverview() {
     const incomeAreaD = areaPath(incomes);
     const expenseAreaD = areaPath(expenses);
 
-    const labels = data.map(function(p, i) {
+    const labels = data.map(function (p, i) {
       const lbl = p.label || (p.month || '').slice(5);
       return `<text class="chart-label" x="${x(i).toFixed(1)}" y="${(h - 8)}" text-anchor="middle">${lbl}</text>`;
     }).join('');
 
-    const ticks = 4;
+    // Fixed higher tick count so we always have more steps.
+    const ticks = 8; // 8 intervals => 9 labels (0k..max)
+    const innerH = h - padT - padB;
+
     const yLines = [];
     const yLabels = [];
     for (let i = 0; i <= ticks; i++) {
       const t = i / ticks;
       const value = chartMax * (1 - t);
-      const yy = padT + (h - padT - padB) * t;
+      const yy = padT + innerH * t;
 
       yLines.push(`<line class="chart-grid" x1="${padL}" y1="${yy.toFixed(1)}" x2="${(w - padR)}" y2="${yy.toFixed(1)}" />`);
 
@@ -285,7 +294,7 @@ function renderDashboardOverview() {
     }
 
     // vertical dotted grid for each month
-    const xLines = data.map(function(p, i) {
+    const xLines = data.map(function (p, i) {
       const xx = x(i);
       return `<line class="chart-grid" x1="${xx.toFixed(1)}" y1="${padT}" x2="${xx.toFixed(1)}" y2="${(h - padB)}" />`;
     }).join('');

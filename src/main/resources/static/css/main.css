@@ -925,16 +925,15 @@
 
 /* Budget Summary Cards (Top 3 Cards) */
 .budget-summary-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .budget-summary-card {
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 10px 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -945,10 +944,18 @@
 }
 
 .summary-amount {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 700;
   color: #1f2937;
   margin-bottom: 4px;
+}
+
+
+@media (min-width: 1024px) {
+  .budget-summary-card {
+    flex: 0 0 calc(33.333% - 7px);
+    max-width: calc(33.333% - 7px);
+  }
 }
 
 .budget-summary-card.spent .summary-amount {
@@ -2033,15 +2040,26 @@ body.dark-mode .dash-card-icon-dark {
 }
 
 .dash-chart {
-  height: 320px;
+  /* Let the chart naturally size with its container instead of forcing 100% height */
+  width: 100%;
   border-radius: 14px;
   background: rgba(145, 144, 144, 0.21);
   border: 1px solid rgba(15, 23, 42, 0.08);
   display: flex;
-  align-items: center;
+  /* Align items to stretch to fill the container height */
+  align-items: stretch;
   justify-content: center;
   overflow: hidden;
+  /* Taller default height
+  min-height: 320px; /* was 220px */
+
   --dash: 1200;
+}
+
+.dash-chart svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .dash-chart-empty {
@@ -2762,7 +2780,6 @@ body.dark-mode .btn-add-contribution:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
 }
 
 .stat-content {
@@ -4273,29 +4290,3 @@ body:not(.dark-mode) .reports-select:hover {
   border-color: #cbd5e1;
 }
 
-/* ── Reports pop-in animations — exact same pattern as .business-wrap.business-animate ── */
-
-.reports-wrap.reports-animate .report-card,
-.reports-wrap.reports-animate .stat-card {
-  opacity: 0;
-}
-
-.reports-wrap.reports-animate .report-card {
-  animation: slideUp 0.55s ease-out forwards;
-}
-
-.reports-wrap.reports-animate .reports-grid-top .report-card:nth-child(1) { animation-delay: 0.05s; }
-.reports-wrap.reports-animate .reports-grid-top .report-card:nth-child(2) { animation-delay: 0.12s; }
-
-.reports-wrap.reports-animate .report-card-full {
-  animation-delay: 0.20s;
-}
-
-.reports-wrap.reports-animate .stat-card {
-  animation: slideUp 0.5s ease-out forwards;
-}
-
-.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(1) { animation-delay: 0.30s; }
-.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(2) { animation-delay: 0.37s; }
-.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(3) { animation-delay: 0.44s; }
-.reports-wrap.reports-animate .reports-stats-row .stat-card:nth-child(4) { animation-delay: 0.51s; }
