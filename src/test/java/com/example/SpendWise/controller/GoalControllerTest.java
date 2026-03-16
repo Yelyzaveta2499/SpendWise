@@ -1,6 +1,6 @@
 package com.example.SpendWise.controller;
 
-import com.example.SpendWise.model.Goal;
+import com.example.SpendWise.model.entity.Goal;
 import com.example.SpendWise.service.GoalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class GoalControllerTest {

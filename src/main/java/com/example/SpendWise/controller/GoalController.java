@@ -1,7 +1,7 @@
 package com.example.SpendWise.controller;
 
-import com.example.SpendWise.model.Contribution;
-import com.example.SpendWise.model.Goal;
+import com.example.SpendWise.model.entity.Contribution;
+import com.example.SpendWise.model.entity.Goal;
 import com.example.SpendWise.service.GoalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

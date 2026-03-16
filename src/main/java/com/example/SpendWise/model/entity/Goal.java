@@ -1,4 +1,4 @@
-package com.example.SpendWise.model;
+package com.example.SpendWise.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

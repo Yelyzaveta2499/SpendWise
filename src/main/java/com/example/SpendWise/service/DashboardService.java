@@ -75,6 +75,41 @@ public class DashboardService {
         return out;
     }
 
+    /**
+     * Computes all-time total wealth for the given user.
+
+     * Definition: lifetime net balance = sum(all income) - sum(all non-income expenses)
+
+     */
+    public Map<String, Object> computeTotalWealth(String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
+
+        List<ExpenseEntity> all = expenseRepository.findByUser(user);
+
+        BigDecimal totalIncome = BigDecimal.ZERO;
+        BigDecimal totalExpenses = BigDecimal.ZERO;
+
+        for (ExpenseEntity e : (all == null ? List.<ExpenseEntity>of() : all)) {
+            if (e == null || e.getAmount() == null) continue;
+            BigDecimal amt = e.getAmount().abs();
+            if (isIncome(e)) {
+                totalIncome = totalIncome.add(amt);
+            } else {
+                totalExpenses = totalExpenses.add(amt);
+            }
+        }
+
+        BigDecimal totalWealth = totalIncome.subtract(totalExpenses);
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("totalIncome", totalIncome);
+        out.put("totalExpenses", totalExpenses);
+        out.put("totalWealth", totalWealth);
+        out.put("hasData", all != null && !all.isEmpty());
+        return out;
+    }
+
     private LocalDate getStartDate(LocalDate today, String period) {
         switch (period) {
             case "this_month": {
@@ -85,8 +120,10 @@ public class DashboardService {
                 YearMonth ym = YearMonth.from(today).minusMonths(1);
                 return ym.atDay(1);
             }
-            case "last_30": {
-                return today.minusDays(30);
+            case "last_6_months": { // renamed from last_30
+                // Start 6 full calendar months ago from the beginning of that month
+                YearMonth sixMonthsAgo = YearMonth.from(today).minusMonths(5);
+                return sixMonthsAgo.atDay(1);
             }
             case "this_year": {
                 return LocalDate.of(today.getYear(), 1, 1);
@@ -99,7 +136,7 @@ public class DashboardService {
     private LocalDate getEndDate(LocalDate today, String period) {
         switch (period) {
             case "this_month":
-            case "last_30":
+            case "last_6_months": // previously last_30
             case "this_year":
                 return today;
             case "last_month": {

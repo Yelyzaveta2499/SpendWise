@@ -1,9 +1,9 @@
 package com.example.SpendWise.service;
 
-import com.example.SpendWise.model.Contribution;
-import com.example.SpendWise.model.Goal;
-import com.example.SpendWise.repository.ContributionRepository;
-import com.example.SpendWise.repository.GoalRepository;
+import com.example.SpendWise.model.entity.Contribution;
+import com.example.SpendWise.model.entity.Goal;
+import com.example.SpendWise.model.repository.ContributionRepository;
+import com.example.SpendWise.model.repository.GoalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
