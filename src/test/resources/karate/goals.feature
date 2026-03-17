@@ -20,7 +20,7 @@ Feature: Savings Goals API
     And request contribution
     When method post
     Then status 200
-    And match response.progress >= 100
+    And assert response.progress >= 100
 
   Scenario: reject invalid target amount
     * def goal = { name: 'Vacation', target: -500, progress: 0 }

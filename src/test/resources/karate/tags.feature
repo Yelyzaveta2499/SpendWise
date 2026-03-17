@@ -19,7 +19,8 @@ Feature: Expense Tagging API
     And param tag = 'travel'
     When method get
     Then status 200
-    And match each response.tags contains 'travel'
+    * if (karate.typeOf(response) != 'list') response = [response]
+    And match each response[*].tags contains 'travel'
 
   Scenario: block tagging for Individual account
     * def loginResult = call read('classpath:karate/auth.feature@login-success') { username: 'indiv', password: 'password123' }

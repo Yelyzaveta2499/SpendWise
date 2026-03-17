@@ -29,7 +29,9 @@
 	<properties>
 		<java.version>21</java.version>
 		<!-- Karate version for API / integration tests -->
-		<karate.version>1.4.0</karate.version>
+		<karate.version>1.4.1</karate.version>
+		<!-- Override old transitive GraalJS bits used by Karate for Java 21+ compatibility -->
+		<graalvm.version>24.1.2</graalvm.version>
 	</properties>
 	<dependencies>
 		<!-- Azure OpenAI SDK (Netty HTTP client excluded to avoid conflict with Spring Boot 4 / Netty 4.2.x) -->
@@ -125,6 +127,54 @@
 			<groupId>com.intuit.karate</groupId>
 			<artifactId>karate-junit5</artifactId>
 			<version>${karate.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.graalvm.js</groupId>
+					<artifactId>js-scriptengine</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.graalvm.js</groupId>
+					<artifactId>js</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.graalvm.sdk</groupId>
+					<artifactId>graal-sdk</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.graalvm.truffle</groupId>
+					<artifactId>truffle-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.graalvm.js</groupId>
+			<artifactId>js-language</artifactId>
+			<version>${graalvm.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.graalvm.js</groupId>
+			<artifactId>js-scriptengine</artifactId>
+			<version>${graalvm.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.graalvm.polyglot</groupId>
+			<artifactId>polyglot</artifactId>
+			<version>${graalvm.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.graalvm.sdk</groupId>
+			<artifactId>graal-sdk</artifactId>
+			<version>${graalvm.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.graalvm.truffle</groupId>
+			<artifactId>truffle-api</artifactId>
+			<version>${graalvm.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- Spring AOP required at runtime for proxies / event multicaster -->
