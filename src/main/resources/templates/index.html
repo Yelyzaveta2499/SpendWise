@@ -833,6 +833,35 @@
             --card-glow-2: rgba(45, 212, 191, 0.32);  /* turquoise glow */
         }
 
+        /* GlareHover effect for credit card placeholders */
+        .glare-hover {
+            position: relative;
+            overflow: hidden;
+        }
+        .glare-hover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                -30deg,
+                hsla(118, 94%, 33%, 0.7) 60%,
+                rgba(12, 187, 64, 0.7) 30%,
+                hsl(50, 90%, 45%),
+                hsla(0, 0%, 0%, 0) 100%
+            );
+            transition: 3000ms ease;
+            background-size: 300% 300%, 100% 100%;
+            background-repeat: no-repeat;
+            background-position: -100% -100%, 0 0;
+        }
+        .glare-hover:hover::before {
+            background-position: 100% 100%, 0 0;
+        }
+        .glare-hover:hover {
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -1050,7 +1079,7 @@
     track.innerHTML = '';
     items.forEach(d => {
       const el = document.createElement('div');
-      el.className = `card-item ${d.cls}`;
+      el.className = `card-item glare-hover ${d.cls}`;
       el.innerHTML = `
         <div class="geo">
           <div class="shape1"></div>
