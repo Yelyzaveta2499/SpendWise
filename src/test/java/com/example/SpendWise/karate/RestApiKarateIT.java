@@ -9,7 +9,12 @@ public class RestApiKarateIT {
 
     @Karate.Test
     Karate runAll() {
-        // Would look for src/test/resources/features/**/*
-        return Karate.run("classpath:features");
+        // Run all feature files including new detailed Karate tests
+        return Karate.run(
+            "classpath:features/e2e_user_journey.feature",
+            "classpath:features/api_expense_crud.feature",
+            "classpath:features/karate/expenses.feature",
+            "classpath:features/karate/users.feature"
+        );
     }
 }
