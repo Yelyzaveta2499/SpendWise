@@ -1,7 +1,7 @@
 Feature: Users API
 
   Background:
-    * def loginResult = call read('classpath:features/karate/auth.feature@login-success') { username: 'indiv', password: 'password' }
+    * def loginResult = call read('classpath:karate/auth.feature@login-success') { username: 'indiv', password: 'password' }
     * configure cookies = loginResult.cookies
     * url baseUrl
 
@@ -27,4 +27,3 @@ Feature: Users API
     When method put
     Then status 200
     And match response.email == update.email
-

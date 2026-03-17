@@ -1,7 +1,7 @@
 Feature: Expenses API
 
   Background:
-    * def loginResult = call read('classpath:features/karate/auth.feature@login-success') { username: 'indiv', password: 'password' }
+    * def loginResult = call read('classpath:karate/auth.feature@login-success') { username: 'indiv', password: 'password' }
     * configure cookies = loginResult.cookies
     * url baseUrl
 
@@ -23,7 +23,7 @@ Feature: Expenses API
 
   Scenario: get created expense
     * def expense = { name: 'Test Karate Expense', category: 'Test', amount: 12.34, date: '2026-03-17' }
-    * def createResult = callonce read('classpath:features/karate/expenses.feature@create expense')
+    * def createResult = callonce read('classpath:karate/expenses.feature@create expense')
     * def expenseId = createResult.expenseId
     Given path 'api', 'expenses', expenseId
     When method get
@@ -31,9 +31,8 @@ Feature: Expenses API
     And match response.name == expense.name
 
   Scenario: delete expense
-    * def createResult = callonce read('classpath:features/karate/expenses.feature@create expense')
+    * def createResult = callonce read('classpath:karate/expenses.feature@create expense')
     * def expenseId = createResult.expenseId
     Given path 'api', 'expenses', expenseId
     When method delete
     Then status 204
-

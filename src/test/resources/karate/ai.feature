@@ -1,7 +1,7 @@
 Feature: AI Insights API
 
   Background:
-    * def loginResult = call read('classpath:karate/auth.feature@login-success') { username: 'indiv', password: 'password123' }
+    * def loginResult = call read('classpath:karate/auth.feature@login-success') { username: 'indiv', password: 'password' }
     * configure cookies = loginResult.cookies
     * url baseUrl
 
