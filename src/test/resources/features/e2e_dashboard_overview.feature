@@ -7,4 +7,4 @@ Feature: E2E dashboard overview
   Scenario: dashboard endpoint responds
     Given path 'dashboard'
     When method get
-    Then status < 500
+    * assert responseStatus < 500

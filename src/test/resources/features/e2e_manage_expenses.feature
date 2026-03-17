@@ -7,4 +7,4 @@ Feature: E2E expenses list
   Scenario: expenses endpoint responds
     Given path 'expenses'
     When method get
-    Then status != 500
+    * assert responseStatus < 500
