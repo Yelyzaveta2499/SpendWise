@@ -1,5 +1,6 @@
-package com.example.SpendWise.controller;
+package com.example.SpendWise.api;
 
+import com.example.SpendWise.controller.ChatController;
 import com.example.SpendWise.service.ChatService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;

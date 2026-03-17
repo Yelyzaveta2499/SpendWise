@@ -1,5 +1,6 @@
-package com.example.SpendWise.controller;
+package com.example.SpendWise.unit.controller;
 
+import com.example.SpendWise.controller.TagController;
 import com.example.SpendWise.model.entity.TagEntity;
 import com.example.SpendWise.service.TagService;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,5 +1,8 @@
-package com.example.SpendWise.model.entity;
+package com.example.SpendWise.unit.entity;
 
+import com.example.SpendWise.model.entity.ExpenseEntity;
+import com.example.SpendWise.model.entity.ExpenseTagEntity;
+import com.example.SpendWise.model.entity.TagEntity;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

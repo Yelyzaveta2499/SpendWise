@@ -1,14 +1,13 @@
-package com.example.SpendWise.service;
+package com.example.SpendWise.unit.service;
 
 import com.example.SpendWise.dto.UserSettingsDto;
-import com.example.SpendWise.model.entity.RoleEntity;
 import com.example.SpendWise.model.entity.UserEntity;
 import com.example.SpendWise.model.repository.RoleRepository;
 import com.example.SpendWise.model.repository.UserRepository;
+import com.example.SpendWise.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;

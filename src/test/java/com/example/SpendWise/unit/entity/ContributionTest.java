@@ -1,4 +1,4 @@
-package com.example.SpendWise.model;
+package com.example.SpendWise.unit.entity;
 
 import com.example.SpendWise.model.entity.Contribution;
 import com.example.SpendWise.model.entity.Goal;

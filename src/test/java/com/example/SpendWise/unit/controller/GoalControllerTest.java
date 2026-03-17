@@ -1,5 +1,6 @@
-package com.example.SpendWise.controller;
+package com.example.SpendWise.unit.controller;
 
+import com.example.SpendWise.controller.GoalController;
 import com.example.SpendWise.model.entity.Goal;
 import com.example.SpendWise.service.GoalService;
 import org.junit.jupiter.api.BeforeEach;

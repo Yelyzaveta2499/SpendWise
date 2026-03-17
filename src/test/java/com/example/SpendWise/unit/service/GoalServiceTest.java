@@ -1,9 +1,10 @@
-package com.example.SpendWise.service;
+package com.example.SpendWise.unit.service;
 
 import com.example.SpendWise.model.entity.Contribution;
 import com.example.SpendWise.model.entity.Goal;
 import com.example.SpendWise.model.repository.ContributionRepository;
 import com.example.SpendWise.model.repository.GoalRepository;
+import com.example.SpendWise.service.GoalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

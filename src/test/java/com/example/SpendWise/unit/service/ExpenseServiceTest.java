@@ -1,4 +1,4 @@
-package com.example.SpendWise.service;
+package com.example.SpendWise.unit.service;
 
 import com.example.SpendWise.model.entity.ExpenseEntity;
 import com.example.SpendWise.model.entity.UserEntity;
@@ -6,6 +6,7 @@ import com.example.SpendWise.model.repository.ExpenseRepository;
 import com.example.SpendWise.model.repository.ExpenseTagRepository;
 import com.example.SpendWise.model.repository.TagRepository;
 import com.example.SpendWise.model.repository.UserRepository;
+import com.example.SpendWise.service.ExpenseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
