@@ -5,7 +5,7 @@ Feature: Auth API
     Given url baseUrl
     And path 'login'
     And form field 'username' = 'indiv'
-    And form field 'password' = 'password123'
+    And form field 'password' = 'password'
     When method post
     Then status 200
     * def cookies = responseCookies
