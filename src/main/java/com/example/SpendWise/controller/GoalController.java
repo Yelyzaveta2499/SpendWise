@@ -18,6 +18,8 @@ import java.util.Optional;
 @RequestMapping("/api/goals")
 public class GoalController {
 
+    private static final String ERROR_KEY = "error";
+
     @Autowired
     public GoalService goalService;
 
@@ -56,7 +58,7 @@ public class GoalController {
 
     // Create a new goal
     @PostMapping
-    public ResponseEntity<?> createGoal(@RequestBody Goal goal, Authentication authentication) {
+    public ResponseEntity<Object> createGoal(@RequestBody Goal goal, Authentication authentication) {
         try {
             String userId = authentication.getName();
             goal.setUserId(userId);
@@ -65,20 +67,20 @@ public class GoalController {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdGoal);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put(ERROR_KEY, e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
     }
 
     // Update a goal
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateGoal(@PathVariable Long id, @RequestBody Goal goal) {
+    public ResponseEntity<Object> updateGoal(@PathVariable Long id, @RequestBody Goal goal) {
         try {
             Goal updatedGoal = goalService.updateGoal(id, goal);
             return ResponseEntity.ok(updatedGoal);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put(ERROR_KEY, e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -92,7 +94,7 @@ public class GoalController {
 
     // Add contribution to a goal
     @PostMapping("/{id}/contributions")
-    public ResponseEntity<?> addContribution(
+    public ResponseEntity<Object> addContribution(
             @PathVariable Long id,
             @RequestBody Map<String, Object> contributionData) {
         try {
@@ -104,11 +106,11 @@ public class GoalController {
             return ResponseEntity.ok(updatedGoal);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put(ERROR_KEY, e.getMessage());
             return ResponseEntity.badRequest().body(error);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
-            error.put("error", "Invalid request data");
+            error.put(ERROR_KEY, "Invalid request data");
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -120,5 +122,3 @@ public class GoalController {
         return ResponseEntity.ok(contributions);
     }
 }
-
-

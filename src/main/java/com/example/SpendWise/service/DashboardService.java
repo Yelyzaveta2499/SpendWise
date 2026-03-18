@@ -16,6 +16,7 @@ import java.util.*;
 public class DashboardService {
 
     private static final String USER_NOT_FOUND_PREFIX = "User not found: ";
+    private static final String MONTH_KEY = "this_month";
 
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
@@ -27,7 +28,7 @@ public class DashboardService {
 
     public Map<String, Object> buildOverview(String username, String period) {
         if (period == null || period.isBlank()) {
-            period = "this_month";
+            period = MONTH_KEY;
         }
 
         UserEntity user = userRepository.findByUsername(username)
@@ -112,7 +113,7 @@ public class DashboardService {
 
     private LocalDate getStartDate(LocalDate today, String period) {
         switch (period) {
-            case "this_month": {
+            case MONTH_KEY: {
                 YearMonth ym = YearMonth.from(today);
                 return ym.atDay(1);
             }
@@ -135,7 +136,7 @@ public class DashboardService {
 
     private LocalDate getEndDate(LocalDate today, String period) {
         switch (period) {
-            case "this_month":
+            case MONTH_KEY:
             case "last_6_months": // previously last_30
             case "this_year":
                 return today;

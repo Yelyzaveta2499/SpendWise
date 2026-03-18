@@ -48,6 +48,7 @@ public class BudgetEntity {
     }
 
     public BudgetEntity() {
+        // Default constructor required for JPA and serialization frameworks
     }
 
     public Long getId() { return id; }
@@ -74,4 +75,3 @@ public class BudgetEntity {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
-
