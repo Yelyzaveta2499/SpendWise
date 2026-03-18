@@ -28,7 +28,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				// Public: login pages + static assets + JWT login endpoint
@@ -49,7 +49,9 @@ public class SecurityConfig {
 				.logoutSuccessUrl("/login?logout=true")
 				.permitAll()
 			)
-			.csrf(csrf -> csrf.disable())
+			.csrf(csrf -> csrf
+				.ignoringRequestMatchers("/api/auth/login") // Exclude specific endpoints from CSRF validation
+			)
 			// JWT filter runs before Spring Security's username/password filter
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -71,7 +73,7 @@ public class SecurityConfig {
 	 * Exposes AuthenticationManager so AuthController can inject it.
 	 */
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
 		return config.getAuthenticationManager();
 	}
 
@@ -80,4 +82,3 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 }
-

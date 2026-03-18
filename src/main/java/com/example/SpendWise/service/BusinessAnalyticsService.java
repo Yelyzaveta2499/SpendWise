@@ -10,6 +10,7 @@ import com.example.SpendWise.model.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,8 @@ public class BusinessAnalyticsService {
     private final TagRepository tagRepository;
     private final ExpenseRepository expenseRepository;
     private final ExpenseTagRepository expenseTagRepository;
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public BusinessAnalyticsService(UserRepository userRepository,
                                    TagRepository tagRepository,
@@ -270,8 +273,8 @@ public class BusinessAnalyticsService {
             incomeData.put(MONTH_KEY, monthExpense.get(MONTH_KEY));
 
             double expenseAmount = (double) monthExpense.get(AMOUNT_KEY);
-            // Estimate income as expenses + 30-50% margin
-            double incomeAmount = expenseAmount * (1.3 + (Math.random() * 0.2)); // Random 30-50% margin
+            // Estimate income as expenses + 30-50% margin using SecureRandom
+            double incomeAmount = expenseAmount * (1.3 + (SECURE_RANDOM.nextDouble() * 0.2)); // Random 30-50% margin
             incomeData.put(AMOUNT_KEY, incomeAmount);
 
             estimatedIncome.add(incomeData);
