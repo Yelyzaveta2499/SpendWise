@@ -54,6 +54,7 @@ public class ExpenseEntity {
     }
 
     public ExpenseEntity() {
+        // Default constructor required for JPA and serialization frameworks
     }
 
 

@@ -14,10 +14,10 @@ import java.util.Optional;
 public class GoalService {
 
     @Autowired
-    GoalRepository goalRepository;
+    public GoalRepository goalRepository;
 
     @Autowired
-    ContributionRepository contributionRepository;
+    public ContributionRepository contributionRepository;
 
     // Create a new goal
     public Goal createGoal(Goal goal) {

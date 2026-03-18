@@ -7,7 +7,7 @@ Feature: E2E login and logout tests
   Scenario: login page loads
     Given path 'login'
     When method get
-    Then status != 500
+    * assert responseStatus < 500
 
   # Posting invalid credentials should not crash the server.
   Scenario: login with invalid password does not return 5xx
@@ -15,4 +15,4 @@ Feature: E2E login and logout tests
     And form field 'username' = 'indiv'
     And form field 'password' = 'wrong-password'
     When method post
-    Then status != 500
+    * assert responseStatus < 500

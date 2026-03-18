@@ -1,0 +1,45 @@
+Feature: Expenses API
+
+  Background:
+    * def loginResult = call read('classpath:karate/auth.feature@login-success') { username: 'indiv', password: 'password' }
+    * configure cookies = loginResult.cookies
+    * url baseUrl
+
+  Scenario: list expenses
+    Given path 'api', 'expenses'
+    When method get
+    Then status 200
+    And match response == '#[]'
+    And match each response == { id: '#number', name: '#string', amount: '#number', date: '#string' }
+
+  Scenario: create expense
+    * def expense = { name: 'Test Karate Expense', category: 'Test', amount: 12.34, date: '2026-03-17' }
+    Given path 'api', 'expenses'
+    And request expense
+    When method post
+    Then status 201
+    * def expenseId = response.id
+    And match response.name == expense.name
+
+  Scenario: get created expense
+    * def expense = { name: 'Test Karate Expense', category: 'Test', amount: 12.34, date: '2026-03-17' }
+    Given path 'api', 'expenses'
+    And request expense
+    When method post
+    Then status 201
+    * def expenseId = response.id
+    Given path 'api', 'expenses', expenseId
+    When method get
+    Then status 200
+    And match response.name == expense.name
+
+  Scenario: delete expense
+    * def expense = { name: 'Delete Expense', category: 'Test', amount: 10.00, date: '2026-03-17' }
+    Given path 'api', 'expenses'
+    And request expense
+    When method post
+    Then status 201
+    * def expenseId = response.id
+    Given path 'api', 'expenses', expenseId
+    When method delete
+    Then status 204

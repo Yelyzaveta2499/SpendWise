@@ -10,16 +10,24 @@ import com.example.SpendWise.model.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class BusinessAnalyticsService {
 
+    private static final String COLOR_KEY = "color";
+    private static final String AMOUNT_KEY = "amount";
+    private static final String TAG_COLORS_KEY = "tagColors";
+    private static final String MONTH_KEY = "month";
+
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
     private final ExpenseRepository expenseRepository;
     private final ExpenseTagRepository expenseTagRepository;
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public BusinessAnalyticsService(UserRepository userRepository,
                                    TagRepository tagRepository,
@@ -88,7 +96,7 @@ public class BusinessAnalyticsService {
             Map<String, Object> tagData = new HashMap<>();
             tagData.put("id", tag.getId());
             tagData.put("name", tag.getName());
-            tagData.put("color", tag.getColor());
+            tagData.put(COLOR_KEY, tag.getColor());
             tagData.put("count", expenseTagRepository.countByTag(tag));
             result.add(tagData);
         }
@@ -109,14 +117,14 @@ public class BusinessAnalyticsService {
             if (totalAmount.compareTo(BigDecimal.ZERO) > 0) {
                 Map<String, Object> tagSpending = new HashMap<>();
                 tagSpending.put("name", tag.getName());
-                tagSpending.put("amount", totalAmount.doubleValue());
-                tagSpending.put("color", tag.getColor());
+                tagSpending.put(AMOUNT_KEY, totalAmount.doubleValue());
+                tagSpending.put(COLOR_KEY, tag.getColor());
                 result.add(tagSpending);
             }
         }
 
         // Sort by amount descending and take top 6
-        result.sort((a, b) -> Double.compare((Double) b.get("amount"), (Double) a.get("amount")));
+        result.sort((a, b) -> Double.compare((Double) b.get(AMOUNT_KEY), (Double) a.get(AMOUNT_KEY)));
         return result.stream().limit(6).collect(Collectors.toList());
     }
 
@@ -136,15 +144,15 @@ public class BusinessAnalyticsService {
         for (Map.Entry<String, BigDecimal> entry : categoryTotals.entrySet()) {
             Map<String, Object> categoryData = new HashMap<>();
             categoryData.put("name", entry.getKey());
-            categoryData.put("amount", formatMoney(entry.getValue()));
+            categoryData.put(AMOUNT_KEY, formatMoney(entry.getValue()));
 
             List<TagEntity> tags = categoryTags.get(entry.getKey());
             if (tags != null && !tags.isEmpty()) {
                 categoryData.put("tags", tags.stream().map(TagEntity::getName).collect(Collectors.toList()));
-                categoryData.put("tagColors", tags.stream().map(TagEntity::getColor).collect(Collectors.toList()));
+                categoryData.put(TAG_COLORS_KEY, tags.stream().map(TagEntity::getColor).collect(Collectors.toList()));
             } else {
                 categoryData.put("tags", new ArrayList<>());
-                categoryData.put("tagColors", new ArrayList<>());
+                categoryData.put(TAG_COLORS_KEY, new ArrayList<>());
             }
 
             result.add(categoryData);
@@ -169,16 +177,16 @@ public class BusinessAnalyticsService {
             expenseData.put("id", expense.getId());
             expenseData.put("name", expense.getName());
             expenseData.put("category", expense.getCategory());
-            expenseData.put("amount", "-" + formatMoney(expense.getAmount()));
+            expenseData.put(AMOUNT_KEY, "-" + formatMoney(expense.getAmount()));
             expenseData.put("icon", getCategoryIcon(expense.getCategory()));
             expenseData.put("iconColor", getCategoryColor(expense.getCategory()));
 
             if (!tags.isEmpty()) {
                 expenseData.put("tags", tags.stream().map(TagEntity::getName).collect(Collectors.toList()));
-                expenseData.put("tagColors", tags.stream().map(TagEntity::getColor).collect(Collectors.toList()));
+                expenseData.put(TAG_COLORS_KEY, tags.stream().map(TagEntity::getColor).collect(Collectors.toList()));
             } else {
                 expenseData.put("tags", new ArrayList<>());
-                expenseData.put("tagColors", new ArrayList<>());
+                expenseData.put(TAG_COLORS_KEY, new ArrayList<>());
             }
 
             result.add(expenseData);
@@ -235,7 +243,7 @@ public class BusinessAnalyticsService {
         for (TagEntity tag : topTags) {
             Map<String, Object> tagData = new HashMap<>();
             tagData.put("name", tag.getName());
-            tagData.put("color", tag.getColor());
+            tagData.put(COLOR_KEY, tag.getColor());
 
             // Get expenses for this tag
             List<ExpenseEntity> tagExpenses = expenseTagRepository.findExpensesByTag(tag);
@@ -262,12 +270,12 @@ public class BusinessAnalyticsService {
         List<Map<String, Object>> estimatedIncome = new ArrayList<>();
         for (Map<String, Object> monthExpense : monthlyExpenses) {
             Map<String, Object> incomeData = new HashMap<>();
-            incomeData.put("month", monthExpense.get("month"));
+            incomeData.put(MONTH_KEY, monthExpense.get(MONTH_KEY));
 
-            double expenseAmount = (double) monthExpense.get("amount");
-            // Estimate income as expenses + 30-50% margin
-            double incomeAmount = expenseAmount * (1.3 + (Math.random() * 0.2)); // Random 30-50% margin
-            incomeData.put("amount", incomeAmount);
+            double expenseAmount = (double) monthExpense.get(AMOUNT_KEY);
+            // Estimate income as expenses + 30-50% margin using SecureRandom
+            double incomeAmount = expenseAmount * (1.3 + (SECURE_RANDOM.nextDouble() * 0.2)); // Random 30-50% margin
+            incomeData.put(AMOUNT_KEY, incomeAmount);
 
             estimatedIncome.add(incomeData);
         }
@@ -299,8 +307,8 @@ public class BusinessAnalyticsService {
         // Create result list maintaining order
         for (String month : months) {
             Map<String, Object> monthData = new HashMap<>();
-            monthData.put("month", month);
-            monthData.put("amount", monthlyTotals.get(month).doubleValue());
+            monthData.put(MONTH_KEY, month);
+            monthData.put(AMOUNT_KEY, monthlyTotals.get(month).doubleValue());
             result.add(monthData);
         }
 
@@ -317,5 +325,4 @@ public class BusinessAnalyticsService {
         return "Unknown";
     }
 }
-
 
