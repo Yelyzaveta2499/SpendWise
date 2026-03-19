@@ -970,3 +970,49 @@ if (document.readyState === 'loading') {
         observer.observe(businessSection);
     }
 }
+
+// DataTable initialization
+$(document).ready(function() {
+    const monthlyTagChart = $('#monthlyTagChart');
+    console.log('Monthly Tag Chart element:', monthlyTagChart);
+
+    if (monthlyTagChart.length) {
+        console.log('Monthly Tag Chart element found. Initializing DataTable...');
+
+        // Initialize DataTable for Monthly Tag Report
+        const dataTable = monthlyTagChart.DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        });
+
+        console.log('DataTable initialized:', dataTable);
+
+        // export functionality to the Export button
+        const exportButton = document.querySelector('.btn-export');
+        console.log('Export button element:', exportButton);
+
+        if (exportButton) {
+            exportButton.addEventListener('click', function() {
+                console.log('Export button clicked.');
+                try {
+                    const csvButton = dataTable.button('.buttons-csv');
+                    if (csvButton) {
+                        console.log('CSV export button found. Triggering export...');
+                        csvButton.trigger(); // Trigger CSV export
+                        console.log('Export triggered successfully.');
+                    } else {
+                        console.error('CSV export button not found in DataTable.');
+                    }
+                } catch (error) {
+                    console.error('Export failed:', error);
+                }
+            });
+        } else {
+            console.warn('Export button not found. Ensure the button with class ".btn-export" exists.');
+        }
+    } else {
+        console.warn('Monthly Tag Chart element not found. Ensure the element with ID "#monthlyTagChart" exists.');
+    }
+});

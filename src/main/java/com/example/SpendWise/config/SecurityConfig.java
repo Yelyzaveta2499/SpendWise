@@ -30,30 +30,30 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 		http
-			.authorizeHttpRequests(authorize -> authorize
-				// Public: login pages + static assets + JWT login endpoint
-				.requestMatchers("/login", "/api/auth/login", "/auth/login", "/css/**", "/js/**", "/images/**").permitAll()
-				.requestMatchers("/api/expenses/**").authenticated()
-				.requestMatchers("/api/goals/**").authenticated()
-				.requestMatchers("/api/chat").authenticated()
-				.anyRequest().authenticated()
-			)
-			// Form login stays exactly the same → browser UI unchanged
-			.formLogin(formLogin -> formLogin
-				.loginPage("/login")
-				.defaultSuccessUrl("/post-login", true)
-				.permitAll()
-			)
-			.logout(logout -> logout
-				.logoutUrl("/logout")
-				.logoutSuccessUrl("/login?logout=true")
-				.permitAll()
-			)
-			.csrf(csrf -> csrf
-				.ignoringRequestMatchers("/api/auth/login") // Exclude specific endpoints from CSRF validation
-			)
-			// JWT filter runs before Spring Security's username/password filter
-			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+				.authorizeHttpRequests(authorize -> authorize
+						// Public: login pages + static assets + JWT login endpoint
+						.requestMatchers("/login", "/api/auth/login", "/auth/login", "/css/**", "/js/**", "/images/**").permitAll()
+						.requestMatchers("/api/expenses/**").authenticated()
+						.requestMatchers("/api/goals/**").authenticated()
+						.requestMatchers("/api/chat").authenticated()
+						.anyRequest().authenticated()
+				)
+				// Form login stays exactly the same → browser UI unchanged
+				.formLogin(formLogin -> formLogin
+						.loginPage("/login")
+						.defaultSuccessUrl("/post-login", true)
+						.permitAll()
+				)
+				.logout(logout -> logout
+						.logoutUrl("/logout")
+						.logoutSuccessUrl("/login?logout=true")
+						.permitAll()
+				)
+				.csrf(csrf -> csrf
+						.ignoringRequestMatchers("/api/**") // SPA fetch calls don't carry CSRF tokens
+				)
+				// JWT filter runs before Spring Security's username/password filter
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

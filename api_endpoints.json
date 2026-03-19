@@ -1,0 +1,145 @@
+{
+  "info": {
+    "name": "SpendWise API Collection",
+    "description": "Collection of SpendWise API endpoints for Postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:1111/api/dashboard/overview",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "dashboard", "overview"]
+            }
+          }
+        },
+        {
+          "name": "Total Wealth",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:1111/api/dashboard/total-wealth",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "dashboard", "total-wealth"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        {
+          "name": "List Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:1111/api/expenses",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "expenses"]
+            }
+          }
+        },
+        {
+          "name": "Get Expense Tags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:1111/api/expenses/:id/tags",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "expenses", ":id", "tags"]
+            }
+          }
+        },
+        {
+          "name": "Add Tag to Expense",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:1111/api/expenses/:id/tags/:tagId",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "expenses", ":id", "tags", ":tagId"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        {
+          "name": "List Budgets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:1111/api/budgets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "budgets"]
+            }
+          }
+        },
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Budget\",\n  \"amount\": 1000,\n  \"category\": \"Groceries\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:1111/api/budgets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "budgets"]
+            }
+          }
+        },
+        {
+          "name": "Delete Budget",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:1111/api/budgets/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "1111",
+              "path": ["api", "budgets", ":id"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

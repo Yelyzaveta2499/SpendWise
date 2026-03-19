@@ -17,7 +17,7 @@ import java.util.function.Function;
 /**
  * JwtService - generates and validates JWT tokens.
  *
- * Architecture matches the teacher's notes:
+ * Architecture:
  *   generateToken()  → signs with HS256 secret key
  *   validateToken()  → checks signature + expiration
  *   extractUsername() → reads "sub" claim

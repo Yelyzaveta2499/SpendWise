@@ -1,5 +1,6 @@
 package com.example.SpendWise.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -7,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tags", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "name"})
+        @UniqueConstraint(columnNames = {"user_id", "name"})
 })
 public class TagEntity {
 
@@ -15,6 +16,7 @@ public class TagEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
@@ -34,6 +36,7 @@ public class TagEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExpenseTagEntity> expenseTags = new HashSet<>();
 
