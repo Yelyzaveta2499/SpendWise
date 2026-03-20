@@ -27,7 +27,7 @@ public class ChatController {
      * Returns: { "reply": "..." }
      */
     @PostMapping
-    public ResponseEntity<?> chat(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Map<String, Object>> chat(@RequestBody Map<String, Object> body) {
         try {
             String message = (String) body.get("message");
             if (message == null || message.isBlank()) {

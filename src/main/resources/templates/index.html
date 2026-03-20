@@ -833,6 +833,35 @@
             --card-glow-2: rgba(45, 212, 191, 0.32);  /* turquoise glow */
         }
 
+        /* GlareHover effect for credit card placeholders */
+        .glare-hover {
+            position: relative;
+            overflow: hidden;
+        }
+        .glare-hover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(
+                -30deg,
+                hsla(0, 0%, 0%, 0) 60%,
+                rgba(12, 187, 64, 0.3) 70%,
+                hsla(50, 78%, 23%, 0),
+                hsla(0, 0%, 0%, 0) 100%
+            );
+            transition: 2650ms ease;
+            background-size: 300% 300%, 100% 100%;
+            background-repeat: no-repeat;
+            background-position: -100% -100%, 0 0;
+        }
+        .glare-hover:hover::before {
+            background-position: 100% 100%, 0 0;
+        }
+        .glare-hover:hover {
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -1013,13 +1042,13 @@
 // Splash screen removed - no third loading bar
 </script>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script src="/js/sidebar.js" defer></script>
 <script src="/js/theme.js" defer></script>
 <script src="/js/app-scroll.js" defer></script>
 <script src="/js/scroll-nav.js" defer></script>
 <script src="/js/app.js" defer></script>
-
 <script src="/js/dashboard.js" defer></script>
 <script src="/js/expenses.js" defer></script>
 <script src="/js/budgets.js" defer></script>
@@ -1027,6 +1056,7 @@
 <script src="/js/business.js" defer></script>
 <script src="/js/reports.js" defer></script>
 <script src="/js/settings.js" defer></script>
+<script src="/js/chat.js"></script>
 <script>
 // Arrow-controlled, looped 4-card carousel (call fit after render)
 (function(){
@@ -1050,7 +1080,7 @@
     track.innerHTML = '';
     items.forEach(d => {
       const el = document.createElement('div');
-      el.className = `card-item ${d.cls}`;
+      el.className = `card-item glare-hover ${d.cls}`;
       el.innerHTML = `
         <div class="geo">
           <div class="shape1"></div>

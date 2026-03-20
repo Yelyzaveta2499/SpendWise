@@ -112,74 +112,92 @@ public class BudgetService {
         if (budgetId == null) {
             throw new IllegalArgumentException("budgetId is required");
         }
-
         if (!(updateRequest instanceof java.util.Map<?, ?> rawMap)) {
             throw new IllegalArgumentException("Unsupported request type for budget");
         }
         java.util.Map<String, Object> map = (java.util.Map<String, Object>) rawMap;
 
-        UserEntity user = userRepository.findByUsername(username)
+        UserEntity user = getUserOrThrow(username);
+        BudgetEntity budget = getBudgetOrThrow(budgetId);
+        validateBudgetOwnership(user, budget, username);
+
+        updateCategory(map, budget);
+        updateAmount(map, budget);
+        updateMonth(map, budget);
+        updateYear(map, budget);
+        preventDuplicateBudget(user, budget);
+
+        return budgetRepository.save(budget);
+    }
+
+    private UserEntity getUserOrThrow(String username) {
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException(USER_NOT_FOUND_PREFIX + username));
+    }
 
-        BudgetEntity budget = budgetRepository.findById(budgetId)
+    private BudgetEntity getBudgetOrThrow(Long budgetId) {
+        return budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new IllegalArgumentException("Budget not found: " + budgetId));
+    }
 
+    private void validateBudgetOwnership(UserEntity user, BudgetEntity budget, String username) {
         if (!budget.getUser().getId().equals(user.getId())) {
             throw new SecurityException("Cannot update budget that does not belong to user: " + username);
         }
+    }
 
-        // allow updating category, amount, month, year (simple)
+    private void updateCategory(java.util.Map<String, Object> map, BudgetEntity budget) {
         Object categoryRaw = map.get("category");
         if (categoryRaw instanceof String s && !s.isBlank()) {
             budget.setCategory(s.trim());
         }
+    }
 
+    private void updateAmount(java.util.Map<String, Object> map, BudgetEntity budget) {
         Object amountRaw = map.get("amount");
-        if (amountRaw != null) {
-            BigDecimal amount;
-            if (amountRaw instanceof BigDecimal bd) {
-                amount = bd;
-            } else if (amountRaw instanceof Number num) {
-                amount = BigDecimal.valueOf(num.doubleValue());
-            } else if (amountRaw instanceof String s && !s.isBlank()) {
-                amount = new BigDecimal(s);
-            } else {
-                throw new IllegalArgumentException("Budget amount must be a number");
-            }
-
-            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException("Budget amount must be greater than zero");
-            }
-
-            budget.setAmount(amount);
+        if (amountRaw == null) return;
+        BigDecimal amount;
+        if (amountRaw instanceof BigDecimal bd) {
+            amount = bd;
+        } else if (amountRaw instanceof Number num) {
+            amount = BigDecimal.valueOf(num.doubleValue());
+        } else if (amountRaw instanceof String s && !s.isBlank()) {
+            amount = new BigDecimal(s);
+        } else {
+            throw new IllegalArgumentException("Budget amount must be a number");
         }
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Budget amount must be greater than zero");
+        }
+        budget.setAmount(amount);
+    }
 
+    private void updateMonth(java.util.Map<String, Object> map, BudgetEntity budget) {
         Object monthRaw = map.get("month");
-        if (monthRaw != null) {
-            int month = parseIntOrDefault(monthRaw, budget.getMonth());
-            if (month < 1 || month > 12) {
-                throw new IllegalArgumentException("Month must be between 1 and 12");
-            }
-            budget.setMonth(month);
+        if (monthRaw == null) return;
+        int month = parseIntOrDefault(monthRaw, budget.getMonth());
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Month must be between 1 and 12");
         }
+        budget.setMonth(month);
+    }
 
+    private void updateYear(java.util.Map<String, Object> map, BudgetEntity budget) {
         Object yearRaw = map.get("year");
-        if (yearRaw != null) {
-            int year = parseIntOrDefault(yearRaw, budget.getYear());
-            if (year < 2000 || year > 2100) {
-                throw new IllegalArgumentException("Year must be between 2000 and 2100");
-            }
-            budget.setYear(year);
+        if (yearRaw == null) return;
+        int year = parseIntOrDefault(yearRaw, budget.getYear());
+        if (year < 2000 || year > 2100) {
+            throw new IllegalArgumentException("Year must be between 2000 and 2100");
         }
+        budget.setYear(year);
+    }
 
-        // prevent duplicates after update
+    private void preventDuplicateBudget(UserEntity user, BudgetEntity budget) {
         if (budgetRepository.findByUserAndCategoryAndYearAndMonth(user, budget.getCategory(), budget.getYear(), budget.getMonth())
                 .filter(b -> !b.getId().equals(budget.getId()))
                 .isPresent()) {
             throw new IllegalArgumentException("Budget already exists for this category and month");
         }
-
-        return budgetRepository.save(budget);
     }
 
     private int parseIntOrDefault(Object raw, int def) {

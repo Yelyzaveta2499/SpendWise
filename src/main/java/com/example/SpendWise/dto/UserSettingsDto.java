@@ -10,6 +10,7 @@ public class UserSettingsDto {
     private String accountType; // e.g. "PERSONAL" or "BUSINESS"
 
     public UserSettingsDto() {
+        // Default constructor
     }
 
     public String getFirstName() {

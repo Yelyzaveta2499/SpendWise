@@ -1,5 +1,6 @@
 package com.example.SpendWise.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ public class BudgetEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
@@ -48,6 +50,7 @@ public class BudgetEntity {
     }
 
     public BudgetEntity() {
+        // Default constructor required for JPA and serialization frameworks
     }
 
     public Long getId() { return id; }
@@ -74,4 +77,3 @@ public class BudgetEntity {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
-

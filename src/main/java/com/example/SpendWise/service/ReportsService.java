@@ -86,18 +86,30 @@ public class ReportsService {
             return emptyResponse(period);
         }
 
-        Map<String, BigDecimal> incomeByMonth   = new LinkedHashMap<>();
+        Map<String, BigDecimal> incomeByMonth = new LinkedHashMap<>();
         Map<String, BigDecimal> expensesByMonth = new LinkedHashMap<>();
-        Map<String, BigDecimal> savingsByMonth  = new LinkedHashMap<>();
         Map<String, Map<String, BigDecimal>> categoryByMonth = new LinkedHashMap<>();
 
-        // pre-populate every month key so gaps show as zero
+        prepopulateMonthlyData(period, incomeByMonth, expensesByMonth);
+        processExpenses(all, period, incomeByMonth, expensesByMonth, categoryByMonth);
+        Map<String, BigDecimal> savingsByMonth = calculateSavings(period, incomeByMonth, expensesByMonth);
+
+        return assembleResponse(range, period, incomeByMonth, expensesByMonth, savingsByMonth, categoryByMonth);
+    }
+
+    private void prepopulateMonthlyData(List<YearMonth> period, Map<String, BigDecimal> incomeByMonth,
+                                        Map<String, BigDecimal> expensesByMonth) {
         for (YearMonth ym : period) {
             String key = ym.toString();
-            incomeByMonth.put(key,   BigDecimal.ZERO);
+            incomeByMonth.put(key, BigDecimal.ZERO);
             expensesByMonth.put(key, BigDecimal.ZERO);
         }
+    }
 
+    private void processExpenses(List<ExpenseEntity> all, List<YearMonth> period,
+                                  Map<String, BigDecimal> incomeByMonth,
+                                  Map<String, BigDecimal> expensesByMonth,
+                                  Map<String, Map<String, BigDecimal>> categoryByMonth) {
         for (ExpenseEntity e : all) {
             if (e == null || e.getAmount() == null || e.getExpenseDate() == null) continue;
             String key = YearMonth.from(e.getExpenseDate()).toString();
@@ -121,15 +133,27 @@ public class ReportsService {
                         categoryByMonth.get(cat).get(key).add(amt));
             }
         }
+    }
 
-        // savings per month = income – expenses
+    private Map<String, BigDecimal> calculateSavings(List<YearMonth> period,
+                                                     Map<String, BigDecimal> incomeByMonth,
+                                                     Map<String, BigDecimal> expensesByMonth) {
+        Map<String, BigDecimal> savingsByMonth = new LinkedHashMap<>();
         for (YearMonth ym : period) {
             String key = ym.toString();
             savingsByMonth.put(key,
                     incomeByMonth.get(key).subtract(expensesByMonth.get(key)));
         }
+        return savingsByMonth;
+    }
 
+    private Map<String, Object> assembleResponse(String range, List<YearMonth> period,
+                                                 Map<String, BigDecimal> incomeByMonth,
+                                                 Map<String, BigDecimal> expensesByMonth,
+                                                 Map<String, BigDecimal> savingsByMonth,
+                                                 Map<String, Map<String, BigDecimal>> categoryByMonth) {
         // ── aggregate totals ───────────────────────────────────────────────
+        int months = period.size();
         BigDecimal totalIncome   = sum(incomeByMonth.values());
         BigDecimal totalExpenses = sum(expensesByMonth.values());
         BigDecimal totalSaved    = totalIncome.subtract(totalExpenses);

@@ -1,11 +1,12 @@
 package com.example.SpendWise.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "expense_tags", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"expense_id", "tag_id"})
+        @UniqueConstraint(columnNames = {"expense_id", "tag_id"})
 })
 public class ExpenseTagEntity {
 
@@ -13,10 +14,12 @@ public class ExpenseTagEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expense_id", nullable = false)
     private ExpenseEntity expense;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id", nullable = false)
     private TagEntity tag;
@@ -76,7 +79,7 @@ public class ExpenseTagEntity {
         if (!(o instanceof ExpenseTagEntity)) return false;
         ExpenseTagEntity that = (ExpenseTagEntity) o;
         return expense != null && expense.equals(that.expense) &&
-               tag != null && tag.equals(that.tag);
+                tag != null && tag.equals(that.tag);
     }
 
     @Override
